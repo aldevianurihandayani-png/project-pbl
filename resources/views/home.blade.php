@@ -33,7 +33,7 @@
         <a href="/login">Login</a>
         <a href="/register">Register</a>
     </nav>
-
+    <div class="logo">
     <div class="container">
         <div class="hero">
             <h2>Selamat Datang di Sistem Project Based Learning</h2>
