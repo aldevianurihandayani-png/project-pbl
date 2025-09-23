@@ -33,8 +33,7 @@
         <a href="/login">Login</a>
         <a href="/register">Register</a>
     </nav>
-    <div class="logo">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo">
+
 
     <div class="container">
         <div class="hero">
