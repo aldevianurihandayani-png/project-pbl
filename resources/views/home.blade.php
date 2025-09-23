@@ -34,6 +34,8 @@
         <a href="/register">Register</a>
     </nav>
     <div class="logo">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo">
+
     <div class="container">
         <div class="hero">
             <h2>Selamat Datang di Sistem Project Based Learning</h2>
