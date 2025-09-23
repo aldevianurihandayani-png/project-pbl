@@ -20,14 +20,13 @@
             padding: 15px 30px; 
             display: flex; 
             align-items: center; 
-            justify-content: space-between; 
         }
         header .title { 
             font-size: 20px; 
             font-weight: bold; 
         }
         header img { 
-            height: 40px; 
+            height: 45px; 
             margin-right: 15px; 
         }
         nav { 
@@ -49,9 +48,9 @@
             display: flex; 
             justify-content: center; 
             align-items: flex-start; 
-            margin: 50px auto; 
+            margin: 60px auto; 
             max-width: 1000px; 
-            gap: 50px; 
+            gap: 60px; 
         }
         .hero { 
             flex: 1; 
@@ -65,40 +64,45 @@
             line-height: 1.6; 
         }
         .card { 
-            flex: 1; 
+            flex: 0.9; 
             background: #fff; 
-            padding: 40px 30px; 
+            padding: 30px 25px; 
             border-radius: 12px; 
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
         }
         .card h3 { 
             text-align: center; 
             color: #002366; 
-            margin-bottom: 25px; 
+            margin-bottom: 20px; 
+            font-size: 18px;
+        }
+        .card form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
         }
         .card input { 
             width: 100%; 
-            padding: 14px; 
-            margin: 15px 0; 
-            border: none; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
             border-radius: 8px; 
-            background: #f0f0f0; 
-            font-size: 15px;
+            background: #f8f8f8; 
+            font-size: 14px;
         }
         .card input:focus { 
-            outline: 2px solid #002366; 
+            outline: none; 
+            border: 1px solid #002366; 
             background: #fff; 
         }
         .card button { 
-            width: 100%; 
-            padding: 14px; 
+            padding: 12px; 
             background: #002366; 
             color: white; 
             border: none; 
             border-radius: 8px; 
-            font-size: 16px; 
+            font-size: 15px; 
             cursor: pointer; 
-            margin-top: 15px;
+            margin-top: 5px;
         }
         .card button:hover { 
             background: #001a4d; 
@@ -115,10 +119,8 @@
 </head>
 <body>
     <header>
-        <div style="display: flex; align-items: center;">
-            <img src="PBL.png" alt="Logo PBL"> 
-            <span class="title">SISTEM INFORMASI MANAJEMEN PBL</span>
-        </div>
+        <img src="PBL.png" alt="Logo PBL"> 
+        <span class="title">SISTEM INFORMASI MANAJEMEN PBL</span>
     </header>
 
     <nav>
@@ -127,7 +129,6 @@
         <a href="/login">Login</a>
         <a href="/register">Register</a>
     </nav>
-
 
     <div class="container">
         <div class="hero">
