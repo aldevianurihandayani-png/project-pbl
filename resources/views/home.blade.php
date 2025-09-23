@@ -5,27 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem PBL</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
-        header { background: #002366; color: white; padding: 15px; text-align: center; font-size: 22px; font-weight: bold; }
-        nav { background: #003399; text-align: center; padding: 10px; }
-        nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: bold; }
-        nav a:hover { text-decoration: underline; }
-        .container { display: flex; justify-content: center; align-items: flex-start; margin: 40px auto; max-width: 1000px; gap: 40px; }
-        .hero { flex: 1; }
-        .hero h2 { color: #002366; }
-        .hero p { color: #333; }
-        .hero button { margin: 10px 5px; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-blue { background: #002366; color: white; }
-        .btn-green { background: #28a745; color: white; }
-        .card { flex: 1; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card h3 { text-align: center; color: #002366; }
-        .card input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        .card button { width: 100%; padding: 10px; background: #002366; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        footer { background: #002366; color: white; text-align: center; padding: 15px; margin-top: 40px; font-size: 14px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: #f5f7fa; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+        }
+        header { 
+            background: #002366; 
+            color: white; 
+            padding: 15px 30px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
+        header .title { 
+            font-size: 20px; 
+            font-weight: bold; 
+        }
+        header img { 
+            height: 40px; 
+            margin-right: 15px; 
+        }
+        nav { 
+            background: #003399; 
+            text-align: center; 
+            padding: 12px; 
+        }
+        nav a { 
+            color: white; 
+            text-decoration: none; 
+            margin: 0 20px; 
+            font-weight: bold; 
+        }
+        nav a:hover { 
+            text-decoration: underline; 
+        }
+        .container { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            margin: 50px auto; 
+            max-width: 1000px; 
+            gap: 50px; 
+        }
+        .hero { 
+            flex: 1; 
+        }
+        .hero h2 { 
+            color: #002366; 
+            margin-bottom: 20px; 
+        }
+        .hero p { 
+            color: #333; 
+            line-height: 1.6; 
+        }
+        .card { 
+            flex: 1; 
+            background: #fff; 
+            padding: 40px 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+        }
+        .card h3 { 
+            text-align: center; 
+            color: #002366; 
+            margin-bottom: 25px; 
+        }
+        .card input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 15px 0; 
+            border: none; 
+            border-radius: 8px; 
+            background: #f0f0f0; 
+            font-size: 15px;
+        }
+        .card input:focus { 
+            outline: 2px solid #002366; 
+            background: #fff; 
+        }
+        .card button { 
+            width: 100%; 
+            padding: 14px; 
+            background: #002366; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin-top: 15px;
+        }
+        .card button:hover { 
+            background: #001a4d; 
+        }
+        footer { 
+            background: #002366; 
+            color: white; 
+            text-align: center; 
+            padding: 18px; 
+            font-size: 14px; 
+            margin-top: auto; 
+        }
     </style>
 </head>
 <body>
-    <header>SISTEM INFORMASI MANAJEMEN PBL</header>
+    <header>
+        <div style="display: flex; align-items: center;">
+            <img src="PBL.png" alt="Logo PBL"> 
+            <span class="title">SISTEM INFORMASI MANAJEMEN PBL</span>
+        </div>
+    </header>
 
     <nav>
         <a href="/">Home</a>
@@ -44,8 +138,6 @@
                 pada Jurusan Teknologi Informasi, mulai dari pengelolaan kelompok, dosen pembimbing, 
                 hingga penilaian akhir mahasiswa.
             </p>
-            <button class="btn-blue">Masuk ke Sistem</button>
-            <button class="btn-green">Daftar Akun Baru</button>
         </div>
 
         <div class="card">
