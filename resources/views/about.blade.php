@@ -60,6 +60,7 @@
             line-height: 1.6;
             margin-bottom: 15px;
             color: #333;
+            text-align: justify; /* This is the new line */
         }
 
         footer {
@@ -86,19 +87,19 @@
         <div class="content">
             <h1>Tentang Project Based Learning</h1>
             <p>
-                Sistem Informasi Manajemen Project Based Learning (PBL) dirancang untuk mendukung 
-                kegiatan pembelajaran berbasis proyek di Jurusan Teknologi Informasi. 
+                Sistem Informasi Manajemen Project Based Learning (PBL) dirancang untuk mendukung
+                kegiatan pembelajaran berbasis proyek di Jurusan Teknologi Informasi.
             </p>
             <p>
-                Melalui sistem ini, mahasiswa dapat lebih mudah dalam mengelola kelompok, 
+                Melalui sistem ini, mahasiswa dapat lebih mudah dalam mengelola kelompok,
                 mendokumentasikan progres proyek, serta berkomunikasi dengan dosen pembimbing.
             </p>
             <p>
-                Selain itu, sistem ini juga memfasilitasi penilaian akhir mahasiswa secara lebih 
+                Selain itu, sistem ini juga memfasilitasi penilaian akhir mahasiswa secara lebih
                 transparan, terstruktur, dan terintegrasi dengan data akademik yang ada.
             </p>
             <p>
-                Dengan adanya sistem PBL, diharapkan proses pembelajaran menjadi lebih efektif, 
+                Dengan adanya sistem PBL, diharapkan proses pembelajaran menjadi lebih efektif,
                 kolaboratif, dan menghasilkan output yang bermanfaat bagi mahasiswa maupun institusi.
             </p>
         </div>
