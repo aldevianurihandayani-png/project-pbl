@@ -67,7 +67,7 @@ if (isset($_SESSION['username'])) {
             transition: 0.3s;
         }
         .btn-login:hover {
-            background: #023e8a;
+            background: #12417eff;
         }
         .register-link {
             text-align: center;
