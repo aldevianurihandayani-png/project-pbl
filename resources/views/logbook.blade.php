@@ -33,7 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <label>Keterangan:</label><br>
   <textarea name="keterangan" rows="5" cols="50" required></textarea><br><br>
-
   <button type="submit">Simpan Logbook</button>
 </form>
 </body>
