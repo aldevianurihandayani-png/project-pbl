@@ -6,15 +6,56 @@
     <title>Login - Sistem PBL</title>
     <style>
         body {
+            background-color: #f4f7fb;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0077b6, #90e0ef);
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #002366;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+        .navbar h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        .navbar ul li {
+            display: inline;
+        }
+        .navbar ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .navbar ul li a:hover {
+            text-decoration: underline;
+        }
+
+        /* Container Tengah */
+        .container {
+            flex: 1;
+            display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            padding: 40px 20px;
         }
+
+        /* Login Card */
         .login-box {
             background: #fff;
             padding: 40px 30px;
@@ -24,9 +65,11 @@
         }
         .login-box h2 {
             text-align: center;
-            color: #0077b6;
+            color: #002366;
             margin-bottom: 25px;
         }
+
+        /* Error Box */
         .error-box {
             background: #ffe6e6;
             border: 1px solid #ff4d4d;
@@ -36,6 +79,7 @@
             margin-bottom: 15px;
             font-size: 14px;
         }
+
         .login-box input {
             width: 100%;
             padding: 12px;
@@ -45,13 +89,13 @@
             font-size: 15px;
         }
         .login-box input:focus {
-            border-color: #0077b6;
+            border-color: #002366;
             outline: none;
         }
         .login-box button {
             width: 100%;
             padding: 12px;
-            background: #0077b6;
+            background: #002366;
             border: none;
             border-radius: 8px;
             color: white;
@@ -61,7 +105,7 @@
             margin-top: 10px;
         }
         .login-box button:hover {
-            background: #005f8d;
+            background: #001744;
         }
         .extra-links {
             text-align: center;
@@ -69,39 +113,69 @@
             font-size: 14px;
         }
         .extra-links a {
-            color: #0077b6;
+            color: #002366;
             text-decoration: none;
             font-weight: bold;
         }
         .extra-links a:hover {
             text-decoration: underline;
         }
+
+        /* Footer */
+        footer {
+            background-color: #002366;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>Login Sistem PBL</h2>
 
-        @if ($errors->any())
-            <div class="error-box">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    <!-- Navbar -->
+    <div class="navbar">
+        <h2>SISTEM INFORMASI MANAJEMEN PBL</h2>
+        <ul>
+            <li><a href="{{ url('/') }}">Home</a></li>
+            <li><a href="{{ url('/about') }}">About</a></li>
+            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('register') }}">Register</a></li>
+            <li><a href="{{ url('/logbook') }}">Logbook</a></li>
+        </ul>
+    </div>
+
+    <!-- Konten Tengah -->
+    <div class="container">
+        <div class="login-box">
+            <h2>Login Sistem PBL</h2>
+
+            @if ($errors->any())
+                <div class="error-box">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('login.authenticate') }}" method="POST">
+                @csrf
+                <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Masuk</button>
+            </form>
+
+            <div class="extra-links">
+                <p>Belum punya akun? <a href="{{ route('register') }}">Daftar</a></p>
             </div>
-        @endif
-
-        <form action="{{ route('login.authenticate') }}" method="POST">
-            @csrf
-            <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Masuk</button>
-        </form>
-
-        <div class="extra-links">
-            <p>Belum punya akun? <a href="/register">Daftar</a></p>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer>
+        © 2025 Sistem PBL - Jurusan Teknologi Informasi. All rights reserved.
+    </footer>
+
 </body>
 </html>
