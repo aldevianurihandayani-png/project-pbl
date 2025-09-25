@@ -157,17 +157,17 @@
             </p>
         </div>
 
+        <!-- Ubah jadi form login -->
         <div class="card">
-            <h3>Register</h3>
-            <form action="/register" method="POST">
+            <h3>Login</h3>
+            <form action="/login" method="POST">
                 @csrf
-                <input type="text" name="name" placeholder="Nama Lengkap" required>
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email / NIM" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Register</button>
+                <button type="submit">Masuk</button>
             </form>
             <p>
-                Sudah punya akun? <a href="/login">Login</a>
+                Belum punya akun? <a href="/register">Daftar sekarang</a>
             </p>
         </div>
     </div>
