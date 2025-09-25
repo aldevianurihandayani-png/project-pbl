@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\DashboardController;
 
 // Halaman Home
 Route::get('/', function () {
@@ -42,3 +43,9 @@ Route::get('/logbook', [LogbookController::class, 'create'])->name('logbook.crea
 
 // Proses simpan logbook
 Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
+
+// Halaman Dashboard (setelah login)
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware('auth')
+    ->name('dashboard');
+
