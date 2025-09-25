@@ -69,7 +69,12 @@
             background: #fff; 
             padding: 40px 30px; 
             border-radius: 12px; 
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.18);
         }
         .card h3 { 
             text-align: center; 
@@ -103,6 +108,19 @@
         .card button:hover { 
             background: #001a4d; 
         }
+        .card p {
+            text-align:center; 
+            margin-top:15px; 
+            font-size:14px;
+        }
+        .card p a {
+            color:#002366; 
+            font-weight:bold; 
+            text-decoration:none;
+        }
+        .card p a:hover {
+            text-decoration: underline;
+        }
         footer { 
             background: #002366; 
             color: white; 
@@ -129,7 +147,6 @@
         <a href="/logbook">Logbook</a>
     </nav>
 
-
     <div class="container">
         <div class="hero">
             <h2>Selamat Datang di Sistem Project Based Learning</h2>
@@ -149,6 +166,9 @@
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Register</button>
             </form>
+            <p>
+                Sudah punya akun? <a href="/login">Login</a>
+            </p>
         </div>
     </div>
 

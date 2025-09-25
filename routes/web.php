@@ -19,10 +19,10 @@ Route::post('/register', [UserController::class, 'register'])->name('register');
 
 // Halaman Login
 Route::get('/login', [LoginController::class, 'index'])->name('login');
-Route::post('/login', [LoginController::class, 'authenticate']);
+Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
-// Logout
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+// Logout (gunakan POST agar lebih aman)
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Halaman Beranda (setelah login)
 Route::get('/home', function () {
