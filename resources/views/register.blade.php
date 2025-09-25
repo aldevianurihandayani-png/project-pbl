@@ -63,7 +63,7 @@
         /* Register Card */
         .register-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             background: #fff;
             padding: 30px;
             border-radius: 10px;
@@ -76,7 +76,8 @@
             margin-bottom: 20px;
         }
 
-        .register-card input {
+        .register-card input,
+        .register-card select {
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
@@ -143,7 +144,7 @@
     <!-- Konten Tengah -->
     <div class="container">
         <div class="register-card">
-            <h2>Register</h2>
+            <h2>Register Sistem PBL</h2>
 
             {{-- Pesan sukses --}}
             @if(session('success'))
@@ -164,8 +165,17 @@
             <form action="{{ route('register') }}" method="POST">
                 @csrf
                 <input type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required>
+                <input type="text" name="nim" placeholder="NIM / NIP" value="{{ old('nim') }}" required>
+                <input type="text" name="prodi" placeholder="Program Studi" value="{{ old('prodi') }}" required>
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                <select name="role" required>
+                    <option value="">-- Pilih Role --</option>
+                    <option value="mahasiswa">Mahasiswa</option>
+                    <option value="dosen">Dosen Pembimbing</option>
+                    <option value="admin">Admin</option>
+                </select>
                 <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required>
                 <button type="submit">Register</button>
             </form>
 
