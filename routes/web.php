@@ -28,3 +28,6 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/home', function () {
     return view('home');
 })->name('home');
+
+// Halaman Beranda (setelah login)
+Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard')->middleware('auth');
