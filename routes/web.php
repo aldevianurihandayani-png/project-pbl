@@ -3,49 +3,52 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\LogbookController;
-use App\Http\Controllers\DashboardController;
+
+// ==============================
+// Halaman Publik
+// ==============================
 
 // Halaman Home
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 // Halaman About
 Route::get('/about', function () {
     return view('about');
-});
+})->name('about');
 
-// Halaman Register (form register)
+// Halaman Logbook
+Route::get('/logbook', function () {
+    return view('logbook');
+})->name('logbook');
+
+// ==============================
+// Autentikasi
+// ==============================
+
+// Form Register
 Route::get('/register', function () {
     return view('register');
-})->name('register.form');
+})->name('register');
 
 // Proses Register
-Route::post('/register', [UserController::class, 'register'])->name('register');
+Route::post('/register', [UserController::class, 'register'])->name('register.post');
 
-// Halaman Login
+// Form Login
 Route::get('/login', [LoginController::class, 'index'])->name('login');
+
+// Proses Login (ubah namanya supaya sesuai dengan login.blade.php)
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
-// Logout (gunakan POST agar lebih aman)
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Logout
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Halaman Beranda (setelah login)
-Route::get('/home', function () {
-    return view('home');
-})->name('home');
+// ==============================
+// Setelah Login
+// ==============================
 
-// ==================== LOGBOOK ====================
-
-// Tampilkan form logbook
-Route::get('/logbook', [LogbookController::class, 'create'])->name('logbook.create');
-
-// Proses simpan logbook
-Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
-
-// Halaman Dashboard (setelah login)
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
-
+// Dashboard
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
