@@ -82,19 +82,7 @@
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
-        <h2>SISTEM INFORMASI MANAJEMEN PBL</h2>
-        <nav>
-            <a href="{{ route('home') }}">Home</a>
-            <a href="{{ route('about') }}">About</a>
-            <a href="{{ route('login') }}">Login</a>
-            <a href="{{ route('register') }}">Register</a>
-            <a href="{{ route('logbook') }}">Logbook</a>
-        </nav>
-    </header>
-
-    <!-- KONTEN -->
+    <?php include_once 'header.blade.php'; ?>
     <div class="container">
         <div class="content">
             <h1>Tentang Project Based Learning</h1>
