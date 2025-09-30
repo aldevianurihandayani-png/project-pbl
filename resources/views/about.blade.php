@@ -80,6 +80,7 @@
             font-size: 14px;
         }
     </style>
+    @vite(['resources/css/header.css'])
 </head>
 <body>
     <?php include_once 'header.blade.php'; ?>
