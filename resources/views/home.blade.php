@@ -1,179 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem PBL</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background: #f5f7fa; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh; 
-        }
-        header { 
-            background: #002366; 
-            color: white; 
-            padding: 15px 30px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-        }
-        header .title { 
-            font-size: 20px; 
-            font-weight: bold; 
-        }
-        header img { 
-            height: 40px; 
-            margin-right: 15px; 
-        }
-        nav { 
-            background: #003399; 
-            text-align: center; 
-            padding: 12px; 
-        }
-        nav a { 
-            color: white; 
-            text-decoration: none; 
-            margin: 0 20px; 
-            font-weight: bold; 
-        }
-        nav a:hover { 
-            text-decoration: underline; 
-        }
-        .container { 
-            flex: 1; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            margin: 50px auto; 
-            max-width: 1000px; 
-            gap: 50px; 
-        }
-        .hero { 
-            flex: 1; 
-        }
-        .hero h2 { 
-            color: #002366; 
-            margin-bottom: 20px; 
-        }
-        .hero p { 
-            color: #333; 
-            line-height: 1.6; 
-        }
-        .card { 
-            flex: 1; 
-            background: #fff; 
-            padding: 40px 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.18);
-        }
-        .card h3 { 
-            text-align: center; 
-            color: #002366; 
-            margin-bottom: 25px; 
-        }
-        .card input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 15px 0; 
-            border: none; 
-            border-radius: 8px; 
-            background: #f0f0f0; 
-            font-size: 15px;
-        }
-        .card input:focus { 
-            outline: 2px solid #002366; 
-            background: #fff; 
-        }
-        .card button { 
-            width: 100%; 
-            padding: 14px; 
-            background: #002366; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            margin-top: 15px;
-        }
-        .card button:hover { 
-            background: #001a4d; 
-        }
-        .card p {
-            text-align:center; 
-            margin-top:15px; 
-            font-size:14px;
-        }
-        .card p a {
-            color:#002366; 
-            font-weight:bold; 
-            text-decoration:none;
-        }
-        .card p a:hover {
-            text-decoration: underline;
-        }
-        footer { 
-            background: #002366; 
-            color: white; 
-            text-align: center; 
-            padding: 18px; 
-            font-size: 14px; 
-            margin-top: auto; 
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIMAP Politala</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .navbar-custom {
+      background-color: #002868; /* biru tua */
+    }
+    .navbar-custom .nav-link,
+    .navbar-custom .navbar-brand {
+      color: #fff;
+    }
+    .navbar-custom .nav-link:hover {
+      color: #d1d5db; /* abu hover */
+    }
+    .brand-subtitle {
+      font-size: .8rem;
+      display: block;
+      line-height: 1;
+    }
+    footer {
+      margin-top: auto; /* selalu di bawah */
+      background: #002868;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      font-size: .9rem;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div style="display: flex; align-items: center;">
-            <img src="PBL.png" alt="Logo PBL"> 
-            <span class="title">SISTEM INFORMASI MANAJEMEN PBL</span>
-        </div>
-    </header>
 
-    <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-        <a href="/logbook">Logbook</a>
-    </nav>
+<!-- Header -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid px-4">
+    <!-- kiri -->
+    <a class="navbar-brand fw-bold text-uppercase" href="#">
+      SISTEM INFORMASI MANAJEMEN PBL
+    </a>
 
-    <div class="container">
-        <div class="hero">
-            <h2>Selamat Datang di Sistem Project Based Learning</h2>
-            <p>
-                Sistem ini dirancang untuk mendukung pengelolaan kegiatan Project Based Learning (PBL) 
-                pada Jurusan Teknologi Informasi, mulai dari pengelolaan kelompok, dosen pembimbing, 
-                hingga penilaian akhir mahasiswa.
-            </p>
-        </div>
+    <!-- toggler mobile -->
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <!-- Ubah jadi form login -->
-        <div class="card">
-            <h3>Login</h3>
-            <form action="/login" method="POST">
-                @csrf
-                <input type="email" name="email" placeholder="Email / NIM" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Masuk</button>
-            </form>
-            <p>
-                Belum punya akun? <a href="/register">Daftar sekarang</a>
-            </p>
-        </div>
+    <!-- kanan -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav fw-semibold">
+        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Logbook</a></li>
+      </ul>
     </div>
+  </div>
+</nav>
 
-    <footer>
-        © 2025 Sistem PBL - Jurusan Teknologi Informasi. All rights reserved.
-    </footer>
+<!-- Konten -->
+<div class="container my-5 mt-5">
+  <div class="row align-items-center">
+    <div class="col-lg-5">
+      <h5 class="fw-bold text-primary mb-2">Selamat Datang di Sistem Project Based Learning</h5>
+      <p>
+        Sistem ini dirancang untuk mendukung pengelolaan kegiatan Project Based Learning (PBL) pada
+        Jurusan Teknologi Informasi, mulai dari pengelolaan kelompok, dosen pembimbing,
+        hingga penilaian akhir mahasiswa.
+      </p>
+      <div class="d-flex gap-3 mt-3">
+        <!-- ke form login -->
+        <a href="login.php" class="btn btn-primary px-4">Mulai Sekarang</a>
+        <a href="#" class="btn btn-outline-primary px-4">Pelajari Lebih Lanjut</a>
+      </div>
+    </div>
+    <div class="col-lg-6 text-center">
+      <img src="gambar-ilustrasi.png" class="img-fluid rounded-3 shadow-sm" alt="Ilustrasi PBL">
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  © 2025 Sistem PBL - Jurusan Teknologi Informasi. All rights reserved.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
