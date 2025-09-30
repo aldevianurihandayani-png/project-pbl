@@ -9,6 +9,9 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* biar footer selalu di bawah */
         }
 
         header {
@@ -37,10 +40,11 @@
         }
 
         .container {
+            flex: 1; /* isi penuh biar footer turun */
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 50px;
+            padding: 50px 20px;
         }
 
         .content {
@@ -60,15 +64,15 @@
             line-height: 1.6;
             margin-bottom: 15px;
             color: #333;
-            text-align: justify; /* This is the new line */
+            text-align: justify;
         }
 
         footer {
             background-color: #003399;
             color: white;
             text-align: center;
-            padding: 15px;
-            margin-top: 40px;
+            padding: 25px 15px; /* lebih lega */
+            font-size: 14px;
         }
     </style>
 </head>

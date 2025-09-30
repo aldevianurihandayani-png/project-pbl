@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Sistem PBL</title>
+    <title>Login - Sistem PBL</title>
     <style>
         body {
             background-color: #f4f7fb;
@@ -24,29 +24,24 @@
             align-items: center;
             color: #fff;
         }
-
         .navbar h2 {
             margin: 0;
             font-size: 20px;
             font-weight: bold;
         }
-
         .navbar ul {
             list-style: none;
             display: flex;
             gap: 20px;
         }
-
         .navbar ul li {
             display: inline;
         }
-
         .navbar ul li a {
             color: #fff;
             text-decoration: none;
             font-weight: bold;
         }
-
         .navbar ul li a:hover {
             text-decoration: underline;
         }
@@ -60,61 +55,69 @@
             padding: 40px 20px;
         }
 
-        /* Register Card */
-        .register-card {
-            width: 100%;
-            max-width: 420px;
+        /* Login Card */
+        .login-box {
             background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+            width: 360px;
         }
-
-        .register-card h2 {
+        .login-box h2 {
             text-align: center;
             color: #002366;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        .register-card input,
-        .register-card select {
-            width: 100%;
-            padding: 12px;
+        /* Error Box */
+        .error-box {
+            background: #ffe6e6;
+            border: 1px solid #ff4d4d;
+            color: #b30000;
+            padding: 10px;
+            border-radius: 8px;
             margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
             font-size: 14px;
         }
 
-        .register-card button {
+        .login-box input {
             width: 100%;
             padding: 12px;
-            background-color: #002366;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .login-box input:focus {
+            border-color: #002366;
+            outline: none;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #002366;
             border: none;
-            border-radius: 6px;
-            color: #fff;
+            border-radius: 8px;
+            color: white;
             font-size: 16px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
         }
-
-        .register-card button:hover {
-            background-color: #001744;
+        .login-box button:hover {
+            background: #001744;
         }
-
-        .register-card p {
+        .extra-links {
             text-align: center;
             margin-top: 15px;
             font-size: 14px;
         }
-
-        .register-card p a {
+        .extra-links a {
             color: #002366;
             text-decoration: none;
             font-weight: bold;
         }
-
-        .register-card p a:hover {
+        .extra-links a:hover {
             text-decoration: underline;
         }
 
@@ -143,17 +146,11 @@
 
     <!-- Konten Tengah -->
     <div class="container">
-        <div class="register-card">
-            <h2>Register Sistem PBL</h2>
+        <div class="login-box">
+            <h2>Login Sistem PBL</h2>
 
-            {{-- Pesan sukses --}}
-            @if(session('success'))
-                <p style="color: green; text-align:center;">{{ session('success') }}</p>
-            @endif
-
-            {{-- Error validasi --}}
             @if ($errors->any())
-                <div style="color: red; margin-bottom:15px;">
+                <div class="error-box">
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -162,24 +159,16 @@
                 </div>
             @endif
 
-            <form action="{{ route('register') }}" method="POST">
+            <form action="{{ route('login.authenticate') }}" method="POST">
                 @csrf
-                <input type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required>
-                <input type="text" name="nim" placeholder="NIM / NIP" value="{{ old('nim') }}" required>
-                <input type="text" name="prodi" placeholder="Program Studi" value="{{ old('prodi') }}" required>
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
-                <select name="role" required>
-                    <option value="">-- Pilih Role --</option>
-                    <option value="mahasiswa">Mahasiswa</option>
-                    <option value="dosen">Dosen Pembimbing</option>
-                    <option value="admin">Admin</option>
-                </select>
                 <input type="password" name="password" placeholder="Password" required>
-                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required>
-                <button type="submit">Register</button>
+                <button type="submit">Masuk</button>
             </form>
 
-            <p>Sudah punya akun? <a href="{{ route('login') }}">Login</a></p>
+            <div class="extra-links">
+                <p>Belum punya akun? <a href="{{ route('register') }}">Daftar</a></p>
+            </div>
         </div>
     </div>
 
