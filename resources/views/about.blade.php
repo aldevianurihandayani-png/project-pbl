@@ -80,10 +80,9 @@
             font-size: 14px;
         }
     </style>
-    @vite(['resources/css/header.css'])
 </head>
 <body>
-    <?php include_once 'header.blade.php'; ?>
+     @include('header')
     <div class="container">
         <div class="content">
             <h1>Tentang Project Based Learning</h1>
