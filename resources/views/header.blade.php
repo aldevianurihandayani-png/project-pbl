@@ -19,7 +19,7 @@
         <nav>
             <a href="{{ url('/') }}">Home</a>
             <a href="{{ url('/about') }}">Tentang</a>
-            <a href="{{ url('/logbook') }}">Catatan</a>
+            <a href="{{ url('/logbook') }}">Logbook</a>
             <a href="{{ url('/group') }}">Kelompok</a>
             <a href="{{ url('/login') }}">Login</a>
         </nav>
