@@ -1,146 +1,187 @@
-/* ==== SIDEBAR LAYOUT (SCOPED) ==== */
-/* Atur tinggi header sekali, supaya posisi sidebar tidak tabrakan */
-:root{
-  --header-height: 120px;   /* sesuaikan dengan header-mu */
+/* ====== PAGE GLOBAL VARIABEL ====== */
+:root {
+  --blue:#083a86;
+  --accent:#1e63ff;
+  --text:#0b1220;
+  --muted:#566073;
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --border:#e8edf5;
+  --footer:#0a1853;
+  --footer-text:#ffffff;
 }
 
-/* Semua style DI-BATASI pada .with-sidebar */
-.with-sidebar{
-  /* font untuk area konten/sidebar saja, tidak menyentuh header */
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  min-height: 100vh;
-  display: block;
-  position: relative;
+/* =========================================================
+   ABOUT PAGE
+   ========================================================= */
+.about-page {
+  margin: 0;
+  padding: 0;
+  font: 15px/1.6 "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
 }
 
-/* ================= SIDEBAR ================= */
-.with-sidebar .side-nav{
-  position: fixed;                     /* tetap di tempat saat scroll */
-  top: calc(var(--header-height) + 20px); /* di bawah header */
-  left: 40px;
-  display: flex;
-  flex-direction: column;
-  padding: 24px 10px;
-  background-color: #fff;
-  height: calc(100vh - (var(--header-height) + 40px));
-  width: 140px;
-  z-index: 900;                        /* < header(1000) supaya tidak menutup header */
-  border: 1px solid #e6e8ef;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+.about-page .container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
 }
 
-.with-sidebar .side-nav a,
-.with-sidebar .side-nav .dropbtn{
-  color: #00008b;
-  padding: 16px 0;
-  text-decoration: none;
-  font-weight: 700;
-  cursor: pointer;
-  background: none;
-  border: none;
-  text-align: left;
-  font-size: 16px;
-}
-
-/* ================= DROPDOWN ================= */
-.with-sidebar .dropdown{ position: relative; }
-
-.with-sidebar .dropdown-content{
-  display: none;
-  position: absolute;
-  left: 140px;            /* sejajar dengan lebar sidebar */
-  top: 0;
-  background-color: #fff;
-  min-width: 180px;
-  border: 1px solid #02008b;
-  z-index: 920;
-  flex-direction: column;
-  opacity: 0;
-  transition: opacity .2s ease, visibility .2s ease;
-  visibility: hidden;
+.about-page .content {
+  background: var(--card);
   border-radius: 8px;
-  box-shadow: 0 10px 24px rgba(2,18,64,.08);
+  padding: 30px 28px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.with-sidebar .dropdown-content a{
-  color: #09008b;
-  padding: 10px 12px;
-  text-decoration: none;
-  display: block;
-  transition: background-color .15s ease;
-  font-weight: 600;
-}
-.with-sidebar .dropdown-content a:hover{ background-color: #f5f7fb; }
-
-.with-sidebar .dropdown:hover .dropdown-content,
-.with-sidebar .dropdown-content:hover{
-  display: block;
-  opacity: 1;
-  visibility: visible;
+.about-page .content h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 18px;
 }
 
-/* area “penangkap hover” agar dropdown tak mudah hilang */
-.with-sidebar .dropdown::after{
-  content:"";
-  position:absolute;
-  top:0; left:0; right:-200px; bottom:0;
-  z-index: 910;
-  pointer-events:none;
-}
-.with-sidebar .dropdown:hover::after{ pointer-events:auto; }
-
-/* ================= MAIN CONTENT ================= */
-.with-sidebar .main-content{
-  /* beri ruang di kiri untuk sidebar & di atas untuk header */
-  margin-left: 200px;  /* 140px sidebar + margin aman */
-  padding: calc(var(--header-height) + 24px) 24px 24px 24px;
-  min-height: 100vh;
-  overflow: hidden;
+.about-page .content p {
+  margin: 14px 0;
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.7;
+  text-align: justify;
 }
 
-/* ================= FOOTER ================= */
-.with-sidebar + footer{
+.about-page footer {
+  margin-top: 40px;
+  background: var(--footer);
+  color: var(--footer-text);
   text-align: center;
-  padding: 12px;
-  background-color: #fff;
-  border-top: 4px solid #19008b;
+  padding: 16px 10px;
   font-size: 14px;
+  border-top: 3px solid var(--blue);
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 992px){
-  :root{ --header-height: 110px; }
-  .with-sidebar .side-nav{
-    left: 16px; width: 130px;
-  }
-  .with-sidebar .dropdown-content{ left: 130px; }
-  .with-sidebar .main-content{
-    margin-left: 176px;
-    padding-top: calc(var(--header-height) + 16px);
-  }
+/* =========================================================
+   HOME PAGE
+   ========================================================= */
+.home-page {
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 "Helvetica Neue", Arial, sans-serif;
 }
-@media (max-width: 640px){
-  /* Pada layar kecil, jadikan sidebar di atas konten */
-  .with-sidebar .side-nav{
-    position: static;
-    width: 100%;
-    height: auto;
-    margin: 12px 0 0;
-    border-radius: 10px;
-    left: 0;
-  }
-  .with-sidebar .dropdown-content{
-    position: static;
-    left: 0;
-    top: auto;
-    width: 100%;
-    min-width: 0;
-    border: 1px solid #e6e8ef;
-    box-shadow: none;
-  }
-  .with-sidebar .main-content{
-    margin-left: 0;
-    padding: 16px;
-  }
+
+.home-page .container {
+  max-width: 1100px;
+  margin: 32px auto 48px;
+  padding: 0 22px;
+}
+
+.home-page .hero {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 10px 24px rgba(2,18,64,.06);
+}
+
+.home-page .hero h1 {
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0 0 12px;
+}
+
+.home-page .hero p {
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+
+.home-page .hero .actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.home-page .btn {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.home-page .btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(30,99,255,.25);
+}
+
+.home-page .btn-ghost {
+  background: #eef4ff;
+  color: #1d2b4f;
+  border-color: #cfe0ff;
+}
+
+.home-page .hero .figure {
+  text-align: right;
+}
+
+.home-page .hero .figure img {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.home-page .features {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.home-page .feature {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 8px 18px rgba(2,18,64,.05);
+}
+
+.home-page .feature h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.home-page .feature p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.home-page footer {
+  margin-top: 40px;
+  background: var(--footer);
+  color: var(--footer-text);
+  text-align: center;
+  padding: 16px 10px;
+  font-size: 14px;
+  border-top: 3px solid var(--blue);
+}
+
+/* responsive */
+@media (max-width: 992px) {
+  .home-page .hero { grid-template-columns: 1fr; text-align: left; }
+  .home-page .hero .figure { text-align: center; order: -1; }
+  .home-page .features { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .home-page .features { grid-template-columns: 1fr; }
+  .home-page .hero h1 { font-size: 26px; }
 }
