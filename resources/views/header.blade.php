@@ -17,11 +17,11 @@
     <!-- Bar Menu -->
     <div class="header-menu">
         <nav>
-            <a href="{{ url('/') }}">Home</a>
-            <a href="{{ url('/about') }}">Tentang</a>
-            <a href="{{ url('logbook/index.blade.php') }}">Logbook</a>
-            <a href="{{ url('/group') }}">Kelompok</a>
-            <a href="{{ url('/login') }}">Login</a>
+            <a href="{{ url('/') }}">HOME</a>
+            <a href="{{ url('/about') }}">TENTANG</a>
+            <a href="{{ url('logbook/index.blade.php') }}">LOGBOOK</a>
+            <a href="{{ url('/group') }}">KELOMPOK</a>
+            <a href="{{ url('/login') }}">LOGIN</a>
         </nav>
     </div>
 </header>
