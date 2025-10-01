@@ -7,7 +7,7 @@
 
 /* Gunakan Inter; fallback ke system fonts */
 html, body{
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font:"16px/1.5 'Inter', -apple-system,'Helvetica Neue', Arial, sans-serif;"
 }
 
 /* Sticky di atas layar */
