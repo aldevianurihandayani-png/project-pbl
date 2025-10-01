@@ -131,19 +131,7 @@
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
-    <div class="navbar">
-        <h2>SISTEM INFORMASI MANAJEMEN PBL</h2>
-        <ul>
-            <li><a href="{{ url('/') }}">Home</a></li>
-            <li><a href="{{ url('/about') }}">About</a></li>
-            <li><a href="{{ route('login') }}">Login</a></li>
-            <li><a href="{{ route('register') }}">Register</a></li>
-            <li><a href="{{ url('/logbook') }}">Logbook</a></li>
-        </ul>
-    </div>
-
+@include('header')
     <!-- Konten Tengah -->
     <div class="container">
         <div class="login-box">
