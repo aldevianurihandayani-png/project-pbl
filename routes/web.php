@@ -52,3 +52,8 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
+
+use App\Http\Controllers\MahasiswaController;
+
+Route::resource('mahasiswa', MahasiswaController::class);
+// sekarang /mahasiswa, /mahasiswa/create, /mahasiswa/{id}/edit, dst.
