@@ -1,98 +1,85 @@
 /* ====== HEADER PBL (dua layer) ====== */
 :root{
-  --blue-top: #0a1853;   /* bar judul (lebih gelap) */
-  --blue-menu:#083a86;   /* bar menu (lebih terang) */
-  --text-white:#ffffff;
+  --blue-top:#0a1853;     /* bar judul (gelap) */
+  --blue-menu:#083a86;    /* bar menu  (lebih terang) */
+  --text-white:#fff;
+}
+
+/* Gunakan Inter; fallback ke system fonts */
+html, body{
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* Sticky di atas layar */
-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+header{ position:sticky; top:0; z-index:1000; }
 
 /* ====== Top bar: judul situs ====== */
-.header-top {
-  background: var(--blue-top);
-  color: var(--text-white);
+.header-top{
+  background:var(--blue-top); color:var(--text-white);
 }
-
-.header-top .brand {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 12px 24px;
-  font-weight: 800;
-  font-size: 24px;      /* besar seperti contoh */
-  letter-spacing: .5px;
+.header-top .brand{
+  max-width:1200px;
+  margin:0 auto;
+  padding:14px 24px;
+  font-weight:800;
+  font-size:32px;         /* 👉 lebih besar & mantap */
+  letter-spacing:.3px;
 }
 
 /* ====== Menu bar: navigasi tengah ====== */
-.header-menu {
-  background: var(--blue-menu);
-  color: var(--text-white);
-  box-shadow: inset 0 -1px rgba(255,255,255,.12);
+.header-menu{
+  background:var(--blue-menu); color:var(--text-white);
+  box-shadow:inset 0 -1px rgba(255,255,255,.12);
+}
+.header-menu nav{
+  max-width:1200px;
+  margin:0 auto;
+  padding:12px 24px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:48px;               /* 👉 jarak menu sedikit diperlebar */
 }
 
-.header-menu nav {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 10px 24px;
-  display: flex;
-  justify-content: center;   /* menu di tengah */
-  align-items: center;
-  gap: 36px;                 /* jarak antar menu */
-}
-
-/* jika pakai <ul><li>, hilangkan bullet & jadikan horizontal */
+/* (opsional) jika pakai <ul><li> */
 .header-menu nav ul{
-  list-style: none;
-  display: flex;
-  gap: 36px;
-  margin: 0;
-  padding: 0;
+  list-style:none; display:flex; gap:48px; margin:0; padding:0;
 }
-.header-menu nav li{ display: contents; } /* biar <a> yang di-style */
+.header-menu nav li{ display:contents; }
 
 /* Link menu */
 .header-menu nav a,
 .header-menu nav a:visited{
-  color: var(--text-white);
-  text-decoration: none;
-  font-weight: 800;          /* tebal */
-  font-size: 22px;           /* besar seperti gambar */
-  padding: 8px 4px;
-  position: relative;
-  transition: opacity .2s ease;
+  color:var(--text-white);
+  text-decoration:none;
+  font-weight:800;
+  font-size:20px;         /* 👉 lebih proporsional dari 22px */
+  line-height:1.2;
+  letter-spacing:.2px;
+  padding:8px 4px;
+  position:relative;
+  transition:opacity .2s ease;
 }
 
-/* underline animasi saat hover/active */
+/* underline animasi */
 .header-menu nav a::after{
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 0;
-  height: 3px;
-  background: var(--text-white);
-  border-radius: 2px;
-  transition: width .25s ease;
+  content:"";
+  position:absolute; left:0; bottom:-6px;
+  width:0; height:3px; background:var(--text-white);
+  border-radius:2px; transition:width .25s ease;
 }
 .header-menu nav a:hover::after,
-.header-menu nav a.active::after{ width: 100%; }
-
-/* efek hover */
-.header-menu nav a:hover{ opacity: .95; }
+.header-menu nav a.active::after{ width:100%; }
+.header-menu nav a:hover{ opacity:.95; }
 
 /* ====== Responsif ====== */
 @media (max-width: 992px){
-  .header-top .brand{ font-size: 20px; }
-  .header-menu nav{ gap: 22px; }
-  .header-menu nav a{ font-size: 18px; }
+  .header-top .brand{ font-size:26px; padding:12px 20px; }
+  .header-menu nav{ gap:28px; padding:10px 20px; }
+  .header-menu nav a{ font-size:18px; }
 }
 @media (max-width: 576px){
-  .header-menu nav{
-    flex-wrap: wrap;
-    row-gap: 10px;
-  }
+  .header-top .brand{ font-size:22px; }
+  .header-menu nav{ flex-wrap:wrap; gap:16px; row-gap:10px; }
+  .header-menu nav a{ font-size:16px; }
 }
