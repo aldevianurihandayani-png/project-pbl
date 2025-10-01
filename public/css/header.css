@@ -76,7 +76,7 @@ header{ position:sticky; top:0; z-index:1000; }
 @media (max-width: 992px){
   .header-top .brand{ font-size:26px; padding:12px 20px; }
   .header-menu nav{ gap:28px; padding:10px 20px; }
-  .header-menu nav a{ font-size:18px; }
+  .header-menu nav a{ font-size:10px; }
 }
 @media (max-width: 576px){
   .header-top .brand{ font-size:22px; }
