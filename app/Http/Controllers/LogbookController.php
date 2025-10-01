@@ -2,47 +2,81 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Logbook;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class LogbookController extends Controller
 {
-    // Tampilkan form logbook
-    public function create()
+    public function index()
     {
-        return view('logbook');
+        $logbooks = Logbook::latest()->paginate(10);
+        return view('logbook.index', compact('logbooks'));
     }
 
-    // Simpan data logbook ke database (dengan foto dokumentasi)
+    public function create()
+    {
+        return view('logbook.create');
+    }
+
     public function store(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'tanggal' => 'required|date',
-            'aktivitas' => 'required|string|max:255',
-            'keterangan' => 'required|string',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // maksimal 2 MB
+        $data = $request->validate([
+            'tanggal'    => ['required','date'],
+            'aktivitas'  => ['required','string','max:255'],
+            'keterangan' => ['required','string'],
+            'foto'       => ['nullable','image','mimes:jpg,jpeg,png','max:2048'], // 2MB
         ]);
 
-        $fotoPath = null;
-
-        // Jika ada upload foto
         if ($request->hasFile('foto')) {
-            // Simpan ke storage/app/public/logbook
-            $fotoPath = $request->file('foto')->store('logbook', 'public');
+            // simpan ke storage/app/public/logbook
+            $data['foto'] = $request->file('foto')->store('logbook', 'public');
         }
 
-        // Simpan ke database (tabel: logbook)
-        DB::table('logbook')->insert([
-            'tanggal'     => $request->tanggal,
-            'aktivitas'   => $request->aktivitas,
-            'keterangan'  => $request->keterangan,
-            'foto'        => $fotoPath, // simpan path foto kalau ada
-            'created_at'  => now(),
-            'updated_at'  => now(),
+        Logbook::create($data);
+
+        return redirect()->route('logbook.index')->with('success','Logbook berhasil disimpan.');
+    }
+
+    public function show(Logbook $logbook)
+    {
+        return view('logbook.show', compact('logbook'));
+    }
+
+    public function edit(Logbook $logbook)
+    {
+        return view('logbook.edit', compact('logbook'));
+    }
+
+    public function update(Request $request, Logbook $logbook)
+    {
+        $data = $request->validate([
+            'tanggal'    => ['required','date'],
+            'aktivitas'  => ['required','string','max:255'],
+            'keterangan' => ['required','string'],
+            'foto'       => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
         ]);
 
-        // Redirect kembali ke form dengan pesan sukses
-        return redirect()->route('logbook.create')->with('success', 'Logbook berhasil disimpan!');
+        if ($request->hasFile('foto')) {
+            // hapus foto lama (jika ada)
+            if ($logbook->foto) {
+                Storage::disk('public')->delete($logbook->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('logbook', 'public');
+        }
+
+        $logbook->update($data);
+
+        return redirect()->route('logbook.index')->with('success','Logbook berhasil diperbarui.');
+    }
+
+    public function destroy(Logbook $logbook)
+    {
+        if ($logbook->foto) {
+            Storage::disk('public')->delete($logbook->foto);
+        }
+        $logbook->delete();
+
+        return redirect()->route('logbook.index')->with('success','Logbook berhasil dihapus.');
     }
 }
