@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Informasi Manajemen PBL</title>
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('header.css') }}">
 </head>
 <body>
 
@@ -19,7 +19,7 @@
         <nav>
             <a href="{{ url('/') }}">Home</a>
             <a href="{{ url('/about') }}">Tentang</a>
-            <a href="{{ url('/logbook') }}">Logbook</a>
+            <a href="{{ url('logbook/index.blade.php') }}">Logbook</a>
             <a href="{{ url('/group') }}">Kelompok</a>
             <a href="{{ url('/login') }}">Login</a>
         </nav>

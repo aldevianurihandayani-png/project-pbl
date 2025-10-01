@@ -38,33 +38,7 @@
 </head>
 <body>
 
-<!-- Header -->
-<nav class="navbar navbar-expand-lg navbar-custom">
-  <div class="container-fluid px-4">
-    <!-- kiri -->
-    <a class="navbar-brand fw-bold text-uppercase" href="{{ route('home') }}">
-      SISTEM INFORMASI MANAJEMEN PBL
-    </a>
-
-    <!-- toggler mobile -->
-    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- kanan -->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav fw-semibold">
-        <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">About</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('logbook') }}">Logbook</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Konten -->
+@include('header')
 <div class="container my-5 mt-5">
   <div class="row align-items-center">
     <div class="col-lg-5">
