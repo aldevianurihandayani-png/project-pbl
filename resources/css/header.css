@@ -1,48 +1,89 @@
-/* resources/css/header.css */
-body {
+/* Reset dasar */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Warna header */
 header {
     background-color: #0B2B6B; /* Biru tua */
     color: white;
-    padding: 10px 0;
+    padding: 15px 0;
 }
 
+/* Navbar container */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
+/* Logo */
 .logo {
     font-weight: bold;
     font-size: 18px;
+    letter-spacing: 1px;
 }
 
-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+/* Menu navigasi */
+nav {
     display: flex;
-    gap: 20px;
+    gap: 30px; /* Jarak antar menu */
 }
 
-nav ul li {
-    display: inline;
-}
-
-nav ul li a {
+nav a {
     text-decoration: none;
     color: white;
     font-weight: bold;
-    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+    transition: color 0.3s;
 }
 
-nav ul li a:hover {
+/* Hover warna */
+nav a:hover {
     color: #FFD700; /* Kuning saat hover */
+}
+
+/* Efek garis bawah animasi */
+nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0%;
+    height: 2px;
+    background-color: #FFD700;
+    transition: width 0.3s;
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+/* Responsive (mobile) */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    nav a {
+        width: 100%;
+    }
 }

@@ -8,19 +8,17 @@
 
 </head>
 <body>
-    <header>
-        <div class="navbar">
-            <div class="logo">SISTEM INFORMASI MANAJEMEN PBL</div>
-            <nav>
-                <ul>
-                    <li><a href="{{ url('home') }}">Home</a></li>
-                    <li><a href="{{ url('about') }}">Tentang</a></li>
-                    <li><a href="{{ url('logbook') }}">Catatan</a></li>
-                    <li><a href="{{ url('group') }}">Kelompok</a></li>
-                    <li><a href="{{ url('login') }}">Login</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+   <header>
+    <div class="navbar">
+        <div class="logo">SISTEM INFORMASI MANAJEMEN PBL</div>
+        <nav>
+            <a href="{{ url('home') }}">Home</a>
+            <a href="{{ url('about') }}">Tentang</a>
+            <a href="{{ url('logbook') }}">Catatan</a>
+            <a href="{{ url('group') }}">Kelompok</a>
+            <a href="{{ url('login') }}">Login</a>
+        </nav>
+    </div>
+</header>
 </body>
 </html>
