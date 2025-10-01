@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LogbookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
@@ -22,6 +23,8 @@ Route::get('/about', function () {
 Route::get('/logbook', function () {
     return view('logbook');
 })->name('logbook');
+Route::post('/logbook', [LogbookController::class, 'logbook'])->name('logbook.post');
+
 
 // ==============================
 // Autentikasi
