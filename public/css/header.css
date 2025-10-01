@@ -1,8 +1,15 @@
 /* ====== HEADER PBL (dua layer) ====== */
-:root{
-  --blue-top: #0a1853;   /* bar judul (lebih gelap) */
-  --blue-menu:#083a86;   /* bar menu (lebih terang) */
-  --text-white:#ffffff;
+:root {
+  --blue-top: #0a1853;     /* bar judul (gelap) */
+  --blue-menu: #083a86;    /* bar menu (lebih terang) */
+  --text-white: #fff;
+}
+
+/* Gunakan Helvetica Neue sebagai utama */
+html, body {
+  font: 15px/1.5 "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 /* Sticky di atas layar */
@@ -21,78 +28,89 @@ header {
 .header-top .brand {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 24px;
-  font-weight: 800;
-  font-size: 24px;      /* besar seperti contoh */
-  letter-spacing: .5px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 22px;       /* 👉 lebih kecil dan rapi */
+  letter-spacing: 0.2px;
 }
 
 /* ====== Menu bar: navigasi tengah ====== */
 .header-menu {
   background: var(--blue-menu);
   color: var(--text-white);
-  box-shadow: inset 0 -1px rgba(255,255,255,.12);
+  box-shadow: inset 0 -1px rgba(255, 255, 255, .12);
 }
 
 .header-menu nav {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10px 24px;
+  padding: 8px 20px;
   display: flex;
-  justify-content: center;   /* menu di tengah */
+  justify-content: center;
   align-items: center;
-  gap: 36px;                 /* jarak antar menu */
+  gap: 28px;               /* 👉 jarak menu cukup */
 }
-
-/* jika pakai <ul><li>, hilangkan bullet & jadikan horizontal */
-.header-menu nav ul{
-  list-style: none;
-  display: flex;
-  gap: 36px;
-  margin: 0;
-  padding: 0;
-}
-.header-menu nav li{ display: contents; } /* biar <a> yang di-style */
 
 /* Link menu */
 .header-menu nav a,
-.header-menu nav a:visited{
+.header-menu nav a:visited {
   color: var(--text-white);
   text-decoration: none;
-  font-weight: 800;          /* tebal */
-  font-size: 22px;           /* besar seperti gambar */
-  padding: 8px 4px;
+  font-weight: 600;        /* 👉 tidak setebal 800 */
+  font-size: 16px;         /* 👉 lebih kecil, proporsional */
+  line-height: 1.3;
+  letter-spacing: 0.2px;
+  padding: 6px 4px;
   position: relative;
   transition: opacity .2s ease;
 }
 
-/* underline animasi saat hover/active */
-.header-menu nav a::after{
+/* underline animasi */
+.header-menu nav a::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -6px;
+  bottom: -4px;
   width: 0;
-  height: 3px;
+  height: 2px;
   background: var(--text-white);
   border-radius: 2px;
   transition: width .25s ease;
 }
-.header-menu nav a:hover::after,
-.header-menu nav a.active::after{ width: 100%; }
 
-/* efek hover */
-.header-menu nav a:hover{ opacity: .95; }
+.header-menu nav a:hover::after,
+.header-menu nav a.active::after {
+  width: 100%;
+}
+.header-menu nav a:hover {
+  opacity: .9;
+}
 
 /* ====== Responsif ====== */
-@media (max-width: 992px){
-  .header-top .brand{ font-size: 20px; }
-  .header-menu nav{ gap: 22px; }
-  .header-menu nav a{ font-size: 18px; }
+@media (max-width: 992px) {
+  .header-top .brand {
+    font-size: 20px;
+    padding: 8px 16px;
+  }
+  .header-menu nav {
+    gap: 20px;
+    padding: 8px 16px;
+  }
+  .header-menu nav a {
+    font-size: 15px;
+  }
 }
-@media (max-width: 576px){
-  .header-menu nav{
+
+@media (max-width: 576px) {
+  .header-top .brand {
+    font-size: 18px;
+  }
+  .header-menu nav {
     flex-wrap: wrap;
-    row-gap: 10px;
+    gap: 14px;
+    row-gap: 8px;
+  }
+  .header-menu nav a {
+    font-size: 14px;
   }
 }
