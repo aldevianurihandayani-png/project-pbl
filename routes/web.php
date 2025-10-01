@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LogbookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
@@ -18,10 +19,14 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-// Halaman Logbook
-Route::get('/logbook', function () {
-    return view('logbook');
-})->name('logbook');
+// Halaman daftar logbook
+Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
+
+// Form tambah logbook
+Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');
+
+// Simpan logbook
+Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
 
 // ==============================
 // Autentikasi
@@ -52,3 +57,8 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
+
+use App\Http\Controllers\MahasiswaController;
+
+Route::resource('mahasiswa', MahasiswaController::class);
+// sekarang /mahasiswa, /mahasiswa/create, /mahasiswa/{id}/edit, dst.
