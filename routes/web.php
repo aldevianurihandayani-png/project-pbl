@@ -19,12 +19,14 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-// Halaman Logbook
-Route::get('/logbook', function () {
-    return view('logbook');
-})->name('logbook');
-Route::post('/logbook', [LogbookController::class, 'logbook'])->name('logbook.post');
+// Halaman daftar logbook
+Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
 
+// Form tambah logbook
+Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');
+
+// Simpan logbook
+Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
 
 // ==============================
 // Autentikasi
