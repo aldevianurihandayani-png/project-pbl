@@ -14,8 +14,9 @@
             min-height: 100vh; /* biar footer selalu di bawah */
         }
 
+        /* HEADER */
         header {
-            background-color: #003399;
+            background-color: #002868; /* biru tua */
             padding: 15px 40px;
             display: flex;
             justify-content: space-between;
@@ -25,22 +26,25 @@
 
         header h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         nav a {
             color: white;
             text-decoration: none;
             margin-left: 20px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         nav a:hover {
             text-decoration: underline;
         }
 
+        /* KONTEN */
         .container {
-            flex: 1; /* isi penuh biar footer turun */
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -67,26 +71,18 @@
             text-align: justify;
         }
 
+        /* FOOTER */
         footer {
-            background-color: #003399;
+            background-color: #002868;
             color: white;
             text-align: center;
-            padding: 25px 15px; /* lebih lega */
+            padding: 20px 15px;
             font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h2>SISTEM INFORMASI MANAJEMEN PBL</h2>
-        <nav>
-            <a href="/home">Home</a>
-            <a href="/about">About</a>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-        </nav>
-    </header>
-
+     @include('header')
     <div class="container">
         <div class="content">
             <h1>Tentang Project Based Learning</h1>
@@ -109,6 +105,7 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer>
         © 2025 Sistem PBL - Jurusan Teknologi Informasi. All rights reserved.
     </footer>

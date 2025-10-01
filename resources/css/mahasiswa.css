@@ -1,0 +1,160 @@
+/* Layout umum */
+:root{
+  --primary:#1e63ff;
+  --success:#06c755;
+  --danger:#e31717;
+  --warning:#f0c419;
+  --bg:#f8f9fb;
+  --card:#ffffff;
+  --text:#0b0f1a;
+  --muted:#6b7280;
+  --border:#eceff4;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.page{
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.page-title{
+  font-size: 44px;
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(2,18,64,0.06);
+  overflow: hidden;
+}
+
+.card-header{
+  display:flex;
+  justify-content:flex-end;
+  padding: 20px 28px 0 28px;
+}
+
+/* Alert */
+.alert{
+  margin: 16px 28px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+.alert.success{ background: var(--success); }
+
+/* Tabel */
+.table-wrap{ padding: 16px 28px 6px; }
+
+.table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead th{
+  background: #f6f8fb;
+  color: #444e5b;
+  text-align: left;
+  font-size: 14px;
+  letter-spacing:.3px;
+  padding: 18px 16px;
+}
+
+.table tbody td{
+  padding: 18px 16px;
+  border-top: 1px solid var(--border);
+  color: #4b5563;
+}
+
+.text-right{ text-align:right; }
+
+.empty{
+  text-align:center;
+  padding: 40px 0;
+  color: var(--muted);
+}
+
+/* Chips (aksi) */
+.actions{ white-space: nowrap; }
+.inline{ display:inline; }
+
+.chip{
+  display:inline-block;
+  border:0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  margin-left:10px;
+  text-decoration:none;
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  transition: transform .05s ease, filter .15s ease;
+}
+.chip:active{ transform: translateY(1px); }
+.chip-blue{ background:#5aa5ff; }
+.chip-yellow{ background:#f2c51c; color:#1a1a1a; }
+.chip-red{ background:#e01919; }
+
+/* Buttons */
+.btn{
+  display:inline-block;
+  border:0;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 800;
+  text-decoration:none;
+  box-shadow: 0 8px 18px rgba(30,99,255,.25);
+}
+.btn-primary{ background: var(--primary); color:#fff; }
+.btn-light{ background:#eef2ff; color:#1e2a4a; box-shadow:none; }
+.btn + .btn{ margin-left: 8px; }
+
+/* Forms */
+.form{ padding: 24px 28px; }
+.grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 18px 24px;
+}
+
+label{ font-weight:700; color:#1f2937; display:flex; flex-direction:column; gap:8px; }
+
+input[type="text"]{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 14px;
+  font-size:15px;
+  outline:none;
+  background:#fff;
+}
+
+.error{ color:#dc2626; margin-top:6px; display:block; }
+
+.form-actions{
+  margin-top: 22px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+
+.detail{ padding: 24px 28px; color:#374151; }
+
+/* Pagination (Laravel default) */
+.pagination{ padding: 0 28px 22px; }
+.pagination .flex{
+  gap:8px;
+}
