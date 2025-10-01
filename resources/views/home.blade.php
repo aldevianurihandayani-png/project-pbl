@@ -42,7 +42,7 @@
 <nav class="navbar navbar-expand-lg navbar-custom">
   <div class="container-fluid px-4">
     <!-- kiri -->
-    <a class="navbar-brand fw-bold text-uppercase" href="#">
+    <a class="navbar-brand fw-bold text-uppercase" href="{{ route('home') }}">
       SISTEM INFORMASI MANAJEMEN PBL
     </a>
 
@@ -54,11 +54,11 @@
     <!-- kanan -->
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav fw-semibold">
-        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-        <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Register</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Logbook</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('logbook') }}">Logbook</a></li>
       </ul>
     </div>
   </div>
@@ -76,8 +76,8 @@
       </p>
       <div class="d-flex gap-3 mt-3">
         <!-- ke form login -->
-        <a href="login.php" class="btn btn-primary px-4">Mulai Sekarang</a>
-        <a href="#" class="btn btn-outline-primary px-4">Pelajari Lebih Lanjut</a>
+        <a href="{{ route('login') }}" class="btn btn-primary px-4">Mulai Sekarang</a>
+        <a href="{{ route('about') }}" class="btn btn-outline-primary px-4">Pelajari Lebih Lanjut</a>
       </div>
     </div>
     <div class="col-lg-6 text-center">

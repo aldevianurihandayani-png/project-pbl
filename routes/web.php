@@ -4,30 +4,51 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 
+// ==============================
+// Halaman Publik
+// ==============================
+
 // Halaman Home
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 // Halaman About
 Route::get('/about', function () {
     return view('about');
-});
+})->name('about');
+
+// Halaman Logbook
+Route::get('/logbook', function () {
+    return view('logbook');
+})->name('logbook');
+
+// ==============================
+// Autentikasi
+// ==============================
+
+// Form Register
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
 
 // Proses Register
-Route::post('/register', [UserController::class, 'register'])->name('register');
+Route::post('/register', [UserController::class, 'register'])->name('register.post');
 
-// Halaman Login
+// Form Login
 Route::get('/login', [LoginController::class, 'index'])->name('login');
-Route::post('/login', [LoginController::class, 'authenticate']);
+
+// Proses Login (ubah namanya supaya sesuai dengan login.blade.php)
+Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
 // Logout
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Halaman Beranda (setelah login)
-Route::get('/home', function () {
-    return view('home');
-})->name('home');
+// ==============================
+// Setelah Login
+// ==============================
 
-// Halaman Beranda (setelah login)
-Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard')->middleware('auth');
+// Dashboard
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
