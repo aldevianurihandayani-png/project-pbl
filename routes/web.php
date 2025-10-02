@@ -46,14 +46,11 @@ Route::get('/register', function () {
 // Proses Register
 Route::post('/register', [UserController::class, 'register'])->name('register.post');
 
-// Form Login
-Route::get('/login', [LoginController::class, 'index'])->name('login');
-
-// Proses Login (ubah namanya supaya sesuai dengan login.blade.php)
+//Login
+Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
-// Logout
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ==============================
 // Setelah Login

@@ -4,48 +4,47 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class LoginController extends Controller
 {
-    // Tampilkan form login
-    public function index()
+    public function showLogin()
     {
-        return view('login'); // resources/views/login.blade.php
+        return view('login'); // file Blade yang kamu kirim
     }
 
-    // Proses login
     public function authenticate(Request $request)
     {
-        // Validasi input
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $data = $request->validate([
+            'email'    => ['required','email'],
             'password' => ['required'],
+            'role'     => ['required', Rule::in([
+                'mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','koor_ti','admin'
+            ])],
         ]);
 
-        // Coba login
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            // arahkan ke dashboard
-            return redirect()->intended('/dashboard');
+        // Coba login pakai email & password
+        if (!Auth::attempt(['email'=>$data['email'], 'password'=>$data['password']], true)) {
+            return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
-        // Kalau gagal login
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        // Cek kecocokan role
+        $user = Auth::user();
+        if ($user->role !== $data['role']) {
+            Auth::logout();
+            return back()->withErrors(['role' => 'Role tidak sesuai dengan akun.'])->withInput();
+        }
+
+        // Sukses
+        $request->session()->regenerate();
+        return redirect()->route('home')->with('success','Login berhasil');
     }
 
-    // Proses logout
     public function logout(Request $request)
     {
         Auth::logout();
-
-        // hapus session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        // kembali ke halaman login
-        return redirect()->route('login');
+        return redirect()->route('home');
     }
 }
