@@ -1,113 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tentang PBL</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* biar footer selalu di bawah */
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tentang – Sistem PBL</title>
 
-        /* HEADER */
-        header {
-            background-color: #002868; /* biru tua */
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
+  <style>
+    :root{
+      --navy:#001744;
+      --bg:#f4f7fb;
+      --text:#0f172a;
+      --muted:#475569;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: Arial, Helvetica, sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; flex-direction:column;
+    }
 
-        header h2 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+    /* Section wrapper */
+    .about-wrap{
+      max-width: 920px;
+      width: 100%;
+      margin: 42px auto 28px auto;
+      padding: 0 20px;
+    }
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: 600;
-        }
+    .about-title{
+      margin:0 0 18px 0;
+      font-size: 32px;
+      line-height: 1.25;
+      color: var(--navy);
+      font-weight: 800;
+      text-align:left;
+    }
 
-        nav a:hover {
-            text-decoration: underline;
-        }
+    .about-card{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.06);
+      padding: 26px 24px;
+    }
 
-        /* KONTEN */
-        .container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 50px 20px;
-        }
+    .about-card p{
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
 
-        .content {
-            max-width: 700px;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+    .about-card b{
+      color: var(--text);
+    }
 
-        .content h1 {
-            color: #003399;
-            margin-bottom: 15px;
-        }
-
-        .content p {
-            line-height: 1.6;
-            margin-bottom: 15px;
-            color: #333;
-            text-align: justify;
-        }
-
-        /* FOOTER */
-        footer {
-            background-color: #002868;
-            color: white;
-            text-align: center;
-            padding: 20px 15px;
-            font-size: 14px;
-        }
-    </style>
+    footer{
+      margin-top:auto;
+      background:var(--navy);
+      color:#fff;
+      text-align:center;
+      padding:14px;
+      font-size:.95rem;
+    }
+  </style>
 </head>
 <body>
-     @include('header')
-    <div class="container">
-        <div class="content">
-            <h1>Tentang Project Based Learning</h1>
-            <p>
-                Sistem Informasi Manajemen Project Based Learning (PBL) dirancang untuk mendukung
-                kegiatan pembelajaran berbasis proyek di Jurusan Teknologi Informasi.
-            </p>
-            <p>
-                Melalui sistem ini, mahasiswa dapat lebih mudah dalam mengelola kelompok,
-                mendokumentasikan progres proyek, serta berkomunikasi dengan dosen pembimbing.
-            </p>
-            <p>
-                Selain itu, sistem ini juga memfasilitasi penilaian akhir mahasiswa secara lebih
-                transparan, terstruktur, dan terintegrasi dengan data akademik yang ada.
-            </p>
-            <p>
-                Dengan adanya sistem PBL, diharapkan proses pembelajaran menjadi lebih efektif,
-                kolaboratif, dan menghasilkan output yang bermanfaat bagi mahasiswa maupun institusi.
-            </p>
-        </div>
-    </div>
 
-    <!-- FOOTER -->
-    <footer>
-        © 2025 Sistem PBL - Jurusan Teknologi Informasi. All rights reserved.
-    </footer>
+  {{-- Navbar / header yang sudah kamu punya --}}
+  @include('header')
+
+  <main class="about-wrap">
+    <h1 class="about-title">Tentang Sistem PBL</h1>
+
+    <div class="about-card">
+      <p>
+        <b>Sistem Informasi Manajemen Project Based Learning (PBL)</b> adalah platform
+        digital yang mendukung proses pembelajaran berbasis proyek di Jurusan Teknologi Informasi.
+      </p>
+      <p>
+        Sistem ini dirancang untuk mempermudah <b>mahasiswa</b>, <b>dosen pembimbing</b>,
+        <b>dosen penguji</b>, serta <b>koordinator</b> dalam mengelola kegiatan PBL,
+        mulai dari pembentukan kelompok, pencatatan logbook, pengaturan milestone,
+        hingga penilaian akhir.
+      </p>
+      <p>
+        Dengan adanya sistem ini, proses monitoring, evaluasi, dan penjaminan mutu
+        dapat dilakukan lebih <b>transparan</b>, <b>terstruktur</b>, dan <b>efisien</b>.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 Sistem PBL - Jurusan Teknologi Informasi. All rights reserved.
+  </footer>
 </body>
 </html>
