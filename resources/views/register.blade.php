@@ -24,25 +24,21 @@
             align-items: center;
             color: #fff;
         }
-        .navbar h2 {
-            margin: 0;
-            font-size: 20px;
+        .navbar .brand {
             font-weight: bold;
+            font-size: 18px;
+            color: white;
         }
-        .navbar ul {
-            list-style: none;
+        .navbar nav {
             display: flex;
             gap: 20px;
         }
-        .navbar ul li {
-            display: inline;
-        }
-        .navbar ul li a {
+        .navbar nav a {
             color: #fff;
             text-decoration: none;
             font-weight: bold;
         }
-        .navbar ul li a:hover {
+        .navbar nav a:hover {
             text-decoration: underline;
         }
 
@@ -65,20 +61,17 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
         }
-
         .register-card img.logo {
             display: block;
             margin: 0 auto 12px;
-            width: 55px; /* ukuran logo kecil */
+            width: 55px;
             height: auto;
         }
-
         .register-card h2 {
             color: #001744;
             margin-bottom: 20px;
             font-size: 18px;
         }
-
         .register-card input,
         .register-card select {
             width: 100%;
@@ -88,7 +81,6 @@
             border-radius: 6px;
             font-size: 14px;
         }
-
         .register-card button {
             width: 100%;
             padding: 12px;
@@ -103,7 +95,6 @@
         .register-card button:hover {
             background-color: #001133;
         }
-
         .register-card p {
             text-align: center;
             margin-top: 15px;
@@ -131,14 +122,14 @@
 
     <!-- Navbar -->
     <div class="navbar">
-        <h2>SISTEM INFORMASI MANAJEMEN PBL</h2>
-        <ul>
-            <li><a href="{{ url('/') }}">Home</a></li>
-            <li><a href="{{ url('/about') }}">About</a></li>
-            <li><a href="{{ route('login') }}">Login</a></li>
-            <li><a href="{{ route('register') }}">Register</a></li>
-            <li><a href="{{ url('/logbook') }}">Logbook</a></li>
-        </ul>
+        <div class="brand">SIMAP Politala</div>
+        <nav>
+            <a href="{{ url('/') }}">Home</a>
+            <a href="{{ url('/about') }}">Tentang</a>
+            <a href="{{ route('register') }}">Register Eksternal</a>
+            <a href="{{ url('/contact') }}">Contact</a>
+            <a href="{{ route('login') }}">Login</a>
+        </nav>
     </div>
 
     <!-- Konten Tengah -->
