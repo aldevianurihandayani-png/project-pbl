@@ -17,36 +17,31 @@
 
         /* Navbar */
         .navbar {
-            background-color: #002366;
+            background-color: #001744;
             padding: 15px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: #fff;
         }
-
         .navbar h2 {
             margin: 0;
             font-size: 20px;
             font-weight: bold;
         }
-
         .navbar ul {
             list-style: none;
             display: flex;
             gap: 20px;
         }
-
         .navbar ul li {
             display: inline;
         }
-
         .navbar ul li a {
             color: #fff;
             text-decoration: none;
             font-weight: bold;
         }
-
         .navbar ul li a:hover {
             text-decoration: underline;
         }
@@ -68,12 +63,20 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .register-card img.logo {
+            display: block;
+            margin: 0 auto 12px;
+            width: 55px; /* ukuran logo kecil */
+            height: auto;
         }
 
         .register-card h2 {
-            text-align: center;
-            color: #002366;
+            color: #001744;
             margin-bottom: 20px;
+            font-size: 18px;
         }
 
         .register-card input,
@@ -89,7 +92,7 @@
         .register-card button {
             width: 100%;
             padding: 12px;
-            background-color: #002366;
+            background-color: #001744;
             border: none;
             border-radius: 6px;
             color: #fff;
@@ -97,9 +100,8 @@
             cursor: pointer;
             font-weight: bold;
         }
-
         .register-card button:hover {
-            background-color: #001744;
+            background-color: #001133;
         }
 
         .register-card p {
@@ -107,20 +109,18 @@
             margin-top: 15px;
             font-size: 14px;
         }
-
         .register-card p a {
-            color: #002366;
+            color: #001744;
             text-decoration: none;
             font-weight: bold;
         }
-
         .register-card p a:hover {
             text-decoration: underline;
         }
 
         /* Footer */
         footer {
-            background-color: #002366;
+            background-color: #001744;
             color: #fff;
             text-align: center;
             padding: 15px;
@@ -144,7 +144,11 @@
     <!-- Konten Tengah -->
     <div class="container">
         <div class="register-card">
-            <h2>Register Sistem PBL</h2>
+
+            {{-- Logo kecil --}}
+            <img src="{{ asset('assets/PBL.png') }}" alt="Logo PBL" class="logo">
+
+            <h2>Sistem Informasi Manajemen PBL</h2>
 
             {{-- Pesan sukses --}}
             @if(session('success'))
@@ -153,7 +157,7 @@
 
             {{-- Error validasi --}}
             @if ($errors->any())
-                <div style="color: red; margin-bottom:15px;">
+                <div style="color: red; margin-bottom:15px; text-align:left;">
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -168,12 +172,17 @@
                 <input type="text" name="nim" placeholder="NIM / NIP" value="{{ old('nim') }}" required>
                 <input type="text" name="prodi" placeholder="Program Studi" value="{{ old('prodi') }}" required>
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
+
                 <select name="role" required>
                     <option value="">-- Pilih Role --</option>
-                    <option value="mahasiswa">Mahasiswa</option>
-                    <option value="dosen">Dosen Pembimbing</option>
-                    <option value="admin">Admin</option>
+                    <option value="mahasiswa"         {{ old('role')=='mahasiswa'?'selected':'' }}>Mahasiswa</option>
+                    <option value="dosen_pembimbing"  {{ old('role')=='dosen_pembimbing'?'selected':'' }}>Dosen Pembimbing</option>
+                    <option value="dosen_penguji"     {{ old('role')=='dosen_penguji'?'selected':'' }}>Dosen Penguji</option>
+                    <option value="koor_pbl"          {{ old('role')=='koor_pbl'?'selected':'' }}>Koordinator PBL</option>
+                    <option value="koor_ti"           {{ old('role')=='koor_ti'?'selected':'' }}>Koordinator TI</option>
+                    <option value="admin"             {{ old('role')=='admin'?'selected':'' }}>Admin</option>
                 </select>
+
                 <input type="password" name="password" placeholder="Password" required>
                 <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required>
                 <button type="submit">Register</button>
