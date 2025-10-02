@@ -42,7 +42,7 @@
         <nav>
             <a href="{{ url('/') }}">Home</a>
             <a href="{{ url('/about') }}">Tentang</a>
-            <a href="{{ url('/register-eksternal') }}">Register Eksternal</a>
+            <a href="{{ route('register') }}">Register Eksternal</a>
             <a href="{{ url('/contact') }}">Contact</a>
             <a href="{{ route('login') }}">Login</a>
         </nav>
