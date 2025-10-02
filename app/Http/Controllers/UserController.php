@@ -13,6 +13,6 @@ class UserController extends Controller
             'email' => 'required',
             'password' => 'required'
         ]);
-        return 'home';
+         return redirect()->route('home')
     }
 }
