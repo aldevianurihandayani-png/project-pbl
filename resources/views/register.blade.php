@@ -159,7 +159,7 @@
 
             <form action="{{ route('register') }}" method="POST">
                 @csrf
-                <input type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required>
+                <input type="text" name="nama" placeholder="Nama Lengkap" value="{{ old('name') }}" required>
                 <input type="text" name="nim" placeholder="NIM / NIP" value="{{ old('nim') }}" required>
                 <input type="text" name="prodi" placeholder="Program Studi" value="{{ old('prodi') }}" required>
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
