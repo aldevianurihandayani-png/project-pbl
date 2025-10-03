@@ -19,7 +19,7 @@ class LoginController extends Controller
             'email'    => ['required','email'],
             'password' => ['required'],
             'role'     => ['required', Rule::in([
-                'mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','koor_ti','admin'
+                'mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','jaminan_mutu','admin'
             ])],
         ]);
 
