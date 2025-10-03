@@ -17,7 +17,7 @@ class UserController extends Controller
                 'dosen_pembimbing',
                 'admin',
                 'mahasiswa',
-                'koor_ti',
+                'jaminan_mutu',
                 'koor_pbl',
                 'dosen_penguji',
             ])],
