@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="{{ asset('css/mahasiswa.css') }}">
 </head>
 <body>
-    @include('header')
+  @include('header')
+
   <div class="page">
     <h1 class="page-title">DAFTAR MAHASISWA</h1>
 
@@ -18,6 +19,9 @@
 
       @if(session('success'))
         <div class="alert success">{{ session('success') }}</div>
+      @endif
+      @if(session('error'))
+        <div class="alert error">{{ session('error') }}</div>
       @endif
 
       <div class="table-wrap">
@@ -33,34 +37,40 @@
             </tr>
           </thead>
           <tbody>
-            @forelse ($mahasiswas as $idx => $mhs)
+            @forelse ($mahasiswa as $idx => $mhs)
               <tr>
-                <td>{{ $mahasiswas->firstItem() + $idx }}</td>
+                <td>{{ $mahasiswa->firstItem() + $idx }}</td>
                 <td>{{ $mhs->nim }}</td>
                 <td>{{ $mhs->nama }}</td>
                 <td>{{ $mhs->angkatan }}</td>
                 <td>{{ $mhs->no_hp }}</td>
                 <td class="text-right actions">
-                  <a href="{{ route('mahasiswa.show',$mhs) }}" class="chip chip-blue">View</a>
-                  <a href="{{ route('mahasiswa.edit',$mhs) }}" class="chip chip-yellow">Edit</a>
-                  <form action="{{ route('mahasiswa.destroy',$mhs) }}" method="POST" class="inline">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="chip chip-red" onclick="return confirm('Hapus mahasiswa ini?')">Delete</button>
+                  {{-- Hapus tombol View jika belum ada route show --}}
+                  {{-- <a href="{{ route('mahasiswa.show', $mhs) }}" class="chip chip-blue">View</a> --}}
+
+                  <a href="{{ route('mahasiswa.edit', $mhs) }}" class="chip chip-yellow">Edit</a>
+
+                  <form action="{{ route('mahasiswa.destroy', $mhs) }}" method="POST" class="inline"
+                        onsubmit="return confirm('Hapus mahasiswa ini?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="chip chip-red">Delete</button>
                   </form>
                 </td>
               </tr>
             @empty
-              <tr><td colspan="6" class="empty">Belum ada data.</td></tr>
+              <tr>
+                <td colspan="6" class="empty">Belum ada data.</td>
+              </tr>
             @endforelse
           </tbody>
         </table>
       </div>
 
       <div class="pagination">
-        {{ $mahasiswas->links() }}
+        {{ $mahasiswa->links() }}
       </div>
     </div>
   </div>
-
 </body>
 </html>

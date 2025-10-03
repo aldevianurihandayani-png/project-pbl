@@ -168,7 +168,7 @@
                     <option value="dosen_pembimbing">Dosen Pembimbing</option>
                     <option value="dosen_penguji">Dosen Penguji</option>
                     <option value="koor_pbl">Koordinator PBL</option>
-                    <option value="koor_ti">Koordinator TI</option>
+                    <option value="jaminan_mutu">Jaminan Mutu</option>
                     <option value="admin">Admin</option>
                 </select>
 

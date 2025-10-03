@@ -1,10 +1,18 @@
 <?php
-session_start();
 
-// Hapus semua session
-session_unset();
-session_destroy();
+namespace App\Http\Controllers;
 
-// Arahkan kembali ke halaman beranda (index.php)
-header("Location: index.php");
-exit();
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class LoginController extends Controller
+{
+    public function logout(Request $request)
+    {
+        Auth::logout();                                // keluar dari sesi user
+        $request->session()->invalidate();            // hapus session
+        $request->session()->regenerateToken();       // regenerate CSRF token
+
+        return redirect('/'); // arahkan ke halaman utama (home)
+    }
+}

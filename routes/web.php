@@ -64,4 +64,9 @@ Route::get('/dashboard', function () {
 Route::resource('mahasiswa', MahasiswaController::class);
 // sekarang /mahasiswa, /mahasiswa/create, /mahasiswa/{id}/edit, dst.
 
-
+Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+Route::get('/mahasiswa/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create'); // opsional
+Route::get('/mahasiswa/{mahasiswa}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit'); // opsional
+Route::put('/mahasiswa/{mahasiswa:nim}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
+Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+Route::delete('/mahasiswa/{mahasiswa:nim}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
