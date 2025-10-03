@@ -61,7 +61,12 @@
             padding: 40px 30px;
             border-radius: 12px;
             box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-            width: 360px;
+            width: 380px;
+            text-align: center;
+        }
+        .login-box img {
+            max-width: 80px;
+            margin-bottom: 15px;
         }
         .login-box h2 {
             text-align: center;
@@ -78,8 +83,10 @@
             border-radius: 8px;
             margin-bottom: 15px;
             font-size: 14px;
+            text-align: left;
         }
 
+        .login-box select,
         .login-box input {
             width: 100%;
             padding: 12px;
@@ -88,6 +95,7 @@
             border-radius: 8px;
             font-size: 15px;
         }
+        .login-box select:focus,
         .login-box input:focus {
             border-color: #002366;
             outline: none;
@@ -123,7 +131,7 @@
 
         /* Footer */
         footer {
-            background-color: #002366;
+            background-color: #001744;
             color: #fff;
             text-align: center;
             padding: 15px;
@@ -132,10 +140,14 @@
 </head>
 <body>
 @include('header')
+
     <!-- Konten Tengah -->
     <div class="container">
         <div class="login-box">
-            <h2>Login Sistem PBL</h2>
+            <!-- Tambahkan logo -->
+            <img src="{{ asset('assets/PBL.png') }}" alt="Logo PBL">
+
+            <h2>Sistem Informasi Manajemen PBL</h2>
 
             @if ($errors->any())
                 <div class="error-box">
@@ -149,9 +161,21 @@
 
             <form action="{{ route('login.authenticate') }}" method="POST">
                 @csrf
+                <!-- Pilih Role -->
+                <select name="role" required>
+                    <option value="">-- Pilih Jenis User --</option>
+                    <option value="mahasiswa">Mahasiswa</option>
+                    <option value="dosen_pembimbing">Dosen Pembimbing</option>
+                    <option value="dosen_penguji">Dosen Penguji</option>
+                    <option value="koor_pbl">Koordinator PBL</option>
+                    <option value="koor_ti">Koordinator TI</option>
+                    <option value="admin">Admin</option>
+                </select>
+
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Masuk</button>
+
+                <button type="submit">Login</button>
             </form>
 
             <div class="extra-links">

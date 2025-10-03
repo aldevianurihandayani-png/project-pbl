@@ -4,6 +4,8 @@ use App\Http\Controllers\LogbookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\ContactController; 
 
 // ==============================
 // Halaman Publik
@@ -18,6 +20,10 @@ Route::get('/', function () {
 Route::get('/about', function () {
     return view('about');
 })->name('about');
+
+// Halaman Contact
+Route::get('/contact', fn() => view('contact'))->name('contact');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 // Halaman daftar logbook
 Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
@@ -40,14 +46,11 @@ Route::get('/register', function () {
 // Proses Register
 Route::post('/register', [UserController::class, 'register'])->name('register.post');
 
-// Form Login
-Route::get('/login', [LoginController::class, 'index'])->name('login');
-
-// Proses Login (ubah namanya supaya sesuai dengan login.blade.php)
+//Login
+Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
-// Logout
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ==============================
 // Setelah Login
@@ -57,8 +60,6 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
-
-use App\Http\Controllers\MahasiswaController;
 
 Route::resource('mahasiswa', MahasiswaController::class);
 // sekarang /mahasiswa, /mahasiswa/create, /mahasiswa/{id}/edit, dst.
