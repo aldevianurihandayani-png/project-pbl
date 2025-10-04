@@ -4,127 +4,75 @@ namespace App\Http\Controllers;
 
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 
 class MahasiswaController extends Controller
 {
-    // ====== INDEX ======
+    // Tampilkan semua data
     public function index(Request $request)
     {
-        $q = trim($request->query('q', ''));
-
         $query = Mahasiswa::query();
-        if ($q !== '') {
-            $query->where(function ($sub) use ($q) {
-                $sub->where('nim', 'like', "%{$q}%")
-                    ->orWhere('nama', 'like', "%{$q}%")
-                    ->orWhere('angkatan', 'like', "%{$q}%")
-                    ->orWhere('no_hp', 'like', "%{$q}%");
-            });
+
+        if ($search = $request->get('search')) {
+            $query->where('nim', 'like', "%$search%")
+                  ->orWhere('nama', 'like', "%$search%")
+                  ->orWhere('angkatan', 'like', "%$search%")
+                  ->orWhere('no_hp', 'like', "%$search%");
         }
 
-        $mahasiswa = $query->orderByDesc('created_at')
-            ->paginate(10)
-            ->appends(['q' => $q]);
-
-        return view('mahasiswa.index', compact('mahasiswa', 'q'));
+        $mahasiswa = $query->orderBy('angkatan', 'desc')->get();
+        return view('mahasiswa.index', compact('mahasiswa', 'search'));
     }
 
-    // ====== CREATE ======
+    // Form tambah
     public function create()
     {
         return view('mahasiswa.create');
     }
 
-    // ====== STORE ======
+    // Simpan data baru
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nim'      => ['required', 'string', 'max:50', 'unique:mahasiswa,nim'],
-            'nama'     => ['required', 'string', 'max:150'],
-            'angkatan' => ['required', 'regex:/^\d{4}$/'],
-            'no_hp'    => ['required', 'regex:/^[0-9+\-\s]{6,20}$/'],
-        ], [
-            'nim.required'      => 'NIM wajib diisi',
-            'nim.unique'        => 'NIM sudah terdaftar',
-            'nama.required'     => 'Nama wajib diisi',
-            'angkatan.required' => 'Angkatan wajib diisi',
-            'angkatan.regex'    => 'Angkatan harus 4 digit tahun (mis. 2024)',
-            'no_hp.required'    => 'No HP wajib diisi',
-            'no_hp.regex'       => 'Format No HP tidak valid',
+            'nim' => 'required|string|max:15|unique:mahasiswa,nim',
+            'nama' => 'required|string|max:100',
+            'angkatan' => 'required|digits:4',
+            'no_hp' => 'nullable|string|max:15',
         ]);
 
         Mahasiswa::create($validated);
 
-        return redirect()
-            ->route('mahasiswa.index')
-            ->with('success', 'Data mahasiswa berhasil ditambahkan.');
+        return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil ditambahkan.');
     }
 
-    // ====== EDIT ======
-    // Route model binding: {mahasiswa:nim}
-    public function edit(Mahasiswa $mahasiswa)
+    // Form edit
+    public function edit($nim)
     {
-        return view('mahasiswa.edit', compact('mahasiswa'));
+        $mhs = Mahasiswa::findOrFail($nim);
+        return view('mahasiswa.edit', compact('mhs'));
     }
 
-    // ====== UPDATE ======
-    // Route model binding: {mahasiswa:nim}
-    public function update(Request $request, Mahasiswa $mahasiswa)
+    // Update data
+    public function update(Request $request, $nim)
     {
+        $mhs = Mahasiswa::findOrFail($nim);
+
         $validated = $request->validate([
-            'nim'      => [
-                'required', 'string', 'max:50',
-                Rule::unique('mahasiswa', 'nim')->ignore($mahasiswa->nim, 'nim'),
-            ],
-            'nama'     => ['required', 'string', 'max:150'],
-            'angkatan' => ['required', 'regex:/^\d{4}$/'],
-            'no_hp'    => ['required', 'regex:/^[0-9+\-\s]{6,20}$/'],
-        ], [
-            'nim.required'      => 'Semua kolom wajib diisi.',
-            'nama.required'     => 'Semua kolom wajib diisi.',
-            'angkatan.required' => 'Semua kolom wajib diisi.',
-            'no_hp.required'    => 'Semua kolom wajib diisi.',
-            'angkatan.regex'    => 'Angkatan harus 4 digit tahun (mis. 2024)',
-            'no_hp.regex'       => 'Format No HP tidak valid',
-            'nim.unique'        => 'NIM baru sudah terdaftar.',
+            'nama' => 'required|string|max:100',
+            'angkatan' => 'required|digits:4',
+            'no_hp' => 'nullable|string|max:15',
         ]);
 
-        $oldNim = $mahasiswa->nim;
+        $mhs->update($validated);
 
-        DB::beginTransaction();
-        try {
-            // update field biasa
-            $mahasiswa->nama     = $validated['nama'];
-            $mahasiswa->angkatan = $validated['angkatan'];
-            $mahasiswa->no_hp    = $validated['no_hp'];
-
-            // jika NIM berubah (update primary key)
-            if ($oldNim !== $validated['nim']) {
-                $mahasiswa->nim = $validated['nim'];
-            }
-
-            $mahasiswa->save();
-            DB::commit();
-
-            return redirect()
-                ->route('mahasiswa.index')
-                ->with('success', 'Data mahasiswa berhasil diperbarui.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal menyimpan perubahan: ' . $e->getMessage());
-        }
+        return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil diperbarui.');
     }
 
-    // ====== DESTROY ======
-    // Route model binding: {mahasiswa:nim}
-    public function destroy(Mahasiswa $mahasiswa)
+    // Hapus data
+    public function destroy($nim)
     {
-        $mahasiswa->delete();
+        $mhs = Mahasiswa::findOrFail($nim);
+        $mhs->delete();
 
-        return redirect()
-            ->route('mahasiswa.index')
-            ->with('success', 'Data mahasiswa berhasil dihapus.');
+        return redirect()->route('mahasiswa.index')->with('success', 'Data mahasiswa berhasil dihapus.');
     }
 }
