@@ -170,7 +170,7 @@
                     <option value="dosen_pembimbing"  {{ old('role')=='dosen_pembimbing'?'selected':'' }}>Dosen Pembimbing</option>
                     <option value="dosen_penguji"     {{ old('role')=='dosen_penguji'?'selected':'' }}>Dosen Penguji</option>
                     <option value="koor_pbl"          {{ old('role')=='koor_pbl'?'selected':'' }}>Koordinator PBL</option>
-                    <option value="koor_ti"           {{ old('role')=='koor_ti'?'selected':'' }}>Koordinator TI</option>
+                    <option value="jaminan_mutu"           {{ old('role')=='jaminan_mutu'?'selected':'' }}>Jaminan Mutu</option>
                     <option value="admin"             {{ old('role')=='admin'?'selected':'' }}>Admin</option>
                 </select>
 

@@ -7,63 +7,22 @@ use Illuminate\Http\Request;
 
 class MahasiswaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // paginate bila data besar
-        $mahasiswas = Mahasiswa::orderBy('created_at','desc')->paginate(10);
-        return view('mahasiswa.index', compact('mahasiswas'));
+        $search = $request->search;
+
+        $mahasiswa = Mahasiswa::when($search, function ($q) use ($search) {
+                $q->where('nim', 'like', "%{$search}%")
+                  ->orWhere('nama', 'like', "%{$search}%")
+                  ->orWhere('angkatan', 'like', "%{$search}%")
+                  ->orWhere('no_hp', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10);
+
+        // kirim variabel bernama $mahasiswa (bukan $mahasiswas)
+        return view('mahasiswa.index', compact('mahasiswa', 'search'));
     }
 
-    public function create()
-    {
-        return view('mahasiswa.create');
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'nim'      => 'required|string|max:20|unique:mahasiswas,nim',
-            'nama'     => 'required|string|max:150',
-            'angkatan' => 'required|digits:4',
-            'no_hp'    => 'nullable|string|max:20',
-        ]);
-
-        Mahasiswa::create($data);
-
-        return redirect()->route('mahasiswa.index')
-            ->with('success', 'Mahasiswa berhasil ditambahkan.');
-    }
-
-    public function show(Mahasiswa $mahasiswa)
-    {
-        return view('mahasiswa.show', compact('mahasiswa'));
-    }
-
-    public function edit(Mahasiswa $mahasiswa)
-    {
-        return view('mahasiswa.edit', compact('mahasiswa'));
-    }
-
-    public function update(Request $request, Mahasiswa $mahasiswa)
-    {
-        $data = $request->validate([
-            'nim'      => 'required|string|max:20|unique:mahasiswas,nim,' . $mahasiswa->id,
-            'nama'     => 'required|string|max:150',
-            'angkatan' => 'required|digits:4',
-            'no_hp'    => 'nullable|string|max:20',
-        ]);
-
-        $mahasiswa->update($data);
-
-        return redirect()->route('mahasiswa.index')
-            ->with('success', 'Data mahasiswa berhasil diperbarui.');
-    }
-
-    public function destroy(Mahasiswa $mahasiswa)
-    {
-        $mahasiswa->delete();
-
-        return redirect()->route('mahasiswa.index')
-            ->with('success', 'Mahasiswa berhasil dihapus.');
-    }
+    // method resource lain (create/store/edit/update/destroy) menyusul...
 }
