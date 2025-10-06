@@ -194,3 +194,9 @@ Route::get('/dosenpenguji/dashboard', function () {
 Route::get('/mahasiswa/dashboard', function () {
     return view('mahasiswa.dashboard');
 })->name('mahasiswa.dashboard');
+
+
+Route::resource('mahasiswa', MahasiswaController::class);
+// minimal untuk index saja:
+// Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+
