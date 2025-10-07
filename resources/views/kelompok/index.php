@@ -128,23 +128,29 @@
             <th>Dosen Pembimbing</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>Kelompok 1</td>
-            <td>Ani, Budi, Cici</td>
-            <td>Dr. Andi</td>
-          </tr>
-          <tr>
-            <td>Kelompok 2</td>
-            <td>Deni, Eka, Fajar</td>
-            <td>Ibu Sari</td>
-          </tr>
-          <tr>
-            <td>Kelompok 3</td>
-            <td>Gina, Hadi, Indra</td>
-            <td>Pak Rafi</td>
-          </tr>
-        </tbody>
+       <tbody>
+  @forelse($mahasiswa as $m)
+    <tr>
+      <td>{{ $loop->iteration }}</td>
+      <td>{{ $m->nim }}</td>
+      <td>{{ $m->nama }}</td>
+      <td>{{ $m->angkatan }}</td>
+      <td>{{ $m->no_hp }}</td>
+      <td class="text-right">
+        <a href="{{ route('mahasiswa.edit', $m->nim) }}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="{{ route('mahasiswa.destroy', $m->nim) }}" method="POST" style="display:inline-block">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hapus data ini?')">Hapus</button>
+        </form>
+      </td>
+    </tr>
+  @empty
+    <tr>
+      <td colspan="6" class="text-center">Belum ada data mahasiswa.</td>
+    </tr>
+  @endforelse
+</tbody>
       </table>
     </div>
   </div>

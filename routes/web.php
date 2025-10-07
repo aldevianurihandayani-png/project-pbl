@@ -200,3 +200,5 @@ Route::resource('mahasiswa', MahasiswaController::class);
 // minimal untuk index saja:
 // Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
 
+//routes kelompok
+Route::resource('kelompok', \App\Http\Controllers\KelompokController::class);
