@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;   
 
 class ContactController extends Controller
 {
@@ -15,7 +16,7 @@ class ContactController extends Controller
         ]);
 
         // Simpan / kirim email sesuai kebutuhan
-        \Log::info('CONTACT FORM', $data);
+        Log::info('CONTACT FORM', $data);
 
         return back()->with('success', 'Pesan berhasil dikirim.');
     }

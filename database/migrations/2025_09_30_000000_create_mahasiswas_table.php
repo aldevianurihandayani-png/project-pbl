@@ -5,17 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void {
-        Schema::create('mahasiswas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nim')->unique();
-            $table->string('nama');
-            $table->string('angkatan', 4);
-            $table->string('no_hp', 20)->nullable();
-            $table->timestamps();
-        });
-    }
-
+    public function up()
+{
+    Schema::create('mahasiswa', function (Blueprint $table) {
+        $table->string('nim', 15)->primary();
+        $table->string('nama', 100);
+        $table->year('angkatan');
+        $table->string('no_hp', 15)->nullable();
+        $table->timestamps();
+    });
+}
     public function down(): void {
         Schema::dropIfExists('mahasiswas');
     }

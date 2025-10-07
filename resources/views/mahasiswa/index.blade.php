@@ -1,76 +1,64 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Mahasiswa</title>
-  <link rel="stylesheet" href="{{ asset('css/mahasiswa.css') }}">
-</head>
-<body>
-  @include('header')
+@extends('layouts.app')
 
-  <div class="page">
-    <h1 class="page-title">DAFTAR MAHASISWA</h1>
+@section('content')
+<div class="container">
+  <h1 class="mb-3">Data Mahasiswa</h1>
 
-    <div class="card">
-      <div class="card-header">
-        <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">Tambah Mahasiswa</a>
-      </div>
+  <div class="mb-3 d-flex justify-content-between gap-2">
+    <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">+ Tambah</a>
 
-      @if(session('success'))
-        <div class="alert success">{{ session('success') }}</div>
-      @endif
-      @if(session('error'))
-        <div class="alert error">{{ session('error') }}</div>
-      @endif
-
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>NIM</th>
-              <th>Nama</th>
-              <th>Angkatan</th>
-              <th>No HP</th>
-              <th class="text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            @forelse ($mahasiswa as $idx => $mhs)
-              <tr>
-                <td>{{ $mahasiswa->firstItem() + $idx }}</td>
-                <td>{{ $mhs->nim }}</td>
-                <td>{{ $mhs->nama }}</td>
-                <td>{{ $mhs->angkatan }}</td>
-                <td>{{ $mhs->no_hp }}</td>
-                <td class="text-right actions">
-                  {{-- Hapus tombol View jika belum ada route show --}}
-                  {{-- <a href="{{ route('mahasiswa.show', $mhs) }}" class="chip chip-blue">View</a> --}}
-
-                  <a href="{{ route('mahasiswa.edit', $mhs) }}" class="chip chip-yellow">Edit</a>
-
-                  <form action="{{ route('mahasiswa.destroy', $mhs) }}" method="POST" class="inline"
-                        onsubmit="return confirm('Hapus mahasiswa ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="chip chip-red">Delete</button>
-                  </form>
-                </td>
-              </tr>
-            @empty
-              <tr>
-                <td colspan="6" class="empty">Belum ada data.</td>
-              </tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pagination">
-        {{ $mahasiswa->links() }}
-      </div>
-    </div>
+    <form method="GET" action="{{ route('mahasiswa.index') }}" class="d-flex gap-2">
+      <input type="text" name="search" class="form-control"
+             placeholder="Cari NIM/Nama/Angkatan/No HP"
+             value="{{ request('search') }}">
+      <button type="submit" class="btn btn-secondary">Cari</button>
+    </form>
   </div>
-</body>
-</html>
+
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>NIM</th>
+        <th>Nama</th>
+        <th>Angkatan</th>
+        <th>No HP</th>
+        <th class="text-end">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      @forelse ($mahasiswa as $m)
+        <tr>
+          {{-- pakai $loop->iteration; kalau pakai paginate dan mau nomor global: $mahasiswa->firstItem() + $loop->index --}}
+          <td>{{ $loop->iteration }}</td>
+          <td>{{ $m->nim }}</td>
+          <td>{{ $m->nama }}</td>
+          <td>{{ $m->angkatan }}</td>
+          <td>{{ $m->no_hp }}</td>
+          <td class="text-end">
+            {{-- DEFAULT: resource pakai ID --}}
+            <a href="{{ route('mahasiswa.edit', $m->id) }}" class="btn btn-warning btn-sm">Edit</a>
+            <form action="{{ route('mahasiswa.destroy', $m->id) }}" method="POST" class="d-inline">
+              @csrf @method('DELETE')
+              <button onclick="return confirm('Yakin hapus?')" class="btn btn-danger btn-sm">Hapus</button>
+            </form>
+          </td>
+        </tr>
+      @empty
+        <tr>
+          <td colspan="6" class="text-center">Belum ada data.</td>
+        </tr>
+      @endforelse
+    </tbody>
+  </table>
+
+  {{-- tampilkan pagination jika pakai paginate() --}}
+  @if(method_exists($mahasiswa,'links'))
+    {{ $mahasiswa->withQueryString()->links() }}
+  @endif
+</div>
+@endsection
