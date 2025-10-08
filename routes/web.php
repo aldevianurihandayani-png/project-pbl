@@ -8,7 +8,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ContactController; 
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
-
+use App\Http\Controllers\RubrikPenilaianController;
 use Illuminate\Http\Request;
 
 // ==============================
@@ -204,3 +204,8 @@ Route::get('/koordinator/dashboard', function () {
 Route::get('/admins/dashboard', function () {
     return view('admins.dashboard');
 })->name('admins.dashboard');
+
+//rubrik penilaian
+Route::middleware(['auth', 'role:dosen_pembimbing'])->group(function () {
+    Route::resource('dosen/rubrik', RubrikPenilaianController::class);
+});
