@@ -60,26 +60,15 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Setelah Login
 // ==============================
 
-// Dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-
-Route::resource('mahasiswa', MahasiswaController::class);
-// sekarang /mahasiswa, /mahasiswa/create, /mahasiswa/{id}/edit, dst.
-
-Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
-Route::get('/mahasiswa/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
-Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
-Route::get('/mahasiswa/{nim}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
-Route::put('/mahasiswa/{nim}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
-Route::delete('/mahasiswa/{nim}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
-
-
-
+// Proses Register
+Route::post('/register', [UserController::class, 'store'])
+    ->name('register.store');
 
     //dashboard dosne pembimbing
-
+Route::middleware(['auth', 'role.dosen_pembimbing'])->group(function () {
+    Route::get('/dosen/dashboard', fn () => view('dosen.dashboard'))
+        ->name('dosen.dashboard');
+});
 Route::get('dosen/dashboard', function () {
     return view('dosen.dashboard');   // <— folder.view yg benar
 })->name('dosen.dashboard');
@@ -200,5 +189,18 @@ Route::resource('mahasiswa', MahasiswaController::class);
 // minimal untuk index saja:
 // Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
 
-//routes kelompok
-Route::resource('kelompok', \App\Http\Controllers\KelompokController::class);
+//Jaminan mutu
+Route::get('/jaminanmutu/dashboard', function () {
+    return view('jaminanmutu.dashboard');
+})->name('jaminanmutu.dashboard');
+
+
+//koordinator
+Route::get('/koordinator/dashboard', function () {
+    return view('koordinator.dashboard');
+})->name('koordinator.dashboard');
+
+//admins
+Route::get('/admins/dashboard', function () {
+    return view('admins.dashboard');
+})->name('admins.dashboard');

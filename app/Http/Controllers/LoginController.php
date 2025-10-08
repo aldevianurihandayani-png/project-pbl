@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     public function showLogin()
     {
-        return view('login'); // file Blade yang kamu kirim
+        return view('login'); 
     }
 
     public function authenticate(Request $request)

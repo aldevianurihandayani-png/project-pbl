@@ -2,154 +2,178 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard Mahasiswa — SIMAP Politala</title>
+  <title>Dashboard Mahasiswa</title>
   <style>
     :root {
       --navy: #0b1d54;
-      --light: #eef3fa;
+      --light-bg: #f6f8fc;
       --white: #fff;
-      --ring: rgba(13, 23, 84, .12);
+      --shadow: rgba(0,0,0,.05);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
-    body { background: var(--light); display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+
+    body {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+      background: var(--light-bg);
+    }
 
     /* Sidebar */
     .sidebar {
       background: var(--navy);
       color: #e9edf7;
-      padding: 18px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
-    .brand { font-size: 18px; font-weight: bold; margin-bottom: 24px; }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
     .menu a {
       display: block;
       color: #e9edf7;
       text-decoration: none;
-      padding: 10px 12px;
+      padding: 10px 14px;
       border-radius: 10px;
-      margin-bottom: 8px;
-      transition: .3s;
+      margin-bottom: 5px;
     }
-    .menu a:hover { background: #12306d; }
-    .menu a.active { background: #1c3d86; }
-
-    /* Akun section */
-    .account {
-      border-top: 1px solid rgba(255,255,255,.3);
-      padding-top: 12px;
-      text-align: center;
+    .menu a:hover, .menu a.active {
+      background: #1a2e66;
     }
 
-    /* Header */
-    .header {
+    /* Topbar */
+    .topbar {
       background: var(--navy);
-      color: var(--white);
-      padding: 14px 30px;
+      color: #fff;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     /* Content */
-    .content { padding: 28px; }
-    h1 { color: var(--navy); margin-bottom: 16px; }
+    .content {
+      padding: 25px;
+    }
+
+    .welcome {
+      margin-bottom: 25px;
+    }
+    .welcome h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--navy);
+    }
+    .welcome p {
+      margin: 4px 0 0;
+      color: #555;
+    }
 
     .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
     }
     .card {
       background: var(--white);
-      border-radius: 14px;
-      box-shadow: 0 2px 8px var(--ring);
-      padding: 16px;
+      padding: 18px;
+      border-radius: 12px;
+      flex: 1;
+      box-shadow: 0 2px 6px var(--shadow);
+      text-align: center;
     }
-    .card h2 { color: var(--navy); font-size: 15px; }
-    .card p { font-size: 28px; font-weight: bold; color: #1c3d86; margin-top: 8px; }
+    .card h2 { margin: 0; color: var(--navy); }
+    .card p { margin: 8px 0 0; color: #666; }
 
-    .section {
+    .group-box {
       background: var(--white);
-      border-radius: 14px;
-      box-shadow: 0 2px 8px var(--ring);
-      padding: 16px;
-      margin-bottom: 16px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px var(--shadow);
     }
-    .section h3 { color: var(--navy); font-size: 16px; margin-bottom: 6px; }
-
-    ul { margin-left: 16px; }
-    li { margin-bottom: 6px; }
+    .group-box h3 {
+      margin-top: 0;
+      color: var(--navy);
+    }
+    .group-box .buttons {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .group-box button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-primary { background: #0059ff; color: #fff; }
+    .btn-secondary { background: #e0e0e0; }
   </style>
 </head>
 <body>
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div>
-      <div class="brand">SIMAP<br>Politala</div>
-      <nav class="menu">
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Kelompok</a>
-        <a href="#">Logbook</a>
-        <a href="#">Peringkat</a>
-        <a href="#">Laporan Penilaian</a>
-        <a href="#">Feedback</a>
-      </nav>
+  <div class="sidebar">
+    <h2>SIMAP<br>Politala</h2>
+    <div class="menu">
+      <a href="#" class="active">Beranda</a>
+      <a href="#">Catatan Kegiatan (Logbook)</a>
+      <a href="#">Peringkat</a>
+      <a href="#">Konsultasi</a>
+      <a href="#">Laporan Penilaian</a>
+      <a href="#">Data Kelompok</a>
+      <a href="#">Kelola Feedback</a>
+      <a href="#">Notifikasi</a>
+      <a href="#">Settings</a>
+      <a href="{{ route('logout') }}">Logout</a>
     </div>
+  </div>
 
-    <div class="account">
-      <span>Nama Mahasiswa</span>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <main>
-    <div class="header">
-      <h2>Dashboard Mahasiswa</h2>
-      <span>SIMAP Politala</span>
+  <div>
+    <div class="topbar">
+      <input type="text" placeholder="Cari materi, notifikasi, nilai..." style="width:300px;padding:6px;border-radius:6px;border:none;">
+      <div>{{ auth()->user()->nama }}</div>
     </div>
 
     <div class="content">
-      <h1>Selamat Datang di Dashboard Mahasiswa</h1>
+      <div class="welcome">
+        <h1>Halo, {{ auth()->user()->nama }} 👋</h1>
+        <p>Selamat datang di sistem PBL</p>
+      </div>
 
       <div class="cards">
         <div class="card">
-          <h2>Jumlah Logbook</h2>
-          <p>5</p>
+          <h2>{{ $logbook_terkirim }}</h2>
+          <p>Logbook Terkirim</p>
         </div>
         <div class="card">
-          <h2>Nilai Tertinggi</h2>
-          <p>95</p>
+          <h2>{{ $notifikasi }}</h2>
+          <p>Notifikasi</p>
         </div>
         <div class="card">
-          <h2>Peringkat</h2>
-          <p>Top 3</p>
+          <h2>{{ $feedback }}</h2>
+          <p>Feedback</p>
+        </div>
+        <div class="card">
+          <h2>{{ $nilai }}</h2>
+          <p>Entri Nilai</p>
         </div>
       </div>
 
-      <div class="section">
-        <h3>Status Logbook</h3>
-        <p>Logbook Minggu ke-5 telah disetujui oleh dosen pembimbing.</p>
-      </div>
-
-      <div class="section">
-        <h3>Milestone</h3>
-        <p>Deadline milestone berikutnya: <b>15 Oktober 2025</b></p>
-      </div>
-
-      <div class="section">
-        <h3>Notifikasi</h3>
-        <ul>
-          <li>Logbook minggu 5 disetujui.</li>
-          <li>Peringkat Anda meningkat ke posisi Top 3.</li>
-          <li>Milestone final presentasi akan dimulai minggu depan.</li>
-        </ul>
+      <div class="group-box">
+        <h3>Kelompok 1 PBL</h3>
+        <p>Dosen Pembimbing: —</p>
+        <div class="buttons">
+          <button class="btn-primary">Isi Logbook</button>
+          <button class="btn-secondary">Lihat Kelompok</button>
+          <button class="btn-secondary">Lihat Nilai</button>
+        </div>
       </div>
     </div>
-  </main>
-
+  </div>
 </body>
 </html>
