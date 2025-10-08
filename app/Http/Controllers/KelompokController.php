@@ -39,7 +39,7 @@ class KelompokController extends Controller
     {
         return view('kelompok.create', [
             'mahasiswa' => Mahasiswa::select('nim','nama')->orderBy('nama')->get(),
-            'proyek'    => ProyekPbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
+            'proyek'    => proyek_pbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
             'dosen'     => Dosen::select('id_dosen','nama')->orderBy('nama')->get(),
         ]);
     }
