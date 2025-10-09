@@ -62,7 +62,7 @@
     <div style="font-weight:700">SIMAP POLITALA</div>
     <div style="font-size:12px;opacity:.8">Dosen Pembimbing</div>
     <nav class="menu" style="margin-top:12px">
-      <a href="/dashboard/dosen">Dashboard</a>
+      <a href="/dosen/dashboard">Dashboard</a>
       <a href="/dosen/kelompok">Kelompok</a>
       <a href="/dosen/logbook">Logbook</a>
       <a class="active" href="{{ route('dosen.milestone') }}">Milestone</a>
