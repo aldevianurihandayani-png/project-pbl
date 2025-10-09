@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Models;              // <- harus persis begini
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Kelompok extends Model
 {
-    protected $table = 'kelompoks';                       // <- WAJIB
-    protected $fillable = ['judul','topik','id_dosen'];
+    protected $fillable = [
+        'nama', 'kelas', 'anggota', 'dosen_pembimbing'];
 
-    public function anggota()
-    {
-        return $this->hasMany(\App\Models\AnggotaKelompok::class, 'kelompok_id');
-    }
+    protected $table = 'kelompok';   // <— jika tabel kamu singular
+
+
+
 }
