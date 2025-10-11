@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ProyekPbl;
+use Illuminate\Http\Request;
+
+class ProyekPblController extends Controller
+{
+    /** List + cari + filter sederhana */
+    public function index(Request $request)
+    {
+        $q     = $request->get('q');
+        $mk    = $request->get('kode_mk');
+        $dosen = $request->get('id_dosen');
+
+        $data = ProyekPbl::with(['mataKuliah','dosen','kelompok'])
+            ->when($q, fn($qr) => $qr->where('judul', 'like', "%{$q}%"))
+            ->when($mk, fn($qr) => $qr->where('kode_mk', $mk))
+            ->when($dosen, fn($qr) => $qr->where('id_dosen', $dosen))
+            ->orderByDesc('id_proyek_pbl')
+            ->paginate(12)
+            ->appends($request->only('q','kode_mk','id_dosen'));
+
+        return view('proyek_pbl.index', compact('data','q','mk','dosen'));
+    }
+
+    public function create()
+    {
+        // ambil list untuk select (opsional isi di view via ajax)
+        return view('proyek_pbl.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'judul'       => 'required|string|max:255',
+            'tanggal'     => 'required|date',
+            'kode_mk'     => 'required|exists:mata_kuliah,kode_mk',
+            'id_dosen'    => 'required|exists:dosen,id_dosen',
+            'id_kelompok' => 'required|exists:kelompok,id_kelompok',
+        ]);
+
+        ProyekPbl::create($validated);
+
+        return redirect()->route('proyek-pbl.index')
+            ->with('success', 'Proyek PBL berhasil dibuat.');
+    }
+
+    // Route model binding otomatis berdasarkan primaryKey di model
+    public function edit(ProyekPbl $proyek_pbl)
+    {
+        return view('proyek_pbl.edit', ['proyek' => $proyek_pbl]);
+    }
+
+    public function update(Request $request, ProyekPbl $proyek_pbl)
+    {
+        $validated = $request->validate([
+            'judul'       => 'required|string|max:255',
+            'tanggal'     => 'required|date',
+            'kode_mk'     => 'required|exists:mata_kuliah,kode_mk',
+            'id_dosen'    => 'required|exists:dosen,id_dosen',
+            'id_kelompok' => 'required|exists:kelompok,id_kelompok',
+        ]);
+
+        $proyek_pbl->update($validated);
+
+        return redirect()->route('proyek-pbl.index')
+            ->with('success', 'Proyek PBL diperbarui.');
+    }
+
+    public function destroy(ProyekPbl $proyek_pbl)
+    {
+        $proyek_pbl->delete();
+
+        return redirect()->route('proyek-pbl.index')
+            ->with('success', 'Proyek PBL dihapus.');
+    }
+}
