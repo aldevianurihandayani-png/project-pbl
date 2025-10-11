@@ -8,7 +8,8 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ContactController; 
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
-
+use App\Http\Controllers\RubrikPenilaianController;
+use App\Http\Controllers\DosenController;
 use Illuminate\Http\Request;
 
 // ==============================
@@ -64,7 +65,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/register', [UserController::class, 'store'])
     ->name('register.store');
 
+<<<<<<< HEAD
     //dashboard dosne pembimbing
+=======
+    //dashboard dosen pembimbing
+>>>>>>> 9042b67c88cefd3ab08cebdcd6251739418194c3
 Route::middleware(['auth', 'role.dosen_pembimbing'])->group(function () {
     Route::get('/dosen/dashboard', fn () => view('dosen.dashboard'))
         ->name('dosen.dashboard');
@@ -151,4 +156,5 @@ Route::get('/koordinator/dashboard', function () {
 Route::get('/admins/dashboard', function () {
     return view('admins.dashboard');
 })->name('admins.dashboard');
+
 
