@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+class DosenPengujiController extends Controller
+{
+    public function dashboard(Request $request)
+    {
+        $user = Auth::user();
+        $namaUser = $user->nama ?? $user->name ?? 'Dosen Penguji';
+        $idPenguji = (int)($user->id ?? 0);
+
+        // --- metrik cepat (toleran struktur)
+        $jumlahKelompokUji = $this->countRows(['kelompok_uji', 'kelompok']);
+        $notifBelumBaca    = $this->countRows(['notifikasi', 'notifications']);
+        $feedbackMasuk     = $this->countRows(['feedback', 'feedbacks']);
+        $rubrikTersedia    = $this->countRows(['rubrik_penilaian', 'rubrik', 'rubrik_pbl']);
+
+        // --- daftar kelompok yang diuji (fallback aman)
+        $kelompok = $this->ambilKelompokUji($idPenguji);
+
+        // avatar sederhana
+        $userPhoto = 'https://ui-avatars.com/api/?name=' . urlencode($namaUser) . '&background=0D8ABC&color=fff';
+
+        return view('penguji.dashboard', compact(
+            'namaUser','userPhoto','jumlahKelompokUji','notifBelumBaca',
+            'feedbackMasuk','rubrikTersedia','kelompok'
+        ));
+    }
+
+    /* ================= Helpers ================= */
+
+    protected function countRows(array $candidates): int
+    {
+        foreach ($candidates as $t) {
+            if (Schema::hasTable($t)) {
+                try {
+                    return (int) DB::table($t)->count();
+                } catch (\Throwable $e) { /* skip */ }
+            }
+        }
+        return 0;
+    }
+
+    protected function ambilKelompokUji(int $idPenguji): array
+    {
+        $hasil = [];
+
+        if (Schema::hasTable('kelompok_uji')) {
+            $hasKelompokId = Schema::hasColumn('kelompok_uji', 'kelompok_id');
+            $hasPengujiId  = Schema::hasColumn('kelompok_uji', 'penguji_id');
+
+            if ($hasKelompokId && Schema::hasTable('kelompok')) {
+                $nameCol  = Schema::hasColumn('kelompok', 'nama_kelompok') ? 'nama_kelompok'
+                           : (Schema::hasColumn('kelompok', 'nama') ? 'nama' : null);
+                $kelasCol = Schema::hasColumn('kelompok', 'kelas') ? 'kelas' : null;
+
+                if ($nameCol) {
+                    $q = DB::table('kelompok_uji as ku')
+                        ->join('kelompok as k', 'k.id', '=', 'ku.kelompok_id')
+                        ->select('k.id', DB::raw("k.$nameCol as nama"))
+                        ->orderBy('k.id')
+                        ->limit(12);
+
+                    if ($kelasCol) $q->addSelect(DB::raw("k.$kelasCol as kelas"));
+                    if ($hasPengujiId && $idPenguji > 0) $q->where('ku.penguji_id', $idPenguji);
+
+                    $hasil = $q->get()->map(fn($r) => (array)$r)->all();
+                }
+            }
+
+            // fallback minimal
+            if (!$hasil) {
+                $hasil = DB::table('kelompok_uji')->select('id')->orderBy('id')->limit(12)->get()
+                    ->map(fn($r) => ['id' => $r->id, 'nama' => 'Kelompok '.$r->id])->all();
+            }
+        }
+        elseif (Schema::hasTable('kelompok')) {
+            $nameCol  = Schema::hasColumn('kelompok', 'nama_kelompok') ? 'nama_kelompok'
+                       : (Schema::hasColumn('kelompok', 'nama') ? 'nama' : null);
+            $kelasCol = Schema::hasColumn('kelompok', 'kelas') ? 'kelas' : null;
+
+            $fields = ['id'];
+            if ($nameCol)  $fields[] = DB::raw("`$nameCol` as nama");
+            if ($kelasCol) $fields[] = DB::raw("`$kelasCol` as kelas");
+
+            $hasil = DB::table('kelompok')->select($fields)->orderBy('id')->limit(12)->get()
+                ->map(fn($r) => (array)$r)->all();
+        }
+
+        return $hasil;
+    }
+}
