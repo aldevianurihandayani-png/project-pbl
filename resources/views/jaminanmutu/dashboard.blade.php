@@ -104,7 +104,6 @@
     <div class="menu">
       <div class="nav-title">Menu</div>
       <a href="{{ url('/jaminanmutu/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
-      <a href="{{ url('/jaminanmutu/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
       <a href="{{ url('/jaminanmutu/penilaian') }}"><i class="fa-solid fa-users"></i>Penilaian</a>
       <a href="{{ url('/jaminanmutu/rubrik') }}"><i class="fa-solid fa-flag-checkered"></i>Rubrik</a>
       
