@@ -1,292 +1,260 @@
+{{-- resources/views/dosen/kelompok/index.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Kelompok — SIMAP</title>
-  <!-- Font Awesome (ikon sidebar) -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kelompok — Dosen Pembimbing</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
-      --navy: #0b1d54;         /* warna brand */
-      --navy-2: #0a1a47;       /* sedikit lebih gelap untuk gradient */
-      --link: #2f66f5;
-      --bg: #eef3fa;
-      --card: #ffffff;
-      --border: #dfe3eb;
-      --text: #0b1d54;
+      --navy:#0b1d54; --navy-2:#0e257a; --bg:#f5f7fb; --card:#ffffff;
+      --muted:#6c7a8a; --ring:rgba(13,23,84,.10); --shadow:0 6px 20px rgba(13,23,84,.08);
+      --radius:16px; --blue:#2f73ff; --line:#e8edf6; --head:#eef3fa;
     }
-    *{ box-sizing: border-box; }
+    *{box-sizing:border-box}
     body{
-      margin:0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color:#14233b;
-      display:grid;
-      grid-template-columns: 240px 1fr; /* Sidebar + konten */
-      min-height:100vh;
+      margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg);
+      display:grid; grid-template-columns:260px 1fr; min-height:100vh; color:#233042;
     }
 
-    /* =========================
-       SIDEBAR
-    ==========================*/
-    .sidebar{
-      background: linear-gradient(180deg, var(--navy), var(--navy-2));
-      color:#e9edf7;
-      padding:18px 16px;
-      position:sticky;
-      top:0;
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; margin-bottom:22px;
-    }
-    .brand .logo{
-      width:34px; height:34px; border-radius:8px;
-      display:grid; place-items:center;
-      background:#1d2e6f; color:#e5edff; font-weight:700;
-    }
-    .brand .title{ line-height:1.1; }
-    .brand .title .main{ font-weight:700; letter-spacing:.3px; }
-    .brand .title .sub{ font-size:12px; opacity:.75; }
-
-    .section-label{
-      font-size:11px; letter-spacing:.8px; opacity:.65;
-      margin:14px 10px 8px; text-transform:uppercase;
-    }
+    /* ===== SIDEBAR (same as Mahasiswa) ===== */
+    .sidebar{ background:var(--navy); color:#e9edf7; padding:18px 16px; display:flex; flex-direction:column }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:22px }
+    .brand-badge{ width:36px;height:36px; border-radius:10px; background:#1a2a6b; display:grid; place-items:center; font-weight:700 }
+    .brand-title{ line-height:1.1 }
+    .brand-title strong{ font-size:18px }
+    .brand-title small{ display:block; font-size:12px; opacity:.85 }
+    .nav-title{ font-size:12px; letter-spacing:.6px; text-transform:uppercase; opacity:.7; margin:16px 10px 6px }
     .menu a{
-      display:flex; align-items:center; gap:10px;
-      text-decoration:none; color:#e9edf7;
-      padding:10px 12px; border-radius:10px; margin:4px 6px;
-      transition:.15s ease;
-      font-size:14px;
+      display:flex; align-items:center; gap:12px; text-decoration:none; color:#e9edf7;
+      padding:10px 12px; border-radius:12px; margin:4px 6px; transition:background .18s, transform .18s;
     }
-    .menu a:hover{ background:rgba(255,255,255,.08); }
-    .menu a.active{
-      background:#1e3a8a; /* biru highlight */
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
-    }
-    .spacer{ flex:1; }
-    .logout{
-      margin:10px 6px 6px;
-    }
-    .logout a{
-      color:#ffb1b1; text-decoration:none; font-size:14px;
-      display:flex; align-items:center; gap:8px;
-    }
-    .logout a:hover{ text-decoration:underline; }
+    .menu a:hover{ background:#11245f; transform:translateX(2px) }
+    .menu a.active{ background:#1c3d86 }
+    .menu i{ width:18px; text-align:center }
+    .logout{ margin-top:auto }
+    .logout a{ color:#ffb2b2; display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; text-decoration:none }
+    .logout a:hover{ background:#5c1020 }
 
-    /* =========================
-       KONTEN
-    ==========================*/
-    .content{
-      padding:26px;
+    /* ===== HEADER (same as Mahasiswa) ===== */
+    main{ display:flex; flex-direction:column; min-width:0 }
+    header.topbar{
+      background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:3; box-shadow:var(--shadow);
     }
-    h1{
-      margin:0 0 12px; color: var(--text); font-size:22px;
-      display:flex; gap:8px; align-items:center;
-    }
-    .card{
-      background:var(--card); border:1px solid var(--border);
-      border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.04);
-      padding:18px;
+    .welcome h1{ margin:0; font-size:18px; letter-spacing:.2px }
+    .userbox{ display:flex; align-items:center; gap:14px }
+    .notif{ position:relative } .notif i{ font-size:18px }
+    .notif .badge{ position:absolute; top:-6px; right:-6px; background:#e53935; color:#fff; border-radius:10px; font-size:10px; padding:2px 5px }
+    .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
+    @media (max-width:980px){
+      body{ grid-template-columns:1fr }
+      .sidebar{ position:fixed; inset:0 auto 0 0; width:240px; transform:translateX(-102%); transition:transform .2s; z-index:10 }
+      .sidebar.show{ transform:none }
+      .topbar-btn{ display:inline-flex }
     }
 
-    .toolbar{
-      display:flex; justify-content:space-between; align-items:center;
-      margin:0 0 14px;
-      gap:12px; flex-wrap:wrap;
-    }
-    .filters{
-      display:flex; align-items:center; gap:10px;
-      color:#263144;
-    }
-    .filters select{
-      padding:8px 10px; border-radius:8px; border:1px solid #cfd6e3; background:#fff;
-    }
-    .btn{
-      border:none; border-radius:8px; padding:9px 14px;
-      cursor:pointer; font-weight:700; font-size:14px;
-    }
-    .btn-primary{ background: var(--navy); color:#fff; }
-    .btn-primary:hover{ background:#142f85; }
+    /* ===== CONTENT: sheet non-table ===== */
+    .page{ padding:26px; display:grid; gap:18px }
+    .toolbar{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap }
+    .filters{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+    .filters select{ padding:8px 10px; border:1px solid #cfd6e3; border-radius:8px; background:#fff }
+    .btn{ border:none; border-radius:8px; padding:9px 14px; cursor:pointer; font-weight:700; font-size:14px; background:var(--navy); color:#fff }
+    .btn:hover{ background:#142f85 }
 
-    table{
-      width:100%; border-collapse:collapse; background:#fff;
-      border:1px solid var(--border); border-radius:10px; overflow:hidden;
+    .sheet{ background:var(--card); border:1px solid var(--ring); border-radius:12px; box-shadow:var(--shadow); overflow:hidden }
+    .sheet-head{ background:var(--head); font-weight:700; color:#283a5a }
+    .row{ display:grid; grid-template-columns:100px 140px 1fr 120px 90px 140px; padding:10px 12px }
+    .rows{ position:relative; }
+    /* garis horizontal tipis */
+    .rows::before{
+      content:""; position:absolute; inset:0;
+      background: repeating-linear-gradient(to bottom, transparent 0 42px, var(--line) 42px 43px);
+      pointer-events:none;
     }
-    thead th{
-      background:#f5f7fa; color:var(--text); text-align:left;
-      padding:10px 12px; border-bottom:1px solid var(--border);
-    }
-    tbody td{
-      padding:10px 12px; border-top:1px solid var(--border);
-      vertical-align:top;
-    }
+    .row > div{ padding:4px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .title{ font-weight:700; color:#0b1d54; margin:0 0 8px 0; }
 
-    .actions .btn-sm{
-      border:none; border-radius:6px; padding:6px 10px; font-size:12px;
-      color:#fff; cursor:pointer; margin-right:6px;
+    @media(max-width:860px){
+      .row{ grid-template-columns:80px 120px 1fr 100px 80px 120px }
     }
-    .btn-view{ background:#3b82f6; }
-    .btn-edit{ background:#facc15; color:#0f172a; }
-    .btn-del{ background:#ef4444; }
-    .btn-view:hover{ background:#2563eb; }
-    .btn-edit:hover{ background:#eab308; }
-    .btn-del:hover{ background:#dc2626; }
-
-    @media (max-width: 880px){
-      body{ grid-template-columns: 200px 1fr; }
-    }
-    @media (max-width: 640px){
-      body{ grid-template-columns: 1fr; }
-      .sidebar{ position:relative; height:auto; border-bottom:1px solid rgba(255,255,255,.15); }
+    @media(max-width:680px){
+      .sheet-head{ display:none }
+      .row{ grid-template-columns:1fr 1fr; padding:12px }
+      .row > div{ display:flex; gap:6px }
+      .row > div::before{ content:attr(data-label) ":"; min-width:100px; color:#6b7a93 }
+      .rows::before{ background:none }
     }
   </style>
 </head>
 <body>
 
-  <!-- =================== SIDEBAR =================== -->
-  <aside class="sidebar">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="logo">SI</div>
-      <div class="title">
-        <div class="main">SIMAP</div>
-        <div class="sub">Politala</div>
-      </div>
+      <div class="brand-badge">SI</div>
+      <div class="brand-title"><strong>SIMAP</strong><small>Politala</small></div>
     </div>
 
-    <div class="section-label">Menu</div>
-    <nav class="menu">
-      <a href="#" class="active"><i class="fa-solid fa-house"></i> Dashboard</a>
-      <a href="#"><i class="fa-solid fa-user-graduate"></i> Mahasiswa</a>
-      <a href="#"><i class="fa-solid fa-users"></i> Kelompok</a>
-      <a href="#"><i class="fa-solid fa-flag-checkered"></i> Milestone</a>
-      <a href="#"><i class="fa-solid fa-book"></i> Logbook</a>
-      <a href="#"><i class="fa-solid fa-list-check"></i> CPMK</a>
-    </nav>
+    <div class="menu">
+      <div class="nav-title">Menu</div>
+      <a href="{{ url('/dosen/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
+      <a href="{{ url('/dosen/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+      <a href="{{ url('/dosen/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
+      <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
+      <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
+      <a href="{{ url('/dosen/cpmk') }}"><i class="fa-solid fa-list-check"></i>CPMK</a>
 
-    <div class="section-label" style="margin-top:14px;">Akun</div>
-    <nav class="menu">
-      <a href="#"><i class="fa-solid fa-id-badge"></i> Profil</a>
-    </nav>
-
-    <div class="spacer"></div>
+      <div class="nav-title">Akun</div>
+      <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+    </div>
 
     <div class="logout">
-      <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <a href="{{ url('/logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </aside>
 
-  <!-- =================== KONTEN =================== -->
-  <main class="content">
-    <h1><i class="fa-solid fa-users"></i> Kelompok</h1>
-
-    <div class="card">
-      <div class="toolbar">
-        <div class="filters">
-          <label for="filterKelas"><strong>Filter Kelas:</strong></label>
-          <select id="filterKelas">
-            <option value="all">Semua Kelas</option>
-            <option value="TI-3A">TI-3A</option>
-            <option value="TI-3B">TI-3B</option>
-            <option value="TI-3C">TI-3C</option>
-          </select>
+  <!-- ===== MAIN ===== -->
+  <main>
+    <header class="topbar">
+      <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="welcome"><h1>Kelompok — Dosen Pembimbing</h1></div>
+      <div class="userbox">
+        <div class="notif"><i class="fa-regular fa-bell"></i><span class="badge">3</span></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+          </div>
+          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
         </div>
-        <button class="btn btn-primary" onclick="tambahKelompok()">+ Tambah Kelompok</button>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="toolbar">
+        <h2 class="title">Data Kelompok</h2>
+
+        <div class="filters">
+          <label>Kelas:
+            <select id="fKelas">
+              <option value="all">Semua</option>
+              <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+            </select>
+          </label>
+          <label>Semester:
+            <select id="fSemester">
+              <option value="all">Semua</option>
+              <option>1</option><option>2</option><option>3</option>
+              <option>4</option><option>5</option><option>6</option>
+            </select>
+          </label>
+          <button class="btn" onclick="tambahKelompok()">+ Tambah Kelompok</button>
+        </div>
       </div>
 
-      <div class="table-wrap">
-        <table id="tabelKelompok">
-          <thead>
-            <tr>
-              <th>Nama Kelompok</th>
-              <th>Anggota</th>
-              <th>Kelas</th>
-              <th>Dosen Pembimbing</th>
-              <th style="width:170px">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-kelas="TI-3A">
-              <td>Kelompok 1</td>
-              <td>Aldevianuri Handayani, Fara Apriliana, Noorma, Wike Widiya Wati</td>
-              <td>TI-3A</td>
-              <td>Pa Oky Rahmanto</td>
-              <td class="actions">
-                <button class="btn-sm btn-view">View</button>
-                <button class="btn-sm btn-edit">Edit</button>
-                <button class="btn-sm btn-del" onclick="hapusBaris(this)">Delete</button>
-              </td>
-            </tr>
-            <tr data-kelas="TI-3B">
-              <td>Kelompok 2</td>
-              <td>Deni, Eka, Fajar</td>
-              <td>TI-3B</td>
-              <td>Ibu Sari</td>
-              <td class="actions">
-                <button class="btn-sm btn-view">View</button>
-                <button class="btn-sm btn-edit">Edit</button>
-                <button class="btn-sm btn-del" onclick="hapusBaris(this)">Delete</button>
-              </td>
-            </tr>
-            <tr data-kelas="TI-3C">
-              <td>Kelompok 3</td>
-              <td>Gina, Hadi, Indra</td>
-              <td>TI-3C</td>
-              <td>Pak Rafi</td>
-              <td class="actions">
-                <button class="btn-sm btn-view">View</button>
-                <button class="btn-sm btn-edit">Edit</button>
-                <button class="btn-sm btn-del" onclick="hapusBaris(this)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="sheet" id="sheet">
+        <!-- header kolom -->
+        <div class="row sheet-head">
+          <div>Kelompok</div><div>Nim</div><div>Nama</div><div>Angkatan</div><div>Kelas</div><div>Klien</div>
+        </div>
+
+        <!-- baris data (dummy) -->
+        <div class="rows" id="rows">
+          <div class="row" data-kelas="E" data-semester="3">
+            <div data-label="Kelompok">1</div>
+            <div data-label="Nim">2403101026</div>
+            <div data-label="Nama">Aldevianuri Handayani</div>
+            <div data-label="Angkatan">2024</div>
+            <div data-label="Kelas">3E</div>
+            <div data-label="Klien">Oky</div>
+          </div>
+
+          <div class="row" data-kelas="A" data-semester="2">
+            <div data-label="Kelompok">2</div>
+            <div data-label="Nim">2403101101</div>
+            <div data-label="Nama">Bima Saputra</div>
+            <div data-label="Angkatan">2024</div>
+            <div data-label="Kelas">2A</div>
+            <div data-label="Klien">UPT Perpus</div>
+          </div>
+
+          <div class="row" data-kelas="C" data-semester="5">
+            <div data-label="Kelompok">3</div>
+            <div data-label="Nim">2403101202</div>
+            <div data-label="Nama">Citra Lestari</div>
+            <div data-label="Angkatan">2023</div>
+            <div data-label="Kelas">5C</div>
+            <div data-label="Klien">KMM Lab</div>
+          </div>
+
+          <div class="row" data-kelas="B" data-semester="1">
+            <div data-label="Kelompok">4</div>
+            <div data-label="Nim">2403101303</div>
+            <div data-label="Nama">Dhiya Putra</div>
+            <div data-label="Angkatan">2025</div>
+            <div data-label="Kelas">1B</div>
+            <div data-label="Klien">UMKM RBJ</div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 
   <script>
-    const filterSelect = document.getElementById('filterKelas');
-    const tbody = document.querySelector('#tabelKelompok tbody');
+    const fKelas = document.getElementById('fKelas');
+    const fSemester = document.getElementById('fSemester');
+    const rows = document.querySelectorAll('#rows .row');
 
-    filterSelect.addEventListener('change', () => {
-      const filter = filterSelect.value;
-      [...tbody.rows].forEach(row => {
-        row.style.display = (filter === 'all' || row.dataset.kelas === filter) ? '' : 'none';
+    function applyFilter(){
+      const k = fKelas.value;       // A..E or all
+      const s = fSemester.value;    // "1".. "6" or all
+      rows.forEach(r=>{
+        const kelas = r.dataset.kelas;      // A/B/C/D/E
+        const sem   = r.dataset.semester;   // 1..6
+        const okKelas = (k==='all') || (kelas===k);
+        const okSem   = (s==='all') || (sem===s);
+        r.style.display = (okKelas && okSem) ? '' : 'none';
       });
-    });
-
-    function hapusBaris(btn){
-      if(confirm('Yakin ingin menghapus kelompok ini?')){
-        btn.closest('tr').remove();
-      }
     }
+    fKelas.addEventListener('change', applyFilter);
+    fSemester.addEventListener('change', applyFilter);
 
+    // Tambah baris dummy (pakai prompt)
     function tambahKelompok(){
-      const nama = prompt('Masukkan nama kelompok:'); if(!nama) return;
-      const kelas = prompt('Masukkan kelas (misal TI-3A):'); if(!kelas) return;
-      const anggota = prompt('Masukkan anggota (pisahkan koma):') || '-';
-      const dosen = prompt('Masukkan dosen pembimbing:') || '-';
+      const idx = document.querySelectorAll('#rows .row').length + 1;
+      const nim = prompt('NIM ketua:'); if(!nim) return;
+      const nama = prompt('Nama ketua:') || '-';
+      const angkatan = prompt('Angkatan (YYYY):') || '-';
+      const kelas = prompt('Kelas (A/B/C/D/E):'); if(!kelas) return;
+      const semester = prompt('Semester (1-6):'); if(!semester) return;
+      const klien = prompt('Klien:') || '-';
 
-      const tr = document.createElement('tr');
-      tr.dataset.kelas = kelas.trim();
-      tr.innerHTML = `
-        <td>${nama}</td>
-        <td>${anggota}</td>
-        <td>${kelas}</td>
-        <td>${dosen}</td>
-        <td class="actions">
-          <button class="btn-sm btn-view">View</button>
-          <button class="btn-sm btn-edit">Edit</button>
-          <button class="btn-sm btn-del" onclick="hapusBaris(this)">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+      const wrap = document.getElementById('rows');
+      const item = document.createElement('div');
+      item.className = 'row';
+      item.dataset.kelas = kelas.toUpperCase();
+      item.dataset.semester = String(semester);
+      item.innerHTML = `
+        <div data-label="Kelompok">${idx}</div>
+        <div data-label="Nim">${nim}</div>
+        <div data-label="Nama">${nama}</div>
+        <div data-label="Angkatan">${angkatan}</div>
+        <div data-label="Kelas">${semester}${kelas.toUpperCase()}</div>
+        <div data-label="Klien">${klien}</div>`;
+      wrap.appendChild(item);
+      applyFilter();
     }
+
+    // close sidebar on outside click (mobile)
+    document.addEventListener('click', (e)=>{
+      const sb = document.getElementById('sidebar');
+      if(!sb.classList.contains('show')) return;
+      const btn = e.target.closest('.topbar-btn');
+      if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
+    });
   </script>
 </body>
 </html>
