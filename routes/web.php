@@ -174,3 +174,19 @@ Route::get('/mahasiswa/dashboard', function () {
 Route::get('/mahasiswa/logbook', function () {
     return view('mahasiswa.logbook');
 })->name('mahasiswa.logbook');
+
+//kelompok mahasiswa 
+Route::get('/mahasiswa/kelompok', function () {
+    return view('mahasiswa.kelompok');
+})->name('mahasiswa.kelompok');
+
+//milestone mahasiswa
+Route::get('/mahasiswa/milestone', function () {
+    return view('mahasiswa.milestone');
+})->name('mahasiswa.milestone');
+
+// penilaaian mahasiswa 
+Route::get('/mahasiswa/penilaian', function () {
+    return view('mahasiswa.penilaian');
+})->name('mahasiswa.penilaian');
+
