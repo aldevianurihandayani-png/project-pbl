@@ -57,6 +57,24 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Dashboard Admin
+Route::middleware(['auth','role:dosen_penguji'])->group(function () {
+    Route::get('/dosenpenguji/dashboard', fn() => view('admins.dashboard'))->name('admins.dashboard');
+});
+
+// Dashboard Dosen Pembimbing
+Route::middleware(['auth','role:dosen_pembimbing'])->group(function () {
+    Route::get('/dosen/dashboard', fn() => view('dosen.dashboard'))->name('dosen.dashboard');
+});
+
+// Dashboard Mahasiswa
+Route::middleware(['auth','role:mahasiswa'])->group(function () {
+    Route::get('/mahasiswa/dashboard', fn() => view('mahasiswa.dashboard'))->name('mahasiswa.dashboard');
+});
+
+
+
+
 // ==============================
 // Setelah Login
 // ==============================
@@ -147,3 +165,12 @@ Route::get('/admins/dashboard', function () {
 })->name('admins.dashboard');
 
 
+//mahasiswa
+Route::get('/mahasiswa/dashboard', function () {
+    return view('mahasiswa.dashboard');
+})->name('mahasiswa.dashboard');
+
+//logbook mahasiswa 
+Route::get('/mahasiswa/logbook', function () {
+    return view('mahasiswa.logbook');
+})->name('mahasiswa.logbook');
