@@ -8,6 +8,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ContactController; 
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
+use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Http\Request;
 
@@ -204,3 +205,13 @@ Route::get('/koordinator/dashboard', function () {
 Route::get('/admins/dashboard', function () {
     return view('admins.dashboard');
 })->name('admins.dashboard');
+
+//notif test email
+Route::get('/tes-email', function () {
+    Mail::raw('Ini email percobaan dari Laravel + Mailtrap 🎉', function ($message) {
+        $message->to('noorma@politala.ac.id')
+                ->subject('Tes Kirim Email SIMAP');
+    });
+
+    return 'Email tes sudah dikirim (cek Mailtrap Sandbox)';
+});
