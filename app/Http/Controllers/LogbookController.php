@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Logbook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;             
+use App\Mail\LogbookSubmittedMail;              
+use Illuminate\Support\Carbon;                   
 
 class LogbookController extends Controller
 {
@@ -28,14 +31,34 @@ class LogbookController extends Controller
             'foto'       => ['nullable','image','mimes:jpg,jpeg,png','max:2048'], // 2MB
         ]);
 
+        // kalau ada user login, simpan user_id
+        if ($request->user()) {
+            $data['user_id'] = $request->user()->id;
+        }
+
         if ($request->hasFile('foto')) {
             // simpan ke storage/app/public/logbook
             $data['foto'] = $request->file('foto')->store('logbook', 'public');
         }
 
-        Logbook::create($data);
+        $logbook = Logbook::create($data);
 
-        return redirect()->route('logbook.index')->with('success','Logbook berhasil disimpan.');
+        // === Kirim email konfirmasi ke mahasiswa (mode log atau smtp sama saja) ===
+        try {
+            $emailTujuan = $request->user()?->email; 
+            if ($emailTujuan) {
+                Mail::to($emailTujuan)->send(new LogbookSubmittedMail(
+                    namaMahasiswa: $request->user()->nama ?? $request->user()->name ?? 'Mahasiswa',
+                    judul: $logbook->aktivitas,
+                    tanggal: Carbon::parse($logbook->tanggal)->translatedFormat('d F Y')
+                ));
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Gagal kirim email logbook: '.$e->getMessage());
+            // tidak memblokir alur simpan
+        }
+
+        return redirect()->route('logbook.index')->with('success','Logbook berhasil disimpan. (Email konfirmasi telah diproses)');
     }
 
     public function show(Logbook $logbook)
