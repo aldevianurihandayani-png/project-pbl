@@ -8,7 +8,8 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ContactController; 
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
-
+use App\Http\Controllers\RubrikPenilaianController;
+use App\Http\Controllers\DosenController;
 use Illuminate\Http\Request;
 
 // ==============================
@@ -162,3 +163,29 @@ Route::get('/koordinator/dashboard', function () {
 Route::get('/admins/dashboard', function () {
     return view('admins.dashboard');
 })->name('admins.dashboard');
+
+
+//mahasiswa
+Route::get('/mahasiswa/dashboard', function () {
+    return view('mahasiswa.dashboard');
+})->name('mahasiswa.dashboard');
+
+//logbook mahasiswa 
+Route::get('/mahasiswa/logbook', function () {
+    return view('mahasiswa.logbook');
+})->name('mahasiswa.logbook');
+
+//kelompok mahasiswa 
+Route::get('/mahasiswa/kelompok', function () {
+    return view('mahasiswa.kelompok');
+})->name('mahasiswa.kelompok');
+
+//milestone mahasiswa
+Route::get('/mahasiswa/milestone', function () {
+    return view('mahasiswa.milestone');
+})->name('mahasiswa.milestone');
+
+// penilaaian mahasiswa 
+Route::get('/mahasiswa/penilaian', function () {
+    return view('mahasiswa.penilaian');
+})->name('mahasiswa.penilaian');
