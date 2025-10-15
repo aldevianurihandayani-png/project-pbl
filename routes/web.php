@@ -189,3 +189,8 @@ Route::get('/mahasiswa/milestone', function () {
 Route::get('/mahasiswa/penilaian', function () {
     return view('mahasiswa.penilaian');
 })->name('mahasiswa.penilaian');
+
+
+
+Route::view('/register', 'register')->name('register'); // halaman form
+Route::post('/register', [UserController::class, 'register'])->name('register.post'); // <— PASTIKAN 'register' di sini
