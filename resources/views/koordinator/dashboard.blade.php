@@ -1,10 +1,10 @@
-{{-- resources/views/dosen/dashboard.blade.php --}}
+{{-- resources/views/koordinator/dashboard.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — Dosen Pembimbing</title>
+  <title>Dashboard — Koordinator</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -103,12 +103,12 @@
 
     <div class="menu">
       <div class="nav-title">Menu</div>
-      <a href="{{ url('/dosen/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
-      <a href="{{ url('/dosen/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
-      <a href="{{ url('/dosen/kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
-      <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
-      <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
-      
+      <a href="{{ url('/koordinator/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
+      <a href="{{ url('/koordinator/kelompok') }}"><i class="fa-solid fa-user-graduate"></i>Kelompok</a>
+      <a href="{{ url('/koordinator/mahasiswa') }}"><i class="fa-solid fa-users"></i>Mahasiswa</a>
+      <a href="{{ url('/koordinator/cpmk') }}"><i class="fa-solid fa-flag-checkered"></i>Cpmk</a>
+      <a href="{{ url('/koordinator/penilaian') }}"><i class="fa-solid fa-flag-checkered"></i>Penilaian</a>
+
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
@@ -125,7 +125,7 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
-        <h1>Dashboard Dosen Pembimbing</h1>
+        <h1>Dashboard Koordinator</h1>
       </div>
       <div class="userbox">
         <div class="notif">
