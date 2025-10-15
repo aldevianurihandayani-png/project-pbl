@@ -8,7 +8,6 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ContactController; 
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
-use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Http\Request;
 
@@ -57,6 +56,24 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Dashboard Admin
+Route::middleware(['auth','role:dosen_penguji'])->group(function () {
+    Route::get('/dosenpenguji/dashboard', fn() => view('admins.dashboard'))->name('admins.dashboard');
+});
+
+// Dashboard Dosen Pembimbing
+Route::middleware(['auth','role:dosen_pembimbing'])->group(function () {
+    Route::get('/dosen/dashboard', fn() => view('dosen.dashboard'))->name('dosen.dashboard');
+});
+
+// Dashboard Mahasiswa
+Route::middleware(['auth','role:mahasiswa'])->group(function () {
+    Route::get('/mahasiswa/dashboard', fn() => view('mahasiswa.dashboard'))->name('mahasiswa.dashboard');
+});
+
+
+
+
 // ==============================
 // Setelah Login
 // ==============================
@@ -66,6 +83,8 @@ Route::post('/register', [UserController::class, 'store'])
     ->name('register.store');
 
     //dashboard dosne pembimbing
+    //dashboard dosen pembimbing
+
 Route::middleware(['auth', 'role.dosen_pembimbing'])->group(function () {
     Route::get('/dosen/dashboard', fn () => view('dosen.dashboard'))
         ->name('dosen.dashboard');
@@ -73,128 +92,66 @@ Route::middleware(['auth', 'role.dosen_pembimbing'])->group(function () {
 Route::get('dosen/dashboard', function () {
     return view('dosen.dashboard');   // <— folder.view yg benar
 })->name('dosen.dashboard');
-// === Route lain diarahkan ke dashboard juga sementara ===
-// (opsional) placeholder menu lain — sesuaikan bila sudah ada halamannya
-Route::get('/dosen/mahasiswa', fn() => view('placeholders.mahasiswa'))->name('dosen.mahasiswa.index');
-Route::get('/dosen/kelompok',  fn() => view('placeholders.kelompok'))->name('dosen.kelompok.index');
-Route::get('/dosen/milestone', fn() => view('placeholders.milestone'))->name('dosen.milestone.index');
-Route::get('/dosen/logbook',   fn() => view('placeholders.logbook'))->name('dosen.logbook.index');
-
-Route::get('/dosen/milestone', function () {
-    $milestones = Milestone::all();
-    return view('milestone.index', compact('milestones'));
-})->name('dosen.milestone');
-
-
-
-// INDEX
-Route::get('/dosen/milestone', function () {
-    $milestones = Milestone::all();
-    return view('milestone.index', compact('milestones'));
-})->name('dosen.milestone');
-
-// CREATE (tampilkan form)
-Route::get('/dosen/milestone/create', function () {
-    return view('milestone.create'); // resources/views/milestone/create.blade.php
-})->name('dosen.milestone.create');
-
-// STORE (simpan data)
-Route::post('/dosen/milestone', function (Request $request) {
-    $data = $request->validate([
-        'minggu'   => ['required','integer'],
-        'kegiatan' => ['required','string','max:255'],
-        'deadline' => ['required','date'],
-        'status'   => ['required','in:Belum,Pending,Selesai'],
-    ]);
-    Milestone::create($data);
-    return redirect()->route('dosen.milestone')->with('success','Milestone ditambahkan.');
-})->name('dosen.milestone.store');
-
-
-// INDEX — khusus dosen pembimbing
-Route::get('/dosen/milestone', function () {
-    // kalau kosong, buat 1 contoh data
-    $sample = [
-        'minggu'   => 1,
-        'kegiatan' => 'Menghitung manual TPK',
-        'deadline' => '2025-10-09',
-        'status'   => 'Pending',
-        'approved' => 0,
-    ];
-    \App\Models\Milestone::firstOrCreate(
-        ['minggu' => 1, 'kegiatan' => 'Menghitung manual TPK', 'deadline' => '2025-10-09'],
-        $sample
-    );
-
-    $milestones = \App\Models\Milestone::orderBy('deadline')->get();
-    return view('milestone.index', compact('milestones'));
-})->name('dosen.milestone');
-
-// APPROVE — dosen menandai selesai
-Route::patch('/dosen/milestone/{id}/approve', function ($id) {
-    $m = \App\Models\Milestone::findOrFail($id);
-    $m->status = 'Selesai';
-    $m->approved = 1;
-    $m->approved_at = now();
-    $m->save();
-
-    return redirect()->route('dosen.milestone')->with('success','Milestone ditandai selesai.');
-})->name('dosen.milestone.approve');
-
-Route::patch('/dosen/milestone/{id}/status/{status}', function ($id, $status) {
-    abort_unless(in_array($status, ['Belum','Pending','Selesai']), 404);
-
-    $m = Milestone::findOrFail($id);
-    $m->status = $status;
-
-    // jika selesai, otomatis approved
-    if ($status === 'Selesai') {
-        $m->approved = 1;
-        $m->approved_at = now();
-    } else {
-        $m->approved = 0;
-        $m->approved_at = null;
-    }
-
-    $m->save();
-    return back()->with('success', "Status diubah ke {$status}");
-})->name('dosen.milestone.setStatus');
-
-
-Route::patch('/dosen/milestone/{id}/status/{status}', function ($id, $status) {
-    abort_unless(in_array($status, ['Belum','Pending','Selesai']), 404);
-    $m = Milestone::findOrFail($id);
-    $m->status = $status;
-    if ($status === 'Selesai') { $m->approved = 1; $m->approved_at = now(); }
-    else { $m->approved = 0; $m->approved_at = null; }
-    $m->save();
-    return back();
-})->name('dosen.milestone.setStatus');
 
 //kelompok dosen pembimbing
-Route::get('/dosen/kelompok', [KelompokController::class, 'index'])->name('dosen.kelompok');
+Route::get('dosen/kelompok', function () {
+    return view('dosen.kelompok');   // <— folder.view yg benar
+})->name('dosen.kelompok');
+
+//mahasiswa pembimbing
+Route::get('dosen/mahasiswa', function () {
+    return view('dosen.mahasiswa');   // <— folder.view yg benar
+})->name('dosen.mahasiswa');
+//milestone pembimbing
+Route::get('dosen/milestone', function () {
+    return view('dosen.milestone');   // <— folder.view yg benar
+})->name('dosen.milestone');
+//logbook pembimbing
+Route::get('dosen/logbook', function () {
+    return view('dosen.logbook');   // <— folder.view yg benar
+})->name('dosen.logbook');
+
+
 
 //Dosen penguji 
 
 Route::get('/dosenpenguji/dashboard', function () {
     return view('dosenpenguji.dashboard');
 })->name('dosenpenguji.dashboard');
+//mahasiswa penguji
+Route::get('/dosenpenguji/mahasiswa', function () {
+    return view('dosenpenguji.mahasiswa');
+})->name('dosenpenguji.mahsiswa');
+//kelompok penguji
+Route::get('/dosenpenguji/kelompok', function () {
+    return view('dosenpenguji.kelompok');
+})->name('dosenpenguji.kelompok');
+//penilaian penguji
+Route::get('/dosenpenguji/penilaian', function () {
+    return view('dosenpenguji.penilaian');
+})->name('dosenpenguji.penilaian');
+//rubrik penguji
+Route::get('/dosenpenguji/rubrik', function () {
+    return view('dosenpenguji.rubrik');
+})->name('dosenpenguji.rubrik');
+//matakuliah penguji
+Route::get('/dosenpenguji/matakuliah', function () {
+    return view('dosenpenguji.matakuliah');
+})->name('dosenpenguji.matakuliah');
 
-//Mahasiswa 
-Route::get('/mahasiswa/dashboard', function () {
-    return view('mahasiswa.dashboard');
-})->name('mahasiswa.dashboard');
-
-
-Route::resource('mahasiswa', MahasiswaController::class);
-// minimal untuk index saja:
-// Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
 
 //Jaminan mutu
 Route::get('/jaminanmutu/dashboard', function () {
     return view('jaminanmutu.dashboard');
 })->name('jaminanmutu.dashboard');
-
+//rubric jamtu 
+Route::get('/jaminanmutu/rubrik', function () {
+    return view('jaminanmutu.rubrik');
+})->name('jaminanmutu.rubrik');
+//penilaian jamtu
+Route::get('/jaminanmutu/penilaian', function () {
+    return view('jaminanmutu.penilaian');
+})->name('jaminanmutu.penilaian');
 
 //koordinator
 Route::get('/koordinator/dashboard', function () {
@@ -205,13 +162,3 @@ Route::get('/koordinator/dashboard', function () {
 Route::get('/admins/dashboard', function () {
     return view('admins.dashboard');
 })->name('admins.dashboard');
-
-//notif test email
-Route::get('/tes-email', function () {
-    Mail::raw('Ini email percobaan dari Laravel + Mailtrap 🎉', function ($message) {
-        $message->to('noorma@politala.ac.id')
-                ->subject('Tes Kirim Email SIMAP');
-    });
-
-    return 'Email tes sudah dikirim (cek Mailtrap Sandbox)';
-});

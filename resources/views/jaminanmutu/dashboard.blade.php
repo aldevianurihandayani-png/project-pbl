@@ -1,10 +1,10 @@
-{{-- resources/views/dosen/dashboard.blade.php --}}
+{{-- resources/views/jaminanmutu/dashboard.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — Dosen Pembimbing</title>
+  <title>Dashboard — Jaminan Mutu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -103,11 +103,9 @@
 
     <div class="menu">
       <div class="nav-title">Menu</div>
-      <a href="{{ url('/dosen/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
-      <a href="{{ url('/dosen/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
-      <a href="{{ url('/dosen/kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
-      <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
-      <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
+      <a href="{{ url('/jaminanmutu/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
+      <a href="{{ url('/jaminanmutu/penilaian') }}"><i class="fa-solid fa-users"></i>Penilaian</a>
+      <a href="{{ url('/jaminanmutu/rubrik') }}"><i class="fa-solid fa-flag-checkered"></i>Rubrik</a>
       
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
@@ -125,7 +123,7 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
-        <h1>Dashboard Dosen Pembimbing</h1>
+        <h1>Dashboard Jaminan Mutu</h1>
       </div>
       <div class="userbox">
         <div class="notif">
@@ -146,32 +144,32 @@
       <section class="kpi">
         <div class="card">
           <div class="icon"><i class="fa-solid fa-users"></i></div>
-          <div class="meta"><small>Jumlah Kelompok</small><br><b>{{ $jumlahKelompok ?? 4 }}</b></div>
+          <div class="meta"><small>Penilaian</small><br><b>{{ $jumlahPenilaian ?? 5 }}</b></div>
         </div>
         <div class="card">
           <div class="icon"><i class="fa-solid fa-book"></i></div>
-          <div class="meta"><small>Logbook</small><br><b>{{ $jumlahLogbook ?? 5 }}</b></div>
+          <div class="meta"><small>Rubrik</small><br><b>{{ $jumlahRubrik ?? 9 }}</b></div>
         </div>
         <div class="card">
           <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
-          <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 100 }}</b></div>
+          <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 140 }}</b></div>
         </div>
       </section>
 
       <!-- Status Logbook -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-clipboard-check"></i> Status Logbook</div>
+        <div class="card-hd"><i class="fa-solid fa-clipboard-check"></i> Penilaian</div>
         <div class="card-bd">
-          Logbook terakhir mahasiswa Anda telah <strong>Disetujui</strong>.<br>
-          <span class="muted">Terakhir diperbarui: 2 Oktober 2025</span>
+          Nilai sudah Terupload <strong>lihat sekarang</strong>.<br>
+          <span class="muted">Terakhir diperbarui: 9 Oktober 2025</span>
         </div>
       </section>
 
       <!-- Milestone -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone</div>
+        <div class="card-hd"><i class="fa-solid fa-flag"></i> CPMK</div>
         <div class="card-bd">
-          Deadline milestone berikutnya: <strong>10 Oktober 2025</strong>.
+          Capaian Mata Kuliah sudah di perbarui <strong>10 Oktober 2025</strong>.
         </div>
       </section>
 
