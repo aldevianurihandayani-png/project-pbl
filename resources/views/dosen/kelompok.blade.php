@@ -1,43 +1,53 @@
-{{-- resources/views/dosen/kelompok/index.blade.php --}}
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kelompok — Dosen Pembimbing</title>
+  <title>Daftar Kelompok — Dosen Pembimbing</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
       --navy:#0b1d54; --navy-2:#0e257a; --bg:#f5f7fb; --card:#ffffff;
       --muted:#6c7a8a; --ring:rgba(13,23,84,.10); --shadow:0 6px 20px rgba(13,23,84,.08);
-      --radius:16px; --blue:#2f73ff; --line:#e8edf6; --head:#eef3fa;
+      --radius:16px;
     }
     *{box-sizing:border-box}
     body{
       margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg);
-      display:grid; grid-template-columns:260px 1fr; min-height:100vh; color:#233042;
+      display:grid; grid-template-columns:260px 1fr; min-height:100vh;
     }
 
-    /* ===== SIDEBAR (same as Mahasiswa) ===== */
-    .sidebar{ background:var(--navy); color:#e9edf7; padding:18px 16px; display:flex; flex-direction:column }
-    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:22px }
-    .brand-badge{ width:36px;height:36px; border-radius:10px; background:#1a2a6b; display:grid; place-items:center; font-weight:700 }
-    .brand-title{ line-height:1.1 }
-    .brand-title strong{ font-size:18px }
-    .brand-title small{ display:block; font-size:12px; opacity:.85 }
-    .nav-title{ font-size:12px; letter-spacing:.6px; text-transform:uppercase; opacity:.7; margin:16px 10px 6px }
+    /* ========== SIDEBAR ========== */
+    .sidebar{
+      background:var(--navy); color:#e9edf7; padding:18px 16px; display:flex; flex-direction:column;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; margin-bottom:22px;
+    }
+    .brand-badge{
+      width:36px;height:36px; border-radius:10px; background:#1a2a6b; display:grid; place-items:center;
+      font-weight:700; letter-spacing:.5px;
+    }
+    .brand-title{line-height:1.1}
+    .brand-title strong{font-size:18px}
+    .brand-title small{display:block; font-size:12px; opacity:.85}
+
+    .nav-title{font-size:12px; letter-spacing:.6px; text-transform:uppercase; opacity:.7; margin:16px 10px 6px}
     .menu a{
-      display:flex; align-items:center; gap:12px; text-decoration:none; color:#e9edf7;
-      padding:10px 12px; border-radius:12px; margin:4px 6px; transition:background .18s, transform .18s;
+      display:flex; align-items:center; gap:12px; text-decoration:none;
+      color:#e9edf7; padding:10px 12px; border-radius:12px; margin:4px 6px;
+      transition:background .18s, transform .18s;
     }
     .menu a:hover{ background:#11245f; transform:translateX(2px) }
     .menu a.active{ background:#1c3d86 }
     .menu i{ width:18px; text-align:center }
+
     .logout{ margin-top:auto }
-    .logout a{ color:#ffb2b2; display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; text-decoration:none }
+    .logout a{ color:#ffb2b2 }
     .logout a:hover{ background:#5c1020 }
 
-    /* ===== HEADER (same as Mahasiswa) ===== */
+    /* ========== MAIN ========== */
     main{ display:flex; flex-direction:column; min-width:0 }
     header.topbar{
       background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
@@ -45,56 +55,74 @@
     }
     .welcome h1{ margin:0; font-size:18px; letter-spacing:.2px }
     .userbox{ display:flex; align-items:center; gap:14px }
-    .notif{ position:relative } .notif i{ font-size:18px }
+    .notif{ position:relative; }
+    .notif i{ font-size:18px }
     .notif .badge{ position:absolute; top:-6px; right:-6px; background:#e53935; color:#fff; border-radius:10px; font-size:10px; padding:2px 5px }
-    .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
-    @media (max-width:980px){
+
+    .page{ padding:26px; display:grid; gap:18px }
+
+    /* Section cards */
+    .card{
+      background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--ring);
+    }
+    .card .card-hd{ padding:14px 18px; border-bottom:1px solid #eef1f6; display:flex; align-items:center; justify-content:space-between; color:var(--navy-2); font-weight:700 }
+    .card .card-bd{ padding:0; color:#233042; }
+    
+    /* Table Styles */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 12px 18px; text-align: left; border-bottom: 1px solid #eef1f6; }
+    .table th { color: var(--muted); font-size: 14px; font-weight: 600; }
+    .table td { font-size: 15px; }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background-color: #f5f7fb; }
+
+    /* Button Styles */
+    .btn {
+        display: inline-block;
+        font-weight: 600;
+        color: #fff;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: var(--navy-2);
+        border: 1px solid transparent;
+        padding: .5rem 1rem;
+        font-size: .875rem;
+        border-radius: .5rem;
+        text-decoration: none;
+        transition: background-color .15s ease-in-out;
+    }
+    .btn:hover { background-color: var(--navy); }
+    .btn-warning { background-color: #f59e0b; }
+    .btn-warning:hover { background-color: #d97706; }
+    .btn-danger { background-color: #ef4444; }
+    .btn-danger:hover { background-color: #dc2626; }
+    .btn-sm { padding: .25rem .5rem; font-size: .75rem; }
+
+    .form-inline { display: flex; align-items: flex-end; gap: 1rem; }
+    .form-inline .form-group { flex-grow: 1; }
+    .form-control { display: block; width: 100%; padding: .75rem 1rem; font-size: 1rem; border: 1px solid #ced4da; border-radius: .5rem; }
+
+    @media (max-width: 980px){
       body{ grid-template-columns:1fr }
       .sidebar{ position:fixed; inset:0 auto 0 0; width:240px; transform:translateX(-102%); transition:transform .2s; z-index:10 }
       .sidebar.show{ transform:none }
       .topbar-btn{ display:inline-flex }
     }
-
-    /* ===== CONTENT: sheet non-table ===== */
-    .page{ padding:26px; display:grid; gap:18px }
-    .toolbar{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap }
-    .filters{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
-    .filters select{ padding:8px 10px; border:1px solid #cfd6e3; border-radius:8px; background:#fff }
-    .btn{ border:none; border-radius:8px; padding:9px 14px; cursor:pointer; font-weight:700; font-size:14px; background:var(--navy); color:#fff }
-    .btn:hover{ background:#142f85 }
-
-    .sheet{ background:var(--card); border:1px solid var(--ring); border-radius:12px; box-shadow:var(--shadow); overflow:hidden }
-    .sheet-head{ background:var(--head); font-weight:700; color:#283a5a }
-    .row{ display:grid; grid-template-columns:100px 140px 1fr 120px 90px 140px; padding:10px 12px }
-    .rows{ position:relative; }
-    /* garis horizontal tipis */
-    .rows::before{
-      content:""; position:absolute; inset:0;
-      background: repeating-linear-gradient(to bottom, transparent 0 42px, var(--line) 42px 43px);
-      pointer-events:none;
-    }
-    .row > div{ padding:4px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-    .title{ font-weight:700; color:#0b1d54; margin:0 0 8px 0; }
-
-    @media(max-width:860px){
-      .row{ grid-template-columns:80px 120px 1fr 100px 80px 120px }
-    }
-    @media(max-width:680px){
-      .sheet-head{ display:none }
-      .row{ grid-template-columns:1fr 1fr; padding:12px }
-      .row > div{ display:flex; gap:6px }
-      .row > div::before{ content:attr(data-label) ":"; min-width:100px; color:#6b7a93 }
-      .rows::before{ background:none }
-    }
+    .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
   </style>
 </head>
 <body>
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="brand-badge">SI</div>
-      <div class="brand-title"><strong>SIMAP</strong><small>Politala</small></div>
+      <div class="brand-title">
+        <strong>SIMAP</strong>
+        <small>Politala</small>
+      </div>
     </div>
 
     <div class="menu">
@@ -110,144 +138,117 @@
     </div>
 
     <div class="logout">
-      <a href="{{ url('/logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+          @csrf
+          <button type="submit" class="menu" style="border:none; background:none; cursor:pointer; width:100%; text-align:left;">
+              <a style="display:block;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+          </button>
+      </form>
     </div>
   </aside>
 
-  <!-- ===== MAIN ===== -->
+  <!-- ========== MAIN ========== -->
   <main>
     <header class="topbar">
       <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
         <i class="fa-solid fa-bars"></i>
       </button>
-      <div class="welcome"><h1>Kelompok — Dosen Pembimbing</h1></div>
+      <div class="welcome">
+        <h1>Daftar Kelompok</h1>
+      </div>
       <div class="userbox">
-        <div class="notif"><i class="fa-regular fa-bell"></i><span class="badge">3</span></div>
+        <div class="notif">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+            {{ strtoupper(substr(auth()->user()->name ?? 'G', 0, 2)) }}
           </div>
-          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
+          <strong>{{ auth()->user()->name ?? 'Guest' }}</strong>
         </div>
       </div>
     </header>
 
     <div class="page">
-      <div class="toolbar">
-        <h2 class="title">Data Kelompok</h2>
 
-        <div class="filters">
-          <label>Kelas:
-            <select id="fKelas">
-              <option value="all">Semua</option>
-              <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
-            </select>
-          </label>
-          <label>Semester:
-            <select id="fSemester">
-              <option value="all">Semua</option>
-              <option>1</option><option>2</option><option>3</option>
-              <option>4</option><option>5</option><option>6</option>
-            </select>
-          </label>
-          <button class="btn" onclick="tambahKelompok()">+ Tambah Kelompok</button>
+      <section class="card">
+        <div class="card-hd">Filter Kelompok</div>
+        <div class="card-bd" style="padding: 1.25rem;">
+          <form method="GET" action="{{ route('dosen.kelompok.index') }}" class="form-inline">
+            <div class="form-group">
+              <label for="semester">Semester</label>
+              <select name="semester" id="semester" class="form-control">
+                <option value="">Semua</option>
+                @for ($i = 1; $i <= 6; $i++)
+                  <option value="{{ $i }}" {{ ($request->semester == $i) ? 'selected' : '' }}>{{ $i }}</option>
+                @endfor
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="kelas">Kelas</label>
+              <select name="kelas" id="kelas" class="form-control">
+                <option value="">Semua</option>
+                @foreach (['A', 'B', 'C', 'D', 'E'] as $kelas)
+                  <option value="{{ $kelas }}" {{ ($request->kelas == $kelas) ? 'selected' : '' }}>{{ $kelas }}</option>
+                @endforeach
+              </select>
+            </div>
+            <button type="submit" class="btn">Filter</button>
+          </form>
         </div>
-      </div>
+      </section>
 
-      <div class="sheet" id="sheet">
-        <!-- header kolom -->
-        <div class="row sheet-head">
-          <div>Kelompok</div><div>Nim</div><div>Nama</div><div>Angkatan</div><div>Kelas</div><div>Klien</div>
+      <section class="card">
+        <div class="card-hd">
+            <div><i class="fa-solid fa-users"></i> Daftar Kelompok Anda</div>
+            <a href="{{ route('dosen.kelompok.create') }}" class="btn">Tambah Kelompok</a>
         </div>
-
-        <!-- baris data (dummy) -->
-        <div class="rows" id="rows">
-          <div class="row" data-kelas="E" data-semester="3">
-            <div data-label="Kelompok">1</div>
-            <div data-label="Nim">2403101026</div>
-            <div data-label="Nama">Aldevianuri Handayani</div>
-            <div data-label="Angkatan">2024</div>
-            <div data-label="Kelas">3E</div>
-            <div data-label="Klien">Oky</div>
-          </div>
-
-          <div class="row" data-kelas="A" data-semester="2">
-            <div data-label="Kelompok">2</div>
-            <div data-label="Nim">2403101101</div>
-            <div data-label="Nama">Bima Saputra</div>
-            <div data-label="Angkatan">2024</div>
-            <div data-label="Kelas">2A</div>
-            <div data-label="Klien">UPT Perpus</div>
-          </div>
-
-          <div class="row" data-kelas="C" data-semester="5">
-            <div data-label="Kelompok">3</div>
-            <div data-label="Nim">2403101202</div>
-            <div data-label="Nama">Citra Lestari</div>
-            <div data-label="Angkatan">2023</div>
-            <div data-label="Kelas">5C</div>
-            <div data-label="Klien">KMM Lab</div>
-          </div>
-
-          <div class="row" data-kelas="B" data-semester="1">
-            <div data-label="Kelompok">4</div>
-            <div data-label="Nim">2403101303</div>
-            <div data-label="Nama">Dhiya Putra</div>
-            <div data-label="Angkatan">2025</div>
-            <div data-label="Kelas">1B</div>
-            <div data-label="Klien">UMKM RBJ</div>
-          </div>
+        <div class="card-bd">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nama Kelompok</th>
+                        <th>Kelas</th>
+                        <th>Ketua</th>
+                        <th>Dosen Pembimbing</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($kelompoks as $kelompok)
+                    <tr>
+                        <td>
+                            <strong>{{ $kelompok->nama }}</strong><br>
+                            <small style="color:var(--muted)">{{ $kelompok->judul_proyek }}</small><br>
+                            <small style="color:var(--muted);"><b>Anggota:</b> {{ $kelompok->anggota }}</small>
+                        </td>
+                        <td>{{ str_replace('TI-', '', $kelompok->kelas) }}</td>
+                        <td>{{ $kelompok->ketua_kelompok }}</td>
+                        <td>{{ $kelompok->dosen_pembimbing }}</td>
+                        <td>
+                            <a href="{{ route('dosen.kelompok.edit', $kelompok->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{{ route('dosen.kelompok.destroy', $kelompok->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelompok ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 3rem;">Tidak ada data kelompok.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-      </div>
+      </section>
     </div>
   </main>
 
   <script>
-    const fKelas = document.getElementById('fKelas');
-    const fSemester = document.getElementById('fSemester');
-    const rows = document.querySelectorAll('#rows .row');
-
-    function applyFilter(){
-      const k = fKelas.value;       // A..E or all
-      const s = fSemester.value;    // "1".. "6" or all
-      rows.forEach(r=>{
-        const kelas = r.dataset.kelas;      // A/B/C/D/E
-        const sem   = r.dataset.semester;   // 1..6
-        const okKelas = (k==='all') || (kelas===k);
-        const okSem   = (s==='all') || (sem===s);
-        r.style.display = (okKelas && okSem) ? '' : 'none';
-      });
-    }
-    fKelas.addEventListener('change', applyFilter);
-    fSemester.addEventListener('change', applyFilter);
-
-    // Tambah baris dummy (pakai prompt)
-    function tambahKelompok(){
-      const idx = document.querySelectorAll('#rows .row').length + 1;
-      const nim = prompt('NIM ketua:'); if(!nim) return;
-      const nama = prompt('Nama ketua:') || '-';
-      const angkatan = prompt('Angkatan (YYYY):') || '-';
-      const kelas = prompt('Kelas (A/B/C/D/E):'); if(!kelas) return;
-      const semester = prompt('Semester (1-6):'); if(!semester) return;
-      const klien = prompt('Klien:') || '-';
-
-      const wrap = document.getElementById('rows');
-      const item = document.createElement('div');
-      item.className = 'row';
-      item.dataset.kelas = kelas.toUpperCase();
-      item.dataset.semester = String(semester);
-      item.innerHTML = `
-        <div data-label="Kelompok">${idx}</div>
-        <div data-label="Nim">${nim}</div>
-        <div data-label="Nama">${nama}</div>
-        <div data-label="Angkatan">${angkatan}</div>
-        <div data-label="Kelas">${semester}${kelas.toUpperCase()}</div>
-        <div data-label="Klien">${klien}</div>`;
-      wrap.appendChild(item);
-      applyFilter();
-    }
-
-    // close sidebar on outside click (mobile)
+    // Tutup sidebar ketika klik di luar (mobile)
     document.addEventListener('click', (e)=>{
       const sb = document.getElementById('sidebar');
       if(!sb.classList.contains('show')) return;
