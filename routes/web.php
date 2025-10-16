@@ -1,192 +1,125 @@
 <?php
 
-use App\Http\Controllers\LogbookController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\ContactController; 
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
+use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
+use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
+use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
+use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\LogbookController;
+use App\Models\Logbook;
 use App\Models\Milestone;
-use App\Http\Controllers\KelompokController;
-use App\Http\Controllers\RubrikPenilaianController;
-use App\Http\Controllers\DosenController;
-use Illuminate\Http\Request;
 
-// ==============================
-// Halaman Publik
-// ==============================
-
-// Halaman Home
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
-// Halaman About
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
-
-// Halaman Contact
-Route::get('/contact', fn() => view('contact'))->name('contact');
+/*
+|--------------------------------------------------------------------------
+| Halaman Publik
+|--------------------------------------------------------------------------
+*/
+Route::view('/', 'home')->name('home');
+Route::view('/about', 'about')->name('about');
+Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-// Halaman daftar logbook
-Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
-
-// Form tambah logbook
-Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');
-
-// Simpan logbook
-Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
-
-// ==============================
-// Autentikasi
-// ==============================
-
-// Form Register
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
-
-// Proses Register
+/*
+|--------------------------------------------------------------------------
+| Autentikasi
+|--------------------------------------------------------------------------
+*/
+Route::view('/register', 'register')->name('register');
 Route::post('/register', [UserController::class, 'register'])->name('register.post');
 
-//Login
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
-
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Dashboard Admin
-Route::middleware(['auth','role:dosen_penguji'])->group(function () {
-    Route::get('/dosenpenguji/dashboard', fn() => view('admins.dashboard'))->name('admins.dashboard');
+/*
+|--------------------------------------------------------------------------
+| Dashboard per-ROLE (wajib login)
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Admin
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admins')->name('admins.')->group(function () {
+    Route::view('/dashboard', 'admins.dashboard')->name('dashboard');
+    Route::resource('matakuliah', AdminMataKuliahController::class);
+    Route::resource('mahasiswa', AdminMahasiswaController::class);
+    Route::resource('kelompok', AdminKelompokController::class)->only(['index']);
+    Route::resource('logbook', AdminLogbookController::class)->only(['index']);
 });
 
-// Dashboard Dosen Pembimbing
-Route::middleware(['auth','role:dosen_pembimbing'])->group(function () {
-    Route::get('/dosen/dashboard', fn() => view('dosen.dashboard'))->name('dosen.dashboard');
-});
-
-// Dashboard Mahasiswa
-Route::middleware(['auth','role:mahasiswa'])->group(function () {
-    Route::get('/mahasiswa/dashboard', fn() => view('mahasiswa.dashboard'))->name('mahasiswa.dashboard');
-});
 
 
+    Route::view('/dosen/dashboard', 'dosen.dashboard')->name('dosen.dashboard');
+    Route::resource('/dosen/kelompok', DosenKelompokController::class)->names('dosen.kelompok');
+    Route::view('/dosen/mahasiswa', 'dosen.mahasiswa')->name('dosen.mahasiswa');
+    Route::view('/dosen/milestone', 'dosen.milestone')->name('dosen.milestone');
+    Route::view('/dosen/logbook', 'dosen.logbook')->name('dosen.logbook');
 
 
-// ==============================
-// Setelah Login
-// ==============================
+    Route::view('/dosenpenguji/dashboard', 'dosenpenguji.dashboard')->name('dosenpenguji.dashboard');
+    Route::view('/dosenpenguji/mahasiswa', 'dosenpenguji.mahasiswa')->name('dosenpenguji.mahasiswa');
+    Route::view('/dosenpenguji/kelompok', 'dosenpenguji.kelompok')->name('dosenpenguji.kelompok');
+    Route::view('/dosenpenguji/penilaian', 'dosenpenguji.penilaian')->name('dosenpenguji.penilaian');
+    Route::view('/dosenpenguji/rubrik', 'dosenpenguji.rubrik')->name('dosenpenguji.rubrik');
+    Route::view('/dosenpenguji/matakuliah', 'dosenpenguji.matakuliah')->name('dosenpenguji.matakuliah');
 
-// Proses Register
-Route::post('/register', [UserController::class, 'store'])
-    ->name('register.store');
+    Route::view('/jaminanmutu/dashboard', 'jaminanmutu.dashboard')->name('jaminanmutu.dashboard');
+    Route::view('/jaminanmutu/rubrik', 'jaminanmutu.rubrik')->name('jaminanmutu.rubrik');
+    Route::view('/jaminanmutu/penilaian', 'jaminanmutu.penilaian')->name('jaminanmutu.penilaian');
 
-    //dashboard dosne pembimbing
-    //dashboard dosen pembimbing
-
-Route::middleware(['auth', 'role.dosen_pembimbing'])->group(function () {
-    Route::get('/dosen/dashboard', fn () => view('dosen.dashboard'))
-        ->name('dosen.dashboard');
-});
-Route::get('dosen/dashboard', function () {
-    return view('dosen.dashboard');   // <— folder.view yg benar
-})->name('dosen.dashboard');
-
-//kelompok dosen pembimbing
-Route::get('dosen/kelompok', function () {
-    return view('dosen.kelompok');   // <— folder.view yg benar
-})->name('dosen.kelompok');
-
-//mahasiswa pembimbing
-Route::get('dosen/mahasiswa', function () {
-    return view('dosen.mahasiswa');   // <— folder.view yg benar
-})->name('dosen.mahasiswa');
-//milestone pembimbing
-Route::get('dosen/milestone', function () {
-    return view('dosen.milestone');   // <— folder.view yg benar
-})->name('dosen.milestone');
-//logbook pembimbing
-Route::get('dosen/logbook', function () {
-    return view('dosen.logbook');   // <— folder.view yg benar
-})->name('dosen.logbook');
+    Route::view('/koordinator/dashboard', 'koordinator.dashboard')->name('koordinator.dashboard');
 
 
-
-//Dosen penguji 
-
-Route::get('/dosenpenguji/dashboard', function () {
-    return view('dosenpenguji.dashboard');
-})->name('dosenpenguji.dashboard');
-//mahasiswa penguji
-Route::get('/dosenpenguji/mahasiswa', function () {
-    return view('dosenpenguji.mahasiswa');
-})->name('dosenpenguji.mahsiswa');
-//kelompok penguji
-Route::get('/dosenpenguji/kelompok', function () {
-    return view('dosenpenguji.kelompok');
-})->name('dosenpenguji.kelompok');
-//penilaian penguji
-Route::get('/dosenpenguji/penilaian', function () {
-    return view('dosenpenguji.penilaian');
-})->name('dosenpenguji.penilaian');
-//rubrik penguji
-Route::get('/dosenpenguji/rubrik', function () {
-    return view('dosenpenguji.rubrik');
-})->name('dosenpenguji.rubrik');
-//matakuliah penguji
-Route::get('/dosenpenguji/matakuliah', function () {
-    return view('dosenpenguji.matakuliah');
-})->name('dosenpenguji.matakuliah');
+/*
+|--------------------------------------------------------------------------
+| Mahasiswa (wajib login & role:mahasiswa)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth','role:mahasiswa'])
+    ->prefix('mahasiswa')->as('mhs.')
+    ->group(function () {
 
 
-//Jaminan mutu
-Route::get('/jaminanmutu/dashboard', function () {
-    return view('jaminanmutu.dashboard');
-})->name('jaminanmutu.dashboard');
-//rubric jamtu 
-Route::get('/jaminanmutu/rubrik', function () {
-    return view('jaminanmutu.rubrik');
-})->name('jaminanmutu.rubrik');
-//penilaian jamtu
-Route::get('/jaminanmutu/penilaian', function () {
-    return view('jaminanmutu.penilaian');
-})->name('jaminanmutu.penilaian');
+        Route::get('/dashboard', function () {
+            $user = auth()->user();
+            if (!$user) {
+                return redirect()->route('login');
+            }
 
-//koordinator
-Route::get('/koordinator/dashboard', function () {
-    return view('koordinator.dashboard');
-})->name('koordinator.dashboard');
+            // Ambil data dinamis
+            $logbooks = Logbook::where('user_id', $user->id)->latest()->take(3)->get();
+            $milestones = Milestone::orderBy('deadline')->get();
 
-//admins
-Route::get('/admins/dashboard', function () {
-    return view('admins.dashboard');
-})->name('admins.dashboard');
+            // Data untuk dikirim ke view
+            $data = [
+                'nama' => $user->name,
+                'jumlahLogbook' => $logbooks->count(),
+                'totalMilestone' => $milestones->count(),
+                'milestoneSelesai' => $milestones->where('status', 'Selesai')->count(),
+                'anggotaKelompok' => 0, // Anggap 0 karena tidak ada pencarian kelompok
+                'logbooks' => $logbooks,
+                'milestones' => $milestones,
+            ];
 
+            return view('mahasiswa.dashboard', $data);
+        })->name('dashboard');
 
-//mahasiswa
-Route::get('/mahasiswa/dashboard', function () {
-    return view('mahasiswa.dashboard');
-})->name('mahasiswa.dashboard');
+        // Logbook (controller agar pagination/links berfungsi)
+        Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
+        Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
+        Route::get('/logbook/{logbook}/edit', [LogbookController::class, 'edit'])->name('logbook.edit');
+        Route::put('/logbook/{logbook}', [LogbookController::class, 'update'])->name('logbook.update');
+        Route::delete('/logbook/{logbook}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
+        Route::get('/logbook/{logbook}/download', [LogbookController::class, 'download'])->name('logbook.download');
 
-//logbook mahasiswa 
-Route::get('/mahasiswa/logbook', function () {
-    return view('mahasiswa.logbook');
-})->name('mahasiswa.logbook');
-
-//kelompok mahasiswa 
-Route::get('/mahasiswa/kelompok', function () {
-    return view('mahasiswa.kelompok');
-})->name('mahasiswa.kelompok');
-
-//milestone mahasiswa
-Route::get('/mahasiswa/milestone', function () {
-    return view('mahasiswa.milestone');
-})->name('mahasiswa.milestone');
-
-// penilaaian mahasiswa 
-Route::get('/mahasiswa/penilaian', function () {
-    return view('mahasiswa.penilaian');
-})->name('mahasiswa.penilaian');
-
+        Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
+        Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
+        Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
+    });
