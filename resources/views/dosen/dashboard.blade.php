@@ -132,12 +132,12 @@
           <i class="fa-regular fa-bell"></i>
           <span class="badge">3</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <a href="{{ url('/profile') }}" style="display:flex;align-items:center;gap:10px; text-decoration:none; color:inherit;">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+            {{ strtoupper(substr('Fara Apriliana',0,2)) }}
           </div>
-          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
-        </div>
+          <strong>Fara Apriliana</strong>
+        </a>
       </div>
     </header>
 
