@@ -3,17 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Logbook extends Model
 {
-    protected $fillable = [
-        'user_id','tanggal','minggu','aktivitas','rincian',
-        'lampiran_path','status','komentar_dosen'
-    ];
+    protected $fillable = ['name','email','password','role','email_verified_at'];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
+
+    // supaya di Blade bisa pakai ->format('Y-m-d')
+    protected $casts = [
+        'tanggal' => 'date',
+    ];
 }
