@@ -76,46 +76,5 @@ Route::prefix('admins')->name('admins.')->group(function () {
 
     Route::view('/koordinator/dashboard', 'koordinator.dashboard')->name('koordinator.dashboard');
 
+    Route::view('/mahasiswa/dashboard', 'mahasiswa.dashboard')->name('kmahasiswa.dashboard');
 
-/*
-|--------------------------------------------------------------------------
-| Mahasiswa (wajib login & role:mahasiswa)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth','role:mahasiswa'])
-    ->prefix('mahasiswa')->as('mhs.')
-    ->group(function () {
-
-
-        Route::get('/dashboard', function () {
-            $user = auth()->user();
-            if (!$user) {
-                return redirect()->route('login');
-            }
-
-            // Ambil data dinamis
-            $logbooks = Logbook::where('user_id', $user->id)->latest()->take(3)->get();
-            $milestones = Milestone::orderBy('deadline')->get();
-
-            // Data untuk dikirim ke view
-            $data = [
-                'nama' => $user->name,
-                'jumlahLogbook' => $logbooks->count(),
-                'totalMilestone' => $milestones->count(),
-                'milestoneSelesai' => $milestones->where('status', 'Selesai')->count(),
-                'anggotaKelompok' => 0, // Anggap 0 karena tidak ada pencarian kelompok
-                'logbooks' => $logbooks,
-                'milestones' => $milestones,
-            ];
-
-            return view('mahasiswa.dashboard', $data);
-        })->name('dashboard');
-
-        // Logbook (controller agar pagination/links berfungsi)
-        Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
-        Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
-        Route::get('/logbook/{logbook}/edit', [LogbookController::class, 'edit'])->name('logbook.edit');
-        Route::put('/logbook/{logbook}', [LogbookController::class, 'update'])->name('logbook.update');
-        Route::delete('/logbook/{logbook}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
-        Route::get('/logbook/{logbook}/download', [LogbookController::class, 'download'])->name('logbook.download');
-    });
