@@ -2,79 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;   // <- penting
-use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function showRegisterForm()
+    public function showRegister()
     {
         return view('auth.register');
     }
 
-    public function register(Request $request): RedirectResponse
+    // REGISTER → AUTO LOGIN → REDIRECT PER-ROLE
+    public function register(Request $request)
     {
-        // JANGAN pakai "rules:" — cukup array biasa
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'unique:users',
-                function ($attribute, $value, $fail) {
-                    if (!str_ends_with($value, '@mhs.politeknik.ac.id')) {
-                        $fail('Hanya email @mhs.politeknik.ac.id yang diizinkan untuk registrasi.');
-                    }
-                },
-            ],
-            'password' => 'required|string|min:8|confirmed',
+        $data = $request->validate([
+            'name'     => ['required','string','max:100'],
+            'email'    => ['required','email','max:150','unique:users,email'],
+            'password' => ['required','min:6','confirmed'],
+            'role'     => ['nullable','in:admin,dosen_pembimbing,mahasiswa'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role'     => $data['role'] ?? 'mahasiswa',
         ]);
 
         Auth::login($user);
-        return redirect()->route('dashboard'); // pastikan route ini ada
+
+        return redirect()->route(match ($user->role) {
+            'admin'            => 'admins.dashboard',
+            'dosen_pembimbing' => 'dosen.dashboard',
+            default            => 'mahasiswa.dashboard',
+        })->with('success','Registrasi berhasil. Selamat datang!');
     }
 
-    public function showLoginForm()
+    public function showLogin()
     {
         return view('auth.login');
     }
 
-    public function login(Request $request): RedirectResponse
+    public function authenticate(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $cred = $request->validate([
+            'email'    => ['required','email'],
+            'password' => ['required'],
         ]);
 
-        if (!str_ends_with($request->email, '@mhs.politeknik.ac.id')) {
-            return back()->withErrors([
-                'email' => 'Hanya email @mhs.politeknik.ac.id yang diperbolehkan login.',
-            ]);
-        }
-
-        if (Auth::attempt($request->only('email', 'password'))) {
+        if (Auth::attempt($cred, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard'); // pastikan ada
+            $role = auth()->user()->role;
+            return redirect()->route(match ($role) {
+                'admin'            => 'admins.dashboard',
+                'dosen_pembimbing' => 'dosen.dashboard',
+                default            => 'mahasiswa.dashboard',
+            });
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah.']);
+        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        return redirect()->route('login');
     }
 }

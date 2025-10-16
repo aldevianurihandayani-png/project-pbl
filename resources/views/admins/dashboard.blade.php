@@ -87,6 +87,7 @@
       .topbar-btn{ display:inline-flex }
     }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
+    a.card-link{ text-decoration:none }
   </style>
 </head>
 <body>
@@ -131,30 +132,38 @@
           <i class="fa-regular fa-bell"></i>
           <span class="badge">3</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+        <a href="{{ route('profile.index') }}" style="text-decoration: none; color: inherit;">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+              {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+            </div>
+            <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
           </div>
-          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
-        </div>
+        </a>
       </div>
     </header>
 
     <div class="page">
       <!-- KPI -->
       <section class="kpi">
-        <div class="card">
-          <div class="icon"><i class="fa-solid fa-users"></i></div>
-          <div class="meta"><small>Jumlah Kelompok</small><br><b>{{ $jumlahKelompok ?? 4 }}</b></div>
-        </div>
-        <div class="card">
-          <div class="icon"><i class="fa-solid fa-book"></i></div>
-          <div class="meta"><small>Logbook</small><br><b>{{ $jumlahLogbook ?? 5 }}</b></div>
-        </div>
-        <div class="card">
-          <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
-          <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 100 }}</b></div>
-        </div>
+        <a href="{{ route('admins.kelompok.index') }}" class="card-link">
+          <div class="card">
+            <div class="icon"><i class="fa-solid fa-users"></i></div>
+            <div class="meta"><small>Jumlah Kelompok</small><br><b>{{ $jumlahKelompok ?? 4 }}</b></div>
+          </div>
+        </a>
+        <a href="{{ route('admins.logbook.index') }}" class="card-link">
+          <div class="card">
+            <div class="icon"><i class="fa-solid fa-book"></i></div>
+            <div class="meta"><small>Logbook</small><br><b>{{ $jumlahLogbook ?? 5 }}</b></div>
+          </div>
+        </a>
+        <a href="{{ route('admins.mahasiswa.index') }}" class="card-link">
+          <div class="card">
+            <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
+            <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 100 }}</b></div>
+          </div>
+        </a>
       </section>
 
       <!-- Status Logbook -->

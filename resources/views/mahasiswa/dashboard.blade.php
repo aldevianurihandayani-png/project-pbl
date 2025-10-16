@@ -176,29 +176,34 @@
       <section class="card">
         <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone & Progress</div>
         <div class="card-bd">
+          @php
+            function getStatusClass($status) {
+                $map = [
+                    'Selesai' => 'ok',
+                    'Pending' => 'warn',
+                    'Belum' => 'danger',
+                    'menunggu' => 'warn',
+                    'disetujui' => 'ok',
+                    'ditolak' => 'danger',
+                ];
+                return $map[$status] ?? '';
+            }
+          @endphp
           <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:16px">
             <div>
               <table>
                 <thead><tr><th>Tanggal</th><th>Milestone</th><th>Status</th><th>Aksi</th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td>20 Okt 2025</td>
-                    <td>Proposal</td>
-                    <td><span class="pill ok">Selesai</span></td>
-                    <td><button class="pill" style="border-color:#cbd5e1;background:#fff">Lihat</button></td>
-                  </tr>
-                  <tr>
-                    <td>27 Okt 2025</td>
-                    <td>Desain Sistem</td>
-                    <td><span class="pill warn">Progres 60%</span></td>
-                    <td><button class="pill" style="border-color:#cbd5e1;background:#fff">Detail</button></td>
-                  </tr>
-                  <tr>
-                    <td>03 Nov 2025</td>
-                    <td>Implementasi</td>
-                    <td><span class="pill danger">Belum Mulai</span></td>
-                    <td><button class="pill" style="border-color:#cbd5e1;background:#fff">Detail</button></td>
-                  </tr>
+                  @forelse ($milestones as $milestone)
+                    <tr>
+                      <td>{{ $milestone->deadline }}</td>
+                      <td>{{ $milestone->kegiatan }}</td>
+                      <td><span class="pill {{ getStatusClass($milestone->status) }}">{{ $milestone->status }}</span></td>
+                      <td><button class="pill" style="border-color:#cbd5e1;background:#fff">Detail</button></td>
+                    </tr>
+                  @empty
+                    <tr><td colspan="4" class="muted" style="text-align:center">Belum ada data milestone.</td></tr>
+                  @endforelse
                 </tbody>
               </table>
             </div>
@@ -223,17 +228,17 @@
         <div class="card-hd"><i class="fa-regular fa-clipboard"></i> Logbook Terakhir</div>
         <div class="card-bd">
           <table>
-            <thead><tr><th>Minggu</th><th>Ringkasan</th><th>Reviewer</th><th>Status</th></tr></thead>
+            <thead><tr><th>Minggu</th><th>Ringkasan</th><th>Status</th></tr></thead>
             <tbody>
-              <tr>
-                <td>5</td><td>Integrasi autentikasi & role</td><td>Dosen Pembimbing</td><td><span class="pill ok">Disetujui</span></td>
-              </tr>
-              <tr>
-                <td>6</td><td>Rancang tabel rubrik & relasi</td><td>Dosen Pembimbing</td><td><span class="pill warn">Menunggu</span></td>
-              </tr>
-              <tr>
-                <td>7</td><td>Implementasi fitur notifikasi</td><td>-</td><td><span class="pill danger">Belum</span></td>
-              </tr>
+                @forelse ($logbooks as $logbook)
+                <tr>
+                  <td>{{ $logbook->minggu }}</td>
+                  <td>{{ $logbook->aktivitas }}</td>
+                  <td><span class="pill {{ getStatusClass($logbook->status) }}">{{ $logbook->status }}</span></td>
+                </tr>
+                @empty
+                    <tr><td colspan="3" class="muted" style="text-align:center">Belum ada data logbook.</td></tr>
+                @endforelse
             </tbody>
           </table>
         </div>
