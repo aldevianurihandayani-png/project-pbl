@@ -10,21 +10,19 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // tabel users tidak punya created_at & updated_at
-    public $timestamps = false;
-
     /**
-     * Kolom yang bisa diisi mass assignment.
+     * Kolom yang boleh diisi secara mass-assignment
      */
     protected $fillable = [
-        'nama',
+        'name',
         'email',
-        'role',
         'password',
+        'role',
+        'email_verified_at',
     ];
 
     /**
-     * Kolom yang harus disembunyikan ketika serialize.
+     * Kolom yang disembunyikan saat model diubah ke array / JSON
      */
     protected $hidden = [
         'password',
@@ -32,12 +30,10 @@ class User extends Authenticatable
     ];
 
     /**
-     * Casting atribut.
+     * Tipe data casting otomatis
      */
-    protected function casts(): array
-    {
-        return [
-            'password' => 'hashed', // otomatis bcrypt
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        // Laravel 10+ bisa pakai 'password' => 'hashed' agar auto hash
+    ];
 }
