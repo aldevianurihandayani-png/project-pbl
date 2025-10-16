@@ -40,6 +40,39 @@
   </style>
 </head>
 <body>
+<tbody>
+    @php
+        $map = ['menunggu'=>'warn','disetujui'=>'ok','ditolak'=>'danger'];
+    @endphp>
+
+    @if(isset($items) && $items instanceof \Illuminate\Support\Collection ? $items->isNotEmpty() : !empty($items))
+        @foreach ($items as $row)
+            @php $cls = $map[$row->status] ?? 'warn'; @endphp
+            <tr>
+                <td>{{ $row->tanggal instanceof \Carbon\Carbon ? $row->tanggal->format('Y-m-d') : \Carbon\Carbon::parse($row->tanggal)->format('Y-m-d') }}</td>
+                <td>{{ $row->minggu ?? '-' }}</td>
+                <td>{{ $row->aktivitas }}</td>
+                <td><span class="pill {{ $cls }}">{{ ucfirst($row->status) }}</span></td>
+                <td>
+                    @if ($row->lampiran_path)
+                        <a href="{{ route('mhs.logbook.download',$row) }}">download</a>
+                    @else
+                        <span class="muted">-</span>
+                    @endif
+                </td>
+                <td class="act">
+                    <a href="{{ route('mhs.logbook.edit',$row) }}">Edit</a>
+                    <form action="{{ route('mhs.logbook.destroy',$row) }}" method="POST" onsubmit="return confirm('Hapus logbook ini?')">
+                        @csrf @method('DELETE')
+                        <button type="submit">Hapus</button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+    @else
+        <tr><td colspan="6" class="muted">Belum ada logbook.</td></tr>
+    @endif
+</tbody>
   <aside class="sidebar">
     <div class="brand"><div class="brand-badge">SI</div><div><strong>SIMAP</strong><div style="opacity:.85;font-size:12px">Mahasiswa</div></div></div>
     <div class="menu">
@@ -129,37 +162,54 @@
               <tr><th>Tanggal</th><th>Minggu</th><th>Aktivitas</th><th>Status</th><th>Lampiran</th><th>Aksi</th></tr>
             </thead>
             <tbody>
-              @forelse ($items as $row)
-                @php
-                  $cls = ['menunggu'=>'warn','disetujui'=>'ok','ditolak'=>'danger'][$row->status] ?? 'warn';
-                @endphp
-                <tr>
-                  <td>{{ $row->tanggal->format('Y-m-d') }}</td>
-                  <td>{{ $row->minggu ?? '-' }}</td>
-                  <td>{{ $row->aktivitas }}</td>
-                  <td><span class="pill {{ $cls }}">{{ ucfirst($row->status) }}</span></td>
-                  <td>
+    @php
+        $statusMap = [
+            'menunggu' => 'warn',
+            'disetujui' => 'ok',
+            'ditolak' => 'danger',
+        ];
+    @endphp
+
+    @if(!empty($items) && count($items) > 0)
+        @foreach ($items as $row)
+            @php
+                $cls = $statusMap[$row->status] ?? 'warn';
+            @endphp
+            <tr>
+                <td>{{ $row->tanggal->format('Y-m-d') }}</td>
+                <td>{{ $row->minggu ?? '-' }}</td>
+                <td>{{ $row->aktivitas }}</td>
+                <td>
+                    <span class="pill {{ $cls }}">{{ ucfirst($row->status) }}</span>
+                </td>
+                <td>
                     @if($row->lampiran_path)
-                      <a href="{{ route('mhs.logbook.download',$row) }}">download</a>
+                        <a href="{{ route('mhs.logbook.download',$row) }}">download</a>
                     @else
-                      <span class="muted">-</span>
+                        <span class="muted">-</span>
                     @endif
-                  </td>
-                  <td class="act">
+                </td>
+                <td class="act">
                     <a href="{{ route('mhs.logbook.edit',$row) }}">Edit</a>
                     <form action="{{ route('mhs.logbook.destroy',$row) }}" method="POST" onsubmit="return confirm('Hapus logbook ini?')">
-                      @csrf @method('DELETE')
-                      <button type="submit">Hapus</button>
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">Hapus</button>
                     </form>
-                  </td>
-                </tr>
-              @empty
-                <tr><td colspan="6" class="muted">Belum ada logbook.</td></tr>
-              @endforelse
-            </tbody>
-          </table>
+                </td>
+            </tr>
+        @endforeach
+    @else
+        <tr>
+            <td colspan="6" class="muted">Belum ada logbook.</td>
+        </tr>
+    @endif
+</tbody>
 
-          <div style="margin-top:10px">{{ $items->links() }}</div>
+          </table>
+<div style="margin-top:10px">
+    {{ $items->links() }}
+</div>
         </div>
       </section>
     </div>
