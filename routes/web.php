@@ -118,8 +118,4 @@ Route::middleware(['auth','role:mahasiswa'])
         Route::put('/logbook/{logbook}', [LogbookController::class, 'update'])->name('logbook.update');
         Route::delete('/logbook/{logbook}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
         Route::get('/logbook/{logbook}/download', [LogbookController::class, 'download'])->name('logbook.download');
-
-        Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
-        Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
-        Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
     });
