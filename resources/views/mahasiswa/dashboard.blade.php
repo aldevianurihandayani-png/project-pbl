@@ -209,7 +209,7 @@
             </div>
             <div>
               <div class="muted" style="margin-bottom:6px">Progress Kelompok</div>
-              <div class="progress"><span style="width: {{ $progress ?? 64 }}%;"></span></div>
+              <div class="progress"><span style="width: {}{ isset($progress) && is_numeric($progress) ? $progress : 64 }}%;"></span></div>
               <div class="muted" style="margin-top:6px">{{ $progress ?? 64 }}%</div>
 
               <div class="muted" style="margin:14px 0 6px">Status Logbook</div>

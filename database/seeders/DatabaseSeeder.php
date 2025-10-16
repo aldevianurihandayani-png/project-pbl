@@ -16,8 +16,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MataKuliahSeeder::class,
             KelompokSeeder::class,
+<<<<<<< HEAD
             ContactSeeder::class,
             NotificationSeeder::class,
+=======
+>>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
         ]);
     }
 }

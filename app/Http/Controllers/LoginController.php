@@ -59,7 +59,7 @@ class LoginController extends Controller
                 $redirectRoute = 'koordinator.dashboard';
                 break;
             case 'mahasiswa':
-                $redirectRoute = 'mhs.dashboard';
+                $redirectRoute = 'mahasiswa.dashboard';
                 break;
         }
 

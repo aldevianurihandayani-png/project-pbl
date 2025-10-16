@@ -1,10 +1,9 @@
-{{-- resources/views/dosen/dashboard.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — Dosen Pembimbing</title>
+  <title>Tambah Kelompok — Dosen Pembimbing</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -61,24 +60,52 @@
 
     .page{ padding:26px; display:grid; gap:18px }
 
-    /* KPI cards */
-    .kpi{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px }
-    .kpi .card{
-      background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 18px;
-      display:flex; align-items:center; gap:12px; border:1px solid var(--ring);
-    }
-    .kpi .icon{ width:36px; height:36px; border-radius:10px; background:#eef3ff; display:grid; place-items:center; color:var(--navy-2) }
-    .kpi .meta small{ color:var(--muted) }
-    .kpi .meta b{ font-size:22px; color:var(--navy-2) }
-
     /* Section cards */
     .card{
       background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--ring);
     }
     .card .card-hd{ padding:14px 18px; border-bottom:1px solid #eef1f6; display:flex; align-items:center; gap:10px; color:var(--navy-2); font-weight:700 }
     .card .card-bd{ padding:16px 18px; color:#233042 }
-    .muted{ color:var(--muted) }
-    ul.clean{ margin:8px 0 0 18px }
+    
+    /* Form Styles */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: .5rem; color: var(--navy); font-weight: 600; }
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: .75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .5rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: var(--navy-2);
+        outline: 0;
+        box-shadow: 0 0 0 .2rem var(--ring);
+    }
+    .btn {
+        display: inline-block;
+        font-weight: 600;
+        color: #fff;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: var(--navy-2);
+        border: 1px solid transparent;
+        padding: .75rem 1.25rem;
+        font-size: 1rem;
+        border-radius: .5rem;
+        transition: background-color .15s ease-in-out;
+    }
+    .btn:hover { background-color: var(--navy); }
 
     @media (max-width: 980px){
       body{ grid-template-columns:1fr }
@@ -103,9 +130,9 @@
 
     <div class="menu">
       <div class="nav-title">Menu</div>
-      <a href="{{ url('/dosen/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
+      <a href="{{ url('/dosen/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
       <a href="{{ url('/dosen/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
-      <a href="{{ url('/dosen/kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
+      <a href="{{ url('/dosen/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
       <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
       <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
       
@@ -114,7 +141,12 @@
     </div>
 
     <div class="logout">
-      <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+          @csrf
+          <button type="submit" class="menu" style="border:none; background:none; cursor:pointer; width:100%; text-align:left;">
+              <a style="display:block;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+          </button>
+      </form>
     </div>
   </aside>
 
@@ -125,74 +157,58 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
-        <h1>Dashboard Dosen Pembimbing</h1>
+        <h1>Tambah Kelompok Baru</h1>
       </div>
       <div class="userbox">
         <div class="notif">
           <i class="fa-regular fa-bell"></i>
           <span class="badge">3</span>
         </div>
-        <a href="{{ url('/profile') }}" style="display:flex;align-items:center;gap:10px; text-decoration:none; color:inherit;">
+        <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr('Fara Apriliana',0,2)) }}
+            {{ strtoupper(substr(auth()->user()->name ?? 'G', 0, 2)) }}
           </div>
-          <strong>Fara Apriliana</strong>
-        </a>
+          <strong>{{ auth()->user()->name ?? 'Guest' }}</strong>
+        </div>
       </div>
     </header>
 
     <div class="page">
-      <!-- KPI -->
-      <section class="kpi">
-        <div class="card">
-          <div class="icon"><i class="fa-solid fa-users"></i></div>
-          <div class="meta"><small>Jumlah Kelompok</small><br><b>{{ $jumlahKelompok ?? 4 }}</b></div>
-        </div>
-        <div class="card">
-          <div class="icon"><i class="fa-solid fa-book"></i></div>
-          <div class="meta"><small>Logbook</small><br><b>{{ $jumlahLogbook ?? 5 }}</b></div>
-        </div>
-        <div class="card">
-          <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
-          <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 100 }}</b></div>
-        </div>
-      </section>
-
-      <!-- Status Logbook -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-clipboard-check"></i> Status Logbook</div>
+        <div class="card-hd"><i class="fa-solid fa-plus"></i> Form Tambah Kelompok</div>
         <div class="card-bd">
-          Logbook terakhir mahasiswa Anda telah <strong>Disetujui</strong>.<br>
-          <span class="muted">Terakhir diperbarui: 2 Oktober 2025</span>
-        </div>
-      </section>
-
-      <!-- Milestone -->
-      <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone</div>
-        <div class="card-bd">
-          Deadline milestone berikutnya: <strong>10 Oktober 2025</strong>.
-        </div>
-      </section>
-
-      <!-- Nilai & Peringkat -->
-      <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-star"></i> Nilai & Peringkat</div>
-        <div class="card-bd">
-          Nilai TPK: 85, Pemweb Lanjut: 90, Integrasi Sistem: 88, Sistem Operasi: 80. <br/>
-          Peringkat: <strong>Top 5</strong> dalam kelas.
-        </div>
-      </section>
-
-      <!-- Notifikasi -->
-      <section class="card" style="margin-bottom:28px">
-        <div class="card-hd"><i class="fa-regular fa-bell"></i> Notifikasi</div>
-        <div class="card-bd">
-          <ul class="clean">
-            <li>Logbook Minggu 3 disetujui</li>
-            <li>Milestone Presentasi Final 7 hari lagi</li>
-            <li>Dosen pembimbing menambahkan nilai baru</li>
-          </ul>
+          <form action="{{ route('dosen.kelompok.store') }}" method="POST">
+              @csrf
+              <div class="form-group">
+                  <label for="nama">Nama Kelompok</label>
+                  <input type="text" name="nama" class="form-control" id="nama" required>
+              </div>
+              <div class="form-group">
+                  <label for="kelas">Kelas</label>
+                  <input type="text" name="kelas" class="form-control" id="kelas" required>
+              </div>
+              <div class="form-group">
+                  <label for="judul_proyek">Judul Proyek</label>
+                  <input type="text" name="judul_proyek" class="form-control" id="judul_proyek" required>
+              </div>
+              <div class="form-group">
+                  <label for="nama_klien">Nama Klien</label>
+                  <input type="text" name="nama_klien" class="form-control" id="nama_klien" required>
+              </div>
+              <div class="form-group">
+                  <label for="ketua_kelompok">Ketua Kelompok (NIM)</label>
+                  <input type="text" name="ketua_kelompok" class="form-control" id="ketua_kelompok" required>
+              </div>
+              <div class="form-group">
+                  <label for="anggota">Anggota (pisahkan dengan koma)</label>
+                  <textarea name="anggota" class="form-control" id="anggota" rows="3" required></textarea>
+              </div>
+              <div class="form-group">
+                  <label for="dosen_pembimbing">Dosen Pembimbing</label>
+                  <input type="text" name="dosen_pembimbing" class="form-control" id="dosen_pembimbing" value="{{ auth()->user()->name ?? '' }}">
+              </div>
+              <button type="submit" class="btn">Simpan Kelompok</button>
+          </form>
         </div>
       </section>
     </div>

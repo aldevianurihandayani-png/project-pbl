@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Daftar Kelompok — Dosen Pembimbing</title>
+  <title>Daftar Kelompok — Dosen Penguji</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -127,11 +127,12 @@
 
     <div class="menu">
       <div class="nav-title">Menu</div>
-      <a href="{{ url('/dosen/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
-      <a href="{{ url('/dosen/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
-      <a href="{{ url('/dosen/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
-      <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
-      <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
+      <a href="{{ url('/dosenpenguji/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
+      <a href="{{ url('/dosenpenguji/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+      <a href="{{ url('/dosenpenguji/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
+      <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-flag-checkered"></i>Penilaian</a>
+      <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-book"></i>Rubrik</a>
+      <a href="{{ url('/dosenpenguji/matakuliah') }}"><i class="fa-solid fa-book"></i>Mata Kuliah</a>
       
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
@@ -154,7 +155,7 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
-        <h1>Daftar Kelompok</h1>
+        <h1>Daftar Kelompok (Dosen Penguji)</h1>
       </div>
       <div class="userbox">
         <div class="notif">
@@ -175,7 +176,7 @@
       <section class="card">
         <div class="card-hd">Filter Kelompok</div>
         <div class="card-bd" style="padding: 1.25rem;">
-          <form method="GET" action="{{ route('dosen.kelompok.index') }}" class="form-inline">
+          <form method="GET" action="{{ route('dosenpenguji.kelompok.index') }}" class="form-inline">
             <div class="form-group">
               <label for="semester">Semester</label>
               <select name="semester" id="semester" class="form-control">
@@ -201,8 +202,7 @@
 
       <section class="card">
         <div class="card-hd">
-            <div><i class="fa-solid fa-users"></i> Daftar Kelompok Anda</div>
-            <a href="{{ route('dosen.kelompok.create') }}" class="btn">Tambah Kelompok</a>
+            <div><i class="fa-solid fa-users"></i> Daftar Kelompok</div>
         </div>
         <div class="card-bd">
             <table class="table">
@@ -227,12 +227,7 @@
                         <td>{{ $kelompok->ketua_kelompok }}</td>
                         <td>{{ $kelompok->dosen_pembimbing }}</td>
                         <td>
-                            <a href="{{ route('dosen.kelompok.edit', $kelompok->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('dosen.kelompok.destroy', $kelompok->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelompok ini?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                            </form>
+                            <a href="{{ route('dosenpenguji.kelompok.edit', $kelompok->id) }}" class="btn btn-warning btn-sm">Edit</a>
                         </td>
                     </tr>
                     @empty

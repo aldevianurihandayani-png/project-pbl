@@ -43,7 +43,16 @@
             </div>
             <div class="form-group">
                 <label for="nama_dosen">Dosen Pengampu</label>
+<<<<<<< HEAD
                 <input type="text" class="form-control @error('nama_dosen') is-invalid @enderror" id="nama_dosen" name="nama_dosen" value="{{ old('nama_dosen') }}" required autocomplete="off">
+=======
+                <input type="text" list="dosen-list" class="form-control @error('nama_dosen') is-invalid @enderror" id="nama_dosen" name="nama_dosen" value="{{ old('nama_dosen') }}" required autocomplete="off">
+                <datalist id="dosen-list">
+                    @foreach ($dosens as $dosen)
+                        <option value="{{ $dosen->name }}">
+                    @endforeach
+                </datalist>
+>>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
                 @error('nama_dosen')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

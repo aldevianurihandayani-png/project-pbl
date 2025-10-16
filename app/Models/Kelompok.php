@@ -10,11 +10,8 @@ class Kelompok extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama', 'kelas', 'anggota', 'dosen_pembimbing'];
+        'nama', 'kelas', 'judul', 'ketua_kelompok', 'dosen_pembimbing', 'judul_proyek', 'nama_klien', 'anggota'
+    ];
     protected $table = 'kelompoks';   // <— jika tabel kamu singular
 
-    public function anggotas()
-    {
-        return $this->hasMany(AnggotaKelompok::class);
-    }
 }

@@ -1,28 +1,130 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Kelompok;
+use App\Models\Mahasiswa;
+use App\Models\ProyekPbl;
+use App\Models\Dosen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class KelompokController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar kelompok + pencarian sederhana.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $kelompoks = Kelompok::latest()->paginate(15);
+        $q = trim($request->get('q', ''));
 
-        return view('admins.kelompok.index', [
-            'kelompoks' => $kelompoks,
+        $kelompok = Kelompok::query()
+            ->with(['mahasiswa','proyek','dosen'])
+            ->when($q, function ($query) use ($q) {
+                $query->where('judul', 'like', "%{$q}%")
+                      ->orWhere('topik', 'like', "%{$q}%")
+                      ->orWhere('nim', 'like', "%{$q}%");
+            })
+            ->orderByDesc('id_kelompok')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('kelompok.index', compact('kelompok', 'q'));
+    }
+
+    /**
+     * Form tambah.
+     */
+    public function create()
+    {
+        return view('kelompok.create', [
+            'mahasiswa' => Mahasiswa::select('nim','nama')->orderBy('nama')->get(),
+            'proyek'    => ProyekPbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
+            'dosen'     => Dosen::select('id_dosen','nama')->orderBy('nama')->get(),
         ]);
     }
 
+    /**
+     * Simpan data baru.
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'nama'          => ['required', 'string', 'max:255'],
+            'kelas'         => ['required', 'string', 'max:20'],
+            'judul'         => ['required', 'string', 'max:255'],
+            'nim'           => ['required', 'string', 'exists:mahasiswas,nim'],
+            'id_proyek_pbl' => ['required', 'integer', 'exists:proyek_pbls,id'],
+            'id_dosen'      => ['required', 'integer', 'exists:dosens,id'],
+        ]);
+
+        DB::transaction(function () use ($data, $request) {
+            $dosen = Dosen::find($data['id_dosen']);
+            $proyek = ProyekPbl::find($data['id_proyek_pbl']);
+
+            $insertData = [
+                'nama' => $data['nama'],
+                'kelas' => $data['kelas'],
+                'judul' => $data['judul'],
+                'ketua_kelompok' => $data['nim'],
+                'dosen_pembimbing' => $dosen->nama,
+                'judul_proyek' => $proyek->nama_proyek,
+            ];
+
+            Kelompok::create($insertData);
+        });
+
+        return redirect()->route('kelompok.index')->with('success', 'Kelompok berhasil ditambahkan.');
+    }
+
+    /**
+     * Detail satu kelompok (opsional).
+     */
     public function show(Kelompok $kelompok)
     {
-        $kelompok->load('anggotas');
-        return view('admins.kelompok.show', compact('kelompok'));
+        $kelompok->load(['mahasiswa','proyek','dosen']);
+        return view('kelompok.show', compact('kelompok'));
+    }
+
+    /**
+     * Form edit.
+     */
+    public function edit(Kelompok $kelompok)
+    {
+        return view('kelompok.edit', [
+            'kelompok' => $kelompok->load(['mahasiswa','proyek','dosen']),
+            'mahasiswa' => Mahasiswa::select('nim','nama')->orderBy('nama')->get(),
+            'proyek'    => ProyekPbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
+            'dosen'     => Dosen::select('id_dosen','nama')->orderBy('nama')->get(),
+        ]);
+    }
+
+    /**
+     * Update data.
+     */
+    public function update(Request $request, Kelompok $kelompok)
+    {
+        $data = $request->validate([
+            'judul'         => ['required','string','max:255'],
+            'topik'         => ['nullable','string','max:255'],
+            'nim'           => ['required','integer','exists:mahasiswa,nim'],
+            'id_proyek_pbl' => ['required','integer','exists:proyek_pbl,id_proyek_pbl'],
+            'id_dosen'      => ['required','integer','exists:dosen,id_dosen'],
+        ]);
+
+        DB::transaction(function () use ($kelompok, $data) {
+            $kelompok->update($data);
+        });
+
+        return redirect()->route('kelompok.index')->with('success', 'Kelompok berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus data.
+     */
+    public function destroy(Kelompok $kelompok)
+    {
+        $kelompok->delete();
+        return back()->with('success', 'Kelompok berhasil dihapus.');
     }
 }
