@@ -25,4 +25,19 @@ class MahasiswaController extends Controller
     }
 
     // method resource lain (create/store/edit/update/destroy) menyusul...
+
+    public function indexDosenPenguji(Request $request)
+    {
+        $search = $request->search;
+
+        $mahasiswa = Mahasiswa::with(['kelompok.dosen', 'kelompok.proyek'])
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('nim', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10);
+
+        return view('dosenpenguji.mahasiswa', compact('mahasiswa', 'search'));
+    }
 }
