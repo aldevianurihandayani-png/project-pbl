@@ -45,6 +45,7 @@ class UserController extends Controller
             'dosen_penguji'     => 'dosenpenguji.dashboard',
             'koordinator'       => 'koordinator.dashboard',
             'jaminan_mutu'      => 'jaminanmutu.dashboard',
+            'mahasiswa'         =>  'mahasiswa.dashboard',
             default             => 'mhs.dashboard',
         };
 
