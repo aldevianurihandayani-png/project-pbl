@@ -42,9 +42,22 @@
         <nav>
             <a href="{{ url('/') }}">Home</a>
             <a href="{{ url('/about') }}">Tentang</a>
-            <a href="{{ route('register') }}">Register Eksternal</a>
+
+            {{-- Amankan register supaya tidak error walau route register belum ada --}}
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}">Register Eksternal</a>
+            @else
+                <a href="{{ url('/register') }}">Register Eksternal</a>
+            @endif
+
             <a href="{{ url('/contact') }}">Contact</a>
-            <a href="{{ route('login') }}">Login</a>
+
+            {{-- Amankan login juga --}}
+            @if (Route::has('login'))
+                <a href="{{ route('login') }}">Login</a>
+            @else
+                <a href="{{ url('/login') }}">Login</a>
+            @endif
         </nav>
     </div>
 </header>
