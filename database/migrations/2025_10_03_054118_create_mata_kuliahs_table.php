@@ -8,20 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('mata_kuliahs', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode', 20)->unique();
-            $table->string('nama');
-            $table->unsignedBigInteger('dosen_id'); // relasi ke tabel users
+        Schema::create('mata_kuliah', function (Blueprint $table) {
+            $table->string('kode_mk', 20)->primary();
+            $table->string('nama_mk');
+            $table->integer('sks');
+            $table->integer('semester');
+            $table->unsignedBigInteger('id_dosen');
             $table->timestamps();
-
-            // foreign key (asumsi tabel users sudah ada)
-            $table->foreign('dosen_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('mata_kuliahs');
+        Schema::dropIfExists('mata_kuliah');
     }
 };
