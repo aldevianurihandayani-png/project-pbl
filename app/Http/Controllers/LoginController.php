@@ -38,19 +38,21 @@ class LoginController extends Controller
         // Sukses, regenerasi session
         $request->session()->regenerate();
 
-        $role = Auth::user()->role;
-        return match ($role) {
-            'dosen_penguji'     => redirect()->route('dosenpenguji.dashboard'),
-            'dosen_pembimbing'  => redirect()->route('dosen.dashboard'),
-            'mahasiswa'         => redirect()->route('mahasiswa.dashboard'),
-            'koor_pbl'          => redirect()->route('koordinator.dashboard'),
-            'jaminan_mutu'      => redirect()->route('jaminanmutu.dashboard'),
-            'admin', 'admins'   => redirect()->route('admins.dashboard'),
-            default             => redirect()->route('home'),
-        };
+        // Logika redirect berdasarkan role
+        $role = $user->role;
+        
+        $routeMap = [
+            'admins' => 'admins.dashboard',
+            'dosen_pembimbing' => 'dosen.dashboard',
+            'dosen_penguji' => 'dosenpenguji.dashboard',
+            'jaminan_mutu' => 'jaminanmutu.dashboard',
+            'koordinator' => 'koordinator.dashboard',
+            'mahasiswa' => 'mahasiswa.dashboard',
+        ];
 
+        $redirectRoute = $routeMap[$role] ?? 'home';
 
-        return redirect()->route($redirectRoute)->with('success','Login berhasil');
+        return redirect()->route($redirectRoute)->with('success', 'Login berhasil');
     }
 
     public function logout(Request $request)
