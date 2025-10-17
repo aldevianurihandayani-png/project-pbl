@@ -13,14 +13,13 @@ return new class extends Migration
 {
     Schema::table('users', function (Blueprint $table) {
         $table->string('nama')->after('id');
-        $table->string('role')->default('mahasiswa')->after('email');
     });
 }
 
 public function down(): void
 {
     Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn(['nama','role']);
+        $table->dropColumn('nama');
     });
 }
 
