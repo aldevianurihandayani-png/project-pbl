@@ -1,11 +1,14 @@
 <?php
 
-use App\Http\Controllers\LogbookController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\ContactController; 
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
+use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
+use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\LogbookController;
+use App\Models\Logbook;
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
 use App\Http\Controllers\RubrikPenilaianController;
@@ -13,50 +16,36 @@ use App\Http\Controllers\DosenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
+use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
+use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 
-// ==============================
-// Halaman Publik
-// ==============================
 
-// Halaman Home
-Route::get('/', function () {
-    return view('home');
-})->name('home');
 
-// Halaman About
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
 
-// Halaman Contact
-Route::get('/contact', fn() => view('contact'))->name('contact');
+/*
+|--------------------------------------------------------------------------
+| Halaman Publik
+|--------------------------------------------------------------------------
+*/
+Route::view('/', 'home')->name('home');
+Route::view('/about', 'about')->name('about');
+Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-// Halaman daftar logbook
-Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
-
-// Form tambah logbook
-Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');
-
-// Simpan logbook
-Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
-
-// ==============================
-// Autentikasi
-// ==============================
-
-// Form Register
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
-
-// Proses Register
+/*
+|--------------------------------------------------------------------------
+| Autentikasi
+|--------------------------------------------------------------------------
+*/
+Route::view('/register', 'register')->name('register');
 Route::post('/register', [UserController::class, 'register'])->name('register.post');
 
-//Login
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
-
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -126,51 +115,48 @@ Route::put('/profile', function (Request $request) {
 Route::middleware(['auth','role:dosen_pembimbing'])->group(function () {
     Route::get('/dosen/dashboard', fn() => view('dosen.dashboard'))->name('dosen.dashboard');
 });
+/*
+|--------------------------------------------------------------------------
+| Profile
+|--------------------------------------------------------------------------
+*/
+Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
+Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
 
-// Dashboard Mahasiswa
-Route::middleware(['auth','role:mahasiswa'])->group(function () {
-    Route::get('/mahasiswa/dashboard', fn() => view('mahasiswa.dashboard'))->name('mahasiswa.dashboard');
+/*
+|--------------------------------------------------------------------------
+| Dashboard per-ROLE (wajib login)
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Admin
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admins')->name('admins.')->group(function () {
+    Route::view('/dashboard', 'admins.dashboard')->name('dashboard');
+    Route::resource('matakuliah', AdminMataKuliahController::class);
+    Route::resource('mahasiswa', AdminMahasiswaController::class);
+
+    Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
+    Route::resource('logbook', AdminLogbookController::class)->only(['index']);
+    Route::resource('feedback', AdminFeedbackController::class)->only(['index']);
+    Route::resource('notifikasi', AdminNotifikasiController::class)->only(['index']);
+
 });
 
 
 
 
-// ==============================
-// Setelah Login
-// ==============================
-
-// Proses Register
-Route::post('/register', [UserController::class, 'store'])
-    ->name('register.store');
-
-    //dashboard dosne pembimbing
-    //dashboard dosen pembimbing
-
-Route::middleware(['auth', 'role.dosen_pembimbing'])->group(function () {
-    Route::get('/dosen/dashboard', fn () => view('dosen.dashboard'))
-        ->name('dosen.dashboard');
+Route::prefix('dosen')->name('dosen.')->group(function () {
+    Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
+    Route::resource('/kelompok', DosenKelompokController::class)->names('kelompok');
+    Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
+    Route::resource('/milestone', DosenMilestoneController::class)->only(['index', 'edit', 'update']);
+    Route::view('/logbook', 'dosen.logbook')->name('logbook');
 });
-Route::get('dosen/dashboard', function () {
-    return view('dosen.dashboard');   // <— folder.view yg benar
-})->name('dosen.dashboard');
 
-//kelompok dosen pembimbing
-Route::get('dosen/kelompok', function () {
-    return view('dosen.kelompok');   // <— folder.view yg benar
-})->name('dosen.kelompok');
-
-//mahasiswa pembimbing
-Route::get('dosen/mahasiswa', function () {
-    return view('dosen.mahasiswa');   // <— folder.view yg benar
-})->name('dosen.mahasiswa');
-//milestone pembimbing
-Route::get('dosen/milestone', function () {
-    return view('dosen.milestone');   // <— folder.view yg benar
-})->name('dosen.milestone');
-//logbook pembimbing
-Route::get('dosen/logbook', function () {
-    return view('dosen.logbook');   // <— folder.view yg benar
-})->name('dosen.logbook');
 
 //Jaminan mutu
 Route::get('/jaminanmutu/dashboard', function () {
@@ -225,3 +211,30 @@ Route::get('/mahasiswa/penilaian', function () {
 
 Route::view('/register', 'register')->name('register'); // halaman form
 Route::post('/register', [UserController::class, 'register'])->name('register.post'); // <— PASTIKAN 'register' di sini
+=======
+
+Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
+    Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
+    Route::view('/mahasiswa', 'dosenpenguji.mahasiswa')->name('mahasiswa');
+    Route::view('/kelompok', 'dosenpenguji.kelompok')->name('kelompok');
+    Route::view('/penilaian', 'dosenpenguji.penilaian')->name('penilaian');
+    Route::view('/rubrik', 'dosenpenguji.rubrik')->name('rubrik');
+    Route::view('/matakuliah', 'dosenpenguji.matakuliah')->name('matakuliah');
+});
+
+Route::prefix('jaminanmutu')->name('jaminanmutu.')->group(function () {
+    Route::view('/dashboard', 'jaminanmutu.dashboard')->name('dashboard');
+    Route::view('/rubrik', 'jaminanmutu.rubrik')->name('rubrik');
+    Route::view('/penilaian', 'jaminanmutu.penilaian')->name('penilaian');
+});
+
+Route::prefix('koordinator')->name('koordinator.')->group(function () {
+    Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
+});
+
+Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+    Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
+    Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
+    Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
+    Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
+});

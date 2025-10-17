@@ -179,33 +179,35 @@
 
         <!-- Row contoh (dummy) -->
         <div class="table">
+          @foreach ($milestones as $milestone)
           <div class="row">
-            <div class="cell" data-th="No">1</div>
-            <div class="cell" data-th="Minggu">1</div>
-            <div class="cell" data-th="Kegiatan">Menghitung manual TPK</div>
-            <div class="cell" data-th="Deadline">2025-10-09</div>
+            <div class="cell" data-th="No">{{ $loop->iteration }}</div>
+            <div class="cell" data-th="Minggu">{{ $milestone->minggu }}</div>
+            <div class="cell" data-th="Kegiatan">{{ $milestone->kegiatan }}</div>
+            <div class="cell" data-th="Deadline">{{ $milestone->deadline }}</div>
 
             <div class="cell" data-th="Status">
               <div class="status-group">
                 <label class="status-toggle">
-                  <input type="radio" name="status-1" value="belum" checked>
+                  <input type="radio" name="status-{{ $milestone->id }}" value="belum" {{ $milestone->status == 'belum' ? 'checked' : '' }}>
                   <span class="badge belum">Belum</span>
                 </label>
                 <label class="status-toggle">
-                  <input type="radio" name="status-1" value="pending">
+                  <input type="radio" name="status-{{ $milestone->id }}" value="pending" {{ $milestone->status == 'pending' ? 'checked' : '' }}>
                   <span class="badge pending">Pending</span>
                 </label>
                 <label class="status-toggle">
-                  <input type="radio" name="status-1" value="selesai">
+                  <input type="radio" name="status-{{ $milestone->id }}" value="selesai" {{ $milestone->status == 'selesai' ? 'checked' : '' }}>
                   <span class="badge selesai">Selesai</span>
                 </label>
               </div>
             </div>
 
             <div class="cell" data-th="Aksi">
-              <div class="aksi-note">Klik salah satu status untuk mengubah</div>
+              <a href="{{ route('dosen.milestone.edit', $milestone->id) }}" class="btn">Edit</a>
             </div>
           </div>
+          @endforeach
           <!-- duplikasi row sesuai kebutuhan -->
         </div>
       </div>

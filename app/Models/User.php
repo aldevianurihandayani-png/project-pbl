@@ -10,6 +10,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+
     // Jika tabel users tidak memiliki created_at & updated_at
     public $timestamps = false;
 
@@ -17,18 +18,18 @@ class User extends Authenticatable
      * Kolom yang bisa diisi mass assignment.
      */
     protected $fillable = [
-        'nama',
+        'name',
         'email',
-        'role',
         'password',
         'nidn',
         'prodi',
         'profile_photo_path',
+        'role',
+        'foto',
+        'email_verified_at',
     ];
 
-    /**
-     * Kolom yang harus disembunyikan ketika serialize.
-     */
+   
     protected $hidden = [
         'password',
         'remember_token',
@@ -60,4 +61,6 @@ class User extends Authenticatable
         // fallback: null atau bisa diganti path default avatar
         return null;
     }
+}
+
 }

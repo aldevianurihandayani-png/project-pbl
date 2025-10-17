@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('mata_kuliah', function (Blueprint $table) {
@@ -15,9 +18,16 @@ return new class extends Migration
             $table->integer('semester');
             $table->unsignedBigInteger('id_dosen');
             $table->timestamps();
+
+
+            $table->foreign('id_dosen')->references('id')->on('users')->onDelete('cascade');
+
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('mata_kuliah');

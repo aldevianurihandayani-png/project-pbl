@@ -19,7 +19,7 @@ class LoginController extends Controller
             'email'    => ['required','email'],
             'password' => ['required'],
             'role'     => ['required', Rule::in([
-                'mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','jaminan_mutu','admin'
+                'mahasiswa','dosen_pembimbing','dosen_penguji','koordinator','jaminan_mutu','admins'
             ])],
         ]);
 
@@ -35,7 +35,7 @@ class LoginController extends Controller
             return back()->withErrors(['role' => 'Role tidak sesuai dengan akun.'])->withInput();
         }
 
-        // Sukses
+        // Sukses, regenerasi session
         $request->session()->regenerate();
 
         $role = Auth::user()->role;
@@ -48,6 +48,9 @@ class LoginController extends Controller
             'admin', 'admins'   => redirect()->route('admins.dashboard'),
             default             => redirect()->route('home'),
         };
+
+
+        return redirect()->route($redirectRoute)->with('success','Login berhasil');
     }
 
     public function logout(Request $request)
