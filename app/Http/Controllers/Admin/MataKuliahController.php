@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\MataKuliah;
 use App\Models\Dosen;
@@ -9,13 +11,13 @@ use Illuminate\Http\Request;
 class MataKuliahController extends Controller
 {
     public function index() {
-        $mataKuliah = MataKuliah::with('dosen')->get();
-        return view('matakuliah', compact('mataKuliah'));
+        $mataKuliah = MataKuliah::with('dosen')->paginate(10);
+        return view('admins.matakuliah.index', compact('mataKuliah'));
     }
 
     public function create() {
         $dosen = Dosen::all();
-        return view('matakuliah_create', compact('dosen'));
+        return view('admins.matakuliah.create', compact('dosen'));
     }
 
     public function store(Request $request) {
@@ -34,7 +36,7 @@ class MataKuliahController extends Controller
     public function edit($kode_mk) {
         $mk = MataKuliah::findOrFail($kode_mk);
         $dosen = Dosen::all();
-        return view('matakuliah_edit', compact('mk', 'dosen'));
+        return view('admins.matakuliah.edit', compact('mk', 'dosen'));
     }
 
     public function update(Request $request, $kode_mk) {
