@@ -114,4 +114,10 @@ class KelompokController extends Controller
         $kelompok->delete();
         return back()->with('success', 'Kelompok berhasil dihapus.');
     }
+
+    public function indexDosenPenguji()
+    {
+        $kelompok = DB::table('kelompoks')->paginate(10);
+        return view('dosenpenguji.kelompok', compact('kelompok'));
+    }
 }
