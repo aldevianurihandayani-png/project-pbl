@@ -43,12 +43,9 @@
     main{ display:flex; flex-direction:column; min-width:0 }
     header.topbar{
       background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:3; box-shadow:var(--shadow);
+      position:sticky; top:0; z-index:5000; box-shadow:var(--shadow); /* z-index tinggi agar dropdown di atas konten */
     }
     .welcome h1{ margin:0; font-size:18px; letter-spacing:.2px }
-    .userbox{ display:flex; align-items:center; gap:14px }
-    .notif{ position:relative } .notif i{ font-size:18px }
-    .notif .badge{ position:absolute; top:-6px; right:-6px; background:#e53935; color:#fff; border-radius:10px; font-size:10px; padding:2px 5px }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
 
     .page{ padding:26px; display:grid; gap:24px }
@@ -88,9 +85,74 @@
       .topbar-btn{ display:inline-flex }
       .toolbar{ flex-direction:column; align-items:stretch; gap:16px; }
     }
+
+    /* ===== Notifikasi + User Menu (dropdown) ===== */
+    #topActions{ display:flex; align-items:center; gap:14px; }
+    .bell{ position:relative; cursor:pointer; }
+    .bell i{ font-size:18px }
+    .bell .dot{
+      position:absolute; top:-6px; right:-6px; min-width:18px; height:18px;
+      padding:0 4px; border-radius:10px; font-size:10px;
+      background:#e53935; color:#fff; display:grid; place-items:center;
+    }
+    .notif-dd{
+      position:absolute; right:0; top:44px; width:320px; background:#fff;
+      border:1px solid #e7ecf6; border-radius:14px; box-shadow:0 12px 30px rgba(13,23,84,.18);
+      display:none; z-index:6000; overflow:hidden;
+    }
+    .notif-dd.active{ display:block; }
+    .notif-hd{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; font-weight:700; color:#0e257a; background:#f8fbff }
+    .notif-list{ max-height:300px; overflow:auto }
+    .notif-item{ display:flex; gap:10px; padding:10px 12px; border-top:1px solid #f0f2f7 }
+    .notif-item:hover{ background:#f7f9ff }
+    .notif-icon{ width:28px; height:28px; border-radius:8px; background:#eef3ff; display:grid; place-items:center; color:#0e257a }
+    .notif-meta{ font-size:12px; color:#6c7a8a }
+    .notif-empty{ padding:16px; color:#6c7a8a; text-align:center }
+    .notif-ft{ padding:10px 12px; border-top:1px solid #f0f2f7; text-align:center; background:#fafcff }
+    .notif-ft a{ color:#0e257a; text-decoration:none; font-weight:700 }
+
+    .userbox{ position:relative; }
+    .userbtn{
+      display:flex; align-items:center; gap:10px; cursor:pointer; background:transparent; border:0; color:#fff; font-weight:700;
+    }
+    .userbtn .ava{
+      width:32px;height:32px;border-radius:50%; display:grid; place-items:center;
+      background:#e3e9ff; color:#31408a; font-weight:700; font-size:12px;
+    }
+    .userbtn i{ opacity:.85; transition:transform .15s }
+    .userbtn[aria-expanded="true"] i{ transform:rotate(180deg) }
+
+    .user-dd{
+      position:absolute; top:44px; right:0; width:260px; background:#fff; border:1px solid #e7ecf6; border-radius:14px;
+      box-shadow:0 12px 30px rgba(13,23,84,.18); padding:10px; display:none; z-index:6500;
+    }
+    .user-dd.active{ display:block }
+    .user-dd .hd{
+      display:flex; align-items:center; gap:10px; padding:10px 8px 12px; border-bottom:1px dashed #eef1f6;
+    }
+    .user-dd .bigava{
+      width:40px;height:40px;border-radius:50%; background:#e3e9ff; color:#31408a; display:grid; place-items:center; font-weight:800;
+    }
+    .user-dd .item{
+      display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:10px;
+      color:#233042; text-decoration:none;
+    }
+    .user-dd .item:hover{ background:#f4f7ff }
+    .user-dd .item i{ width:18px; text-align:center; color:#0e257a }
+    .user-dd .logout{ color:#b42318 }
   </style>
 </head>
 <body>
+
+  {{-- Notifikasi dummy (bisa diganti dari controller nanti) --}}
+  @php
+    $notifications = $notifications ?? [
+      ['icon'=>'fa-bell', 'title'=>'Milestone baru dibuka', 'meta'=>'2 jam lalu'],
+      ['icon'=>'fa-clipboard-check', 'title'=>'Logbook Minggu 3 disetujui', 'meta'=>'Kemarin'],
+      ['icon'=>'fa-star', 'title'=>'Nilai komponen dirilis', 'meta'=>'3 hari lalu'],
+    ];
+    $notifCount = count($notifications ?? []);
+  @endphp
 
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
@@ -122,15 +184,79 @@
     <header class="topbar">
       <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')"><i class="fa-solid fa-bars"></i></button>
       <div class="welcome"><h1>Penilaian</h1></div>
-      <div class="userbox">
-        <div class="notif"><i class="fa-regular fa-bell"></i><span class="badge">3</span></div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+
+      {{-- ====== Actions: Lonceng + User Menu ====== --}}
+      <div id="topActions">
+        {{-- Bell --}}
+        <div class="bell" id="bellBtn" aria-label="Notifikasi">
+          <i class="fa-solid fa-bell"></i>
+          @if($notifCount>0)
+            <span class="dot" id="notifDot">{{ $notifCount }}</span>
+          @endif
+        </div>
+
+        {{-- Dropdown Notifikasi --}}
+        <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
+          <div class="notif-hd">
+            <span>Notifikasi</span>
+            <small style="color:#6c7a8a">{{ $notifCount }} baru</small>
           </div>
-          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
+
+          @if($notifCount>0)
+            <div class="notif-list" id="notifList">
+              @foreach($notifications as $n)
+                <div class="notif-item">
+                  <div class="notif-icon"><i class="fa-solid {{ $n['icon'] }}"></i></div>
+                  <div>
+                    <div style="font-weight:700;color:#0e257a">{{ $n['title'] }}</div>
+                    <div class="notif-meta">{{ $n['meta'] }}</div>
+                  </div>
+                </div>
+              @endforeach
+            </div>
+          @else
+            <div class="notif-empty">Belum ada notifikasi.</div>
+          @endif
+
+          <div class="notif-ft"><a href="#">Lihat semua pemberitahuan</a></div>
+        </div>
+
+        {{-- User Menu --}}
+        <div class="userbox">
+          @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'NU',0,2)); @endphp
+          <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
+            <span class="ava">{{ $initial }}</span>
+            <span>{{ $u->name ?? 'Nama User' }}</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+
+          <div id="userMenuDd" class="user-dd" role="menu" aria-labelledby="userMenuBtn">
+            <div class="hd">
+              <div class="bigava">{{ $initial }}</div>
+              <div style="min-width:0">
+                <div style="font-weight:800;color:#0e257a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  {{ $u->name ?? 'Nama User' }}
+                </div>
+                <div style="font-size:12px;color:#6c7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  {{ $u->email ?? 'email@example.com' }}
+                </div>
+              </div>
+            </div>
+
+            <a class="item" href="{{ route('dosenpenguji.profile') }}"><i class="fa-solid fa-id-badge"></i> Lihat Profil</a>
+            <a class="item" href="{{ route('dosenpenguji.profile.edit') }}"><i class="fa-solid fa-user-gear"></i> Edit Profil</a>
+            <a class="item" href="#"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
+
+            <form method="POST" action="{{ route('logout') }}">
+              @csrf
+              <button type="submit" class="item logout" style="width:100%;background:none;border:0;cursor:pointer">
+                <i class="fa-solid fa-right-from-bracket"></i> Keluar
+              </button>
+            </form>
+          </div>
         </div>
       </div>
+      {{-- ====== /Actions ====== --}}
     </header>
 
     <div class="page">
@@ -148,7 +274,6 @@
           <label for="filter-kelas">Kelas:</label>
           <select id="filter-kelas" name="kelas" onchange="this.form.submit()">
             <option value="">Semua Kelas</option>
-            {{-- Assume kelas are A, B, C, D, E --}}
             @foreach (['A', 'B', 'C', 'D', 'E'] as $kelas)
             <option value="{{ $kelas }}" @selected(request('kelas') == $kelas)>Kelas {{ $kelas }}</option>
             @endforeach
@@ -291,7 +416,6 @@
                 return response.json();
             })
             .then(data => {
-                // alert(data.message);
                 input.value = '';
                 input.classList.remove('dirty');
                 updateDeleteButtonVisibility(input);
@@ -326,7 +450,7 @@
                     totalBobot += bobot;
                 }
             });
-            
+
             const finalGrade = totalBobot > 0 ? (totalNilaiBerbobot / totalBobot) : 0;
             const finalGradeCell = studentRow.querySelector('.final-grade');
             finalGradeCell.textContent = finalGrade.toFixed(2);
@@ -355,6 +479,44 @@
       const btn = e.target.closest('.topbar-btn');
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
     });
+  </script>
+
+  {{-- Script dropdown Notifikasi --}}
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const bell = document.getElementById('bellBtn');
+    const dd   = document.getElementById('notifDd');
+    const dot  = document.getElementById('notifDot');
+    if(!bell || !dd) return;
+
+    bell.addEventListener('click', function(e){
+      e.stopPropagation();
+      dd.classList.toggle('active');
+      if (dd.classList.contains('active') && dot) dot.style.display = 'none';
+    });
+    dd.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', () => dd.classList.remove('active'));
+  });
+  </script>
+
+  {{-- Script dropdown User --}}
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('userMenuBtn');
+    const dd  = document.getElementById('userMenuDd');
+    if(!btn || !dd) return;
+
+    const open  = () => { dd.classList.add('active');  btn.setAttribute('aria-expanded','true');  };
+    const close = () => { dd.classList.remove('active'); btn.setAttribute('aria-expanded','false'); };
+
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      dd.classList.contains('active') ? close() : open();
+    });
+    dd.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+  });
   </script>
 </body>
 </html>
