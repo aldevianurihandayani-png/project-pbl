@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Mahasiswa extends Model
 {
+
     use HasFactory;
      
     protected $fillable = ['nim','nama','kelas','id_kelompok'];
@@ -15,4 +16,13 @@ class Mahasiswa extends Model
     public function kelompok(){ return $this->belongsTo(Kelompok::class); }
     public function logbook(){ return $this->hasMany(Logbook::class); }
     public function laporan_penilaian(){ return $this->hasMany(laporan_penilaian::class); }
+
+    protected $table = 'mahasiswa';
+
+    // ...
+    public function getRouteKeyName()
+    {
+        return 'nim';
+    }
+
 }

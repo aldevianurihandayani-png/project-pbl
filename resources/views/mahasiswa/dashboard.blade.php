@@ -48,6 +48,119 @@
                 <td><span class="pill danger">Belum Mulai</span></td>
                 <td><button class="pill" style="border-color:#cbd5e1;background:#fff">Detail</button></td>
               </tr>
+
+  <!-- ========== MAIN ========== -->
+  <main>
+    <header class="topbar">
+      <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="welcome">
+        <h1>Dashboard Mahasiswa</h1>
+      </div>
+      <div class="userbox">
+        <div class="notif">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(($nama ?? (auth()->user()?->name ?? 'MS')),0,2)) }}
+          </div>
+          <strong>{{ $nama ?? (auth()->user()?->name ?? 'Mahasiswa') }}</strong>
+        </div>
+      </div>
+    </header>
+
+    <div class="page">
+      <!-- KPI -->
+      <section class="kpi">
+        <div class="card">
+          <div class="icon"><i class="fa-solid fa-users"></i></div>
+          <div class="meta"><small>Anggota Kelompok</small><br><b>{{ $anggotaKelompok ?? 5 }}</b></div>
+        </div>
+        <div class="card">
+          <div class="icon"><i class="fa-regular fa-clipboard"></i></div>
+          <div class="meta"><small>Logbook Terkumpul</small><br><b>{{ $jumlahLogbook ?? 12 }}</b></div>
+        </div>
+        <div class="card">
+          <div class="icon"><i class="fa-solid fa-flag-checkered"></i></div>
+          <div class="meta"><small>Milestone Selesai</small><br><b>{{ ($milestoneSelesai ?? 3).'/'.($totalMilestone ?? 5) }}</b></div>
+        </div>
+        <div class="card">
+          <div class="icon"><i class="fa-solid fa-star-half-stroke"></i></div>
+          <div class="meta"><small>Nilai Sementara</small><br><b>{{ $nilaiAkhir ?? 86 }}</b></div>
+        </div>
+      </section>
+
+      <!-- Jadwal Milestone + Progress -->
+      <section class="card">
+        <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone & Progress</div>
+        <div class="card-bd">
+          @php
+            function getStatusClass($status) {
+                $map = [
+                    'Selesai' => 'ok',
+                    'Pending' => 'warn',
+                    'Belum' => 'danger',
+                    'menunggu' => 'warn',
+                    'disetujui' => 'ok',
+                    'ditolak' => 'danger',
+                ];
+                return $map[$status] ?? '';
+            }
+          @endphp
+          <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:16px">
+            <div>
+              <table>
+                <thead><tr><th>Tanggal</th><th>Milestone</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody>
+                  @forelse ($milestones as $milestone)
+                    <tr>
+                      <td>{{ $milestone->deadline }}</td>
+                      <td>{{ $milestone->kegiatan }}</td>
+                      <td><span class="pill {{ getStatusClass($milestone->status) }}">{{ $milestone->status }}</span></td>
+                      <td><button class="pill" style="border-color:#cbd5e1;background:#fff">Detail</button></td>
+                    </tr>
+                  @empty
+                    <tr><td colspan="4" class="muted" style="text-align:center">Belum ada data milestone.</td></tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div class="muted" style="margin-bottom:6px">Progress Kelompok</div>
+              <div class="progress"><span style="width: {}{ isset($progress) && is_numeric($progress) ? $progress : 64 }}%;"></span></div>
+              <div class="muted" style="margin-top:6px">{{ $progress ?? 64 }}%</div>
+
+              <div class="muted" style="margin:14px 0 6px">Status Logbook</div>
+              <ul class="clean">
+                <li>Minggu 5: <strong>Disetujui</strong></li>
+                <li>Minggu 6: <strong>Menunggu Review</strong></li>
+                <li>Minggu 7: <strong>Belum Submit</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Logbook Ringkas -->
+      <section class="card">
+        <div class="card-hd"><i class="fa-regular fa-clipboard"></i> Logbook Terakhir</div>
+        <div class="card-bd">
+          <table>
+            <thead><tr><th>Minggu</th><th>Ringkasan</th><th>Status</th></tr></thead>
+            <tbody>
+                @forelse ($logbooks as $logbook)
+                <tr>
+                  <td>{{ $logbook->minggu }}</td>
+                  <td>{{ $logbook->aktivitas }}</td>
+                  <td><span class="pill {{ getStatusClass($logbook->status) }}">{{ $logbook->status }}</span></td>
+                </tr>
+                @empty
+                    <tr><td colspan="3" class="muted" style="text-align:center">Belum ada data logbook.</td></tr>
+                @endforelse
+
             </tbody>
           </table>
         </div>

@@ -13,6 +13,6 @@ class MataKuliah extends Model
     protected $fillable = ['kode_mk','nama_mk','sks','semester','id_dosen'];
 
     public function dosen() {
-        return $this->belongsTo(Dosen::class, 'id_dosen', 'id_dosen');
+        return $this->belongsTo(User::class, 'id_dosen', 'id');
     }
 }

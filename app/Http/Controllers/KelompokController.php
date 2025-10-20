@@ -50,15 +50,28 @@ class KelompokController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'judul'         => ['required','string','max:255'],
-            'topik'         => ['nullable','string','max:255'],
-            'nim'           => ['required','integer','exists:mahasiswa,nim'],
-            'id_proyek_pbl' => ['required','integer','exists:proyek_pbl,id_proyek_pbl'],
-            'id_dosen'      => ['required','integer','exists:dosen,id_dosen'],
+            'nama'          => ['required', 'string', 'max:255'],
+            'kelas'         => ['required', 'string', 'max:20'],
+            'judul'         => ['required', 'string', 'max:255'],
+            'nim'           => ['required', 'string', 'exists:mahasiswas,nim'],
+            'id_proyek_pbl' => ['required', 'integer', 'exists:proyek_pbls,id'],
+            'id_dosen'      => ['required', 'integer', 'exists:dosens,id'],
         ]);
 
-        DB::transaction(function () use ($data) {
-            Kelompok::create($data);
+        DB::transaction(function () use ($data, $request) {
+            $dosen = Dosen::find($data['id_dosen']);
+            $proyek = ProyekPbl::find($data['id_proyek_pbl']);
+
+            $insertData = [
+                'nama' => $data['nama'],
+                'kelas' => $data['kelas'],
+                'judul' => $data['judul'],
+                'ketua_kelompok' => $data['nim'],
+                'dosen_pembimbing' => $dosen->nama,
+                'judul_proyek' => $proyek->nama_proyek,
+            ];
+
+            Kelompok::create($insertData);
         });
 
         return redirect()->route('kelompok.index')->with('success', 'Kelompok berhasil ditambahkan.');
@@ -113,5 +126,11 @@ class KelompokController extends Controller
     {
         $kelompok->delete();
         return back()->with('success', 'Kelompok berhasil dihapus.');
+    }
+
+    public function indexDosenPenguji()
+    {
+        $kelompok = DB::table('kelompoks')->paginate(10);
+        return view('dosenpenguji.kelompok', compact('kelompok'));
     }
 }

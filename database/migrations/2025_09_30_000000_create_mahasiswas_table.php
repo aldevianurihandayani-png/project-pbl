@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+
     /**
      * Jalankan migrasi.
      */
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();            // Email Mahasiswa
             $table->string('no_telp')->nullable();        // Nomor Telepon
             $table->integer('angkatan');                  // Angkatan
-            $table->string('kelas');                     // Kelas
+            $table->string('kelas');                      // Kelas
             $table->unsignedBigInteger('id_dosen');       // Foreign Key ke tabel dosen
 
             $table->timestamps();

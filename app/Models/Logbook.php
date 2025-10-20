@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Logbook extends Model
 {
+
     protected $table = 'logbooks';
 
     protected $fillable = ['tanggal','minggu','aktivitas','keterangan','foto','user_id'];
@@ -14,4 +15,7 @@ class Logbook extends Model
         'tanggal' => 'date',
     ];
     protected $hidden = ['foto'];
+
+
+
 }

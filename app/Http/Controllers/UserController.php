@@ -1,21 +1,40 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RegisterSuccessMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class UserController extends Controller
+class UserController extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'foto',
+        'email_verified_at',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name'     => ['required','string','max:255'],   // ✅ ganti 'nama' ke 'name'
+            'name'     => ['required','string','max:255'],
             'email'    => ['required','email','unique:users,email'],
             'role'     => ['required', Rule::in([
                 'dosen_pembimbing','admin','mahasiswa','jaminan_mutu','koor_pbl','dosen_penguji',
@@ -23,8 +42,8 @@ class UserController extends Controller
             'password' => ['required','min:6','confirmed'],
         ]);
 
-        $user = User::create([
-            'name'     => $data['name'],      // ✅ konsisten dengan nama kolom tabel
+        $user = self::create([
+            'name'     => $data['name'],
             'email'    => $data['email'],
             'role'     => $data['role'],
             'password' => Hash::make($data['password']),
@@ -33,7 +52,7 @@ class UserController extends Controller
         try {
             Mail::to($user->email)->queue(new RegisterSuccessMail($user->name));
         } catch (\Throwable $e) {
-            \Log::error('Gagal kirim email register: '.$e->getMessage());
+            Log::error('Gagal kirim email register: '.$e->getMessage());
         }
 
         Auth::login($user);
@@ -49,3 +68,4 @@ class UserController extends Controller
             ->with('success', 'Registrasi berhasil. Email konfirmasi telah dikirim.');
     }
 }
+
