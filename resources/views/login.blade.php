@@ -190,4 +190,8 @@
     </footer>
 
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> bbcfba2 (commit noorma)

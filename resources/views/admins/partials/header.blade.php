@@ -4,10 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <<<<<<< HEAD
+<<<<<<< HEAD
   <title>{{ $title ?? 'Dasbor' }} — Administrator SIMAP</title>
 =======
   <title>{{ $title ?? 'Dashboard' }} — Admin SIMAP</title>
 >>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
+=======
+  <title>{{ $title ?? 'Dashboard' }} — Admin SIMAP</title>
+>>>>>>> bbcfba2 (commit noorma)
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
   <style>
@@ -99,6 +103,7 @@
       <a href="{{ route('admins.mahasiswa.index') }}" class="{{ request()->routeIs('admins.mahasiswa.*') ? 'active' : '' }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
       <a href="{{ route('admins.kelompok.index') }}" class="{{ request()->routeIs('admins.kelompok.*') ? 'active' : '' }}"><i class="fa-solid fa-users"></i>Kelompok</a>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <a href="{{ url('/admins/feedback') }}" class="{{ request()->is('admins/feedback') ? 'active' : '' }}"><i class="fa-solid fa-comment"></i>Feedback</a>
       
       <div class="nav-title">Akun</div>
@@ -108,15 +113,24 @@
       <div class="nav-title">Akun</div>
       <a href="#"><i class="fa-solid fa-id-badge"></i>Profil</a>
 >>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
+=======
+      
+      <div class="nav-title">Akun</div>
+      <a href="#"><i class="fa-solid fa-id-badge"></i>Profil</a>
+>>>>>>> bbcfba2 (commit noorma)
     </div>
 
     <form action="{{ route('logout') }}" method="POST" class="logout">
         @csrf
 <<<<<<< HEAD
+<<<<<<< HEAD
         <button type="submit" class="btn btn-link menu" style="text-decoration: none; display: block; text-align: left; padding-left: 12px;"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
 =======
         <button type="submit" class="btn btn-link menu" style="text-decoration: none; display: block; text-align: left; padding-left: 12px;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
 >>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
+=======
+        <button type="submit" class="btn btn-link menu" style="text-decoration: none; display: block; text-align: left; padding-left: 12px;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+>>>>>>> bbcfba2 (commit noorma)
     </form>
   </aside>
 
@@ -127,6 +141,7 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
+<<<<<<< HEAD
 <<<<<<< HEAD
         <h1>{{ $title ?? 'Dasbor' }}</h1>
       </div>
@@ -153,14 +168,34 @@
           <i class="fa-regular fa-bell"></i>
           <span class="badge">3</span>
         </div>
+=======
+        <h1>{{ $title ?? 'Dashboard' }}</h1>
+      </div>
+      <div class="userbox">
+        <a href="{{ route('admins.notifikasi.index') }}" class="notif">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge">3</span>
+        </a>
+>>>>>>> bbcfba2 (commit noorma)
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
             {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
           </div>
           <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
         </div>
+<<<<<<< HEAD
 >>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
       </div>
     </header>
 
     <div class="page">
+=======
+      </div>
+    </header>
+
+        <div class="page">
+
+    
+
+      </body>
+>>>>>>> bbcfba2 (commit noorma)

@@ -1,6 +1,7 @@
 @include('admins.partials.header', ['title' => 'Edit Mata Kuliah'])
 
 <div class="card shadow mb-4">
+<<<<<<< HEAD
     <div class="card-header">
         <h6 class="m-0 font-weight-bold text-primary">Form Edit Mata Kuliah</h6>
     </div>
@@ -62,3 +63,41 @@
 </div>
 
 @include('admins.partials.footer')
+=======
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Edit Mata Kuliah</strong>
+    <span class="text-muted">Kode: {{ $matakuliah->kode_mk }}</span>
+  </div>
+  <div class="card-body">
+    @if ($errors->any())
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          @foreach ($errors->all() as $err)
+            <li>{{ $err }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    <form action="{{ route('admins.matakuliah.update', $matakuliah) }}" method="POST">
+      @csrf
+      @method('PUT')
+      @include('admins.matakuliah._form', ['mode' => 'edit', 'submitText' => 'Update'])
+    </form>
+  </div>
+</div>
+
+@include('admins.partials.footer')
+<form action="{{ route('admins.notifikasi.update', $notification) }}" method="POST">
+  @csrf
+  @method('PUT')
+  <!-- field2 edit kamu -->
+  <button type="submit">Update</button>
+</form>
+<form action="{{ route('admins.notifikasi.update', $notification) }}" method="POST">
+  @csrf
+  @method('PUT')  {{-- ini yang bikin request jadi PUT --}}
+  <!-- field edit: title, type, link_url, is_read, dst -->
+  <button type="submit">Update</button>
+</form>
+>>>>>>> bbcfba2 (commit noorma)

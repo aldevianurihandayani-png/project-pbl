@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+<<<<<<< HEAD
 return new class extends Migration
 {
 
@@ -36,6 +37,20 @@ return new class extends Migration
      */
     public function down(): void
     {
+=======
+return new class extends Migration {
+    public function up()
+{
+    Schema::create('mahasiswas', function (Blueprint $table) {
+        $table->string('nim', 15)->primary();
+        $table->string('nama', 100);
+        $table->year('angkatan');
+        $table->string('no_hp', 15)->nullable();
+        $table->timestamps();
+    });
+}
+    public function down(): void {
+>>>>>>> bbcfba2 (commit noorma)
         Schema::dropIfExists('mahasiswas');
     }
 };

@@ -26,6 +26,7 @@ class MahasiswaController extends Controller
 
     // method resource lain (create/store/edit/update/destroy) menyusul...
 
+
     public function indexDosenPenguji(Request $request)
     {
         $search = $request->search;
@@ -40,4 +41,5 @@ class MahasiswaController extends Controller
 
         return view('dosenpenguji.mahasiswa', compact('mahasiswa', 'search'));
     }
+
 }

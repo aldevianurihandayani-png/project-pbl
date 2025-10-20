@@ -3,7 +3,10 @@
 namespace Database\Seeders;
 
 
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+
 use Illuminate\Database\Seeder;
 use App\Models\MataKuliah;
 use App\Models\User;
@@ -18,6 +21,7 @@ class MataKuliahSeeder extends Seeder
     public function run(): void
     {
 
+
         MataKuliah::upsert([
             ['kode_mk' => 'ITP', 'nama_mk' => 'IT Project', 'sks' => 4, 'semester' => 5, 'id_dosen' => 1],
             ['kode_mk' => 'TPK', 'nama_mk' => 'TPK', 'sks' => 3, 'semester' => 5, 'id_dosen' => 1],
@@ -28,6 +32,7 @@ class MataKuliahSeeder extends Seeder
         update: ['nama_mk', 'sks', 'semester', 'id_dosen']);
     }
 }
+
         // 1. Buat atau update data dosen
         $oky = User::updateOrCreate(
             ['email' => 'oky.rahmanto@politala.ac.id'],
@@ -109,4 +114,6 @@ class MataKuliahSeeder extends Seeder
         ];
 
         DB::table('mata_kuliah')->insert($matakuliah);
+
     
+

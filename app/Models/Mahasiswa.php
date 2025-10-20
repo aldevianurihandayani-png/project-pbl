@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+
 use Illuminate\Database\Eloquent\Model;
 
 class Mahasiswa extends Model
 {
+
 
     use HasFactory;
      
@@ -19,10 +23,30 @@ class Mahasiswa extends Model
 
     protected $table = 'mahasiswa';
 
-    // ...
+
+
+    protected $table = 'mahasiswas';
+    protected $primaryKey = 'nim';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = [
+        'nim',
+        'nama',
+        'angkatan',
+        'no_hp',
+    ];
+
+
     public function getRouteKeyName()
     {
         return 'nim';
+    }
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'nim', 'nim');
     }
 
 }

@@ -87,6 +87,7 @@
       .topbar-btn{ display:inline-flex }
     }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
+<<<<<<< HEAD
 
     /* ===== Notifikasi + User Menu (dropdown) ===== */
     header.topbar{ z-index: 5000; } /* pastikan di atas konten lain */
@@ -144,10 +145,13 @@
     .user-dd .item:hover{ background:#f4f7ff }
     .user-dd .item i{ width:18px; text-align:center; color:#0e257a }
     .user-dd .logout{ color:#b42318 }
+=======
+>>>>>>> bbcfba2 (commit noorma)
   </style>
 </head>
 <body>
 
+<<<<<<< HEAD
   {{-- Notifikasi dummy (aman kalau nanti diganti dari controller) --}}
   @php
     $notifications = $notifications ?? [
@@ -158,6 +162,8 @@
     $notifCount = count($notifications ?? []);
   @endphp
 
+=======
+>>>>>>> bbcfba2 (commit noorma)
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
@@ -172,13 +178,21 @@
       <div class="nav-title">Menu</div>
       <a href="{{ url('/dosenpenguji/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
       <a href="{{ url('/dosenpenguji/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+<<<<<<< HEAD
       <a href="{{ url('/dosenpenguji/kelompok')}}"><i class="fa-solid fa-users"></i>Kelompok</a>
+=======
+      <a href="{{ url('/dosenpenguji/kelompok')}}"><i class="fa-solid fa-user-graduate"></i>Kelompok</a>
+>>>>>>> bbcfba2 (commit noorma)
       <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-users"></i>Penilaian</a>
       <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-flag-checkered"></i>Rubrik</a>
       <a href="{{ url('/dosenpenguji/cpmk')}}"><i class="fa-solid fa-flag-checkered"></i>CPMK</a>
       
       <div class="nav-title">Akun</div>
+<<<<<<< HEAD
       <a href="{{ url('/dosenpenguji/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+=======
+      <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+>>>>>>> bbcfba2 (commit noorma)
     </div>
 
     <div class="logout">
@@ -195,6 +209,7 @@
       <div class="welcome">
         <h1>Dashboard Dosen Penguji</h1>
       </div>
+<<<<<<< HEAD
 
       {{-- ====== Actions: Lonceng + User Menu (baru) ====== --}}
       <div class="top-actions" id="topActions">
@@ -268,6 +283,20 @@
         </div>
       </div>
       {{-- ====== /Actions ====== --}}
+=======
+      <div class="userbox">
+        <div class="notif">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+          </div>
+          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
+        </div>
+      </div>
+>>>>>>> bbcfba2 (commit noorma)
     </header>
 
     <div class="page">
@@ -336,6 +365,7 @@
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
     });
   </script>
+<<<<<<< HEAD
 
   {{-- Script dropdown Notifikasi --}}
   <script>
@@ -374,5 +404,7 @@
     document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
   });
   </script>
+=======
+>>>>>>> bbcfba2 (commit noorma)
 </body>
 </html>

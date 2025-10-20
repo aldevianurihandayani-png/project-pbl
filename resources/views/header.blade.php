@@ -42,6 +42,7 @@
         <nav>
             <a href="{{ url('/') }}">Home</a>
             <a href="{{ url('/about') }}">Tentang</a>
+<<<<<<< HEAD
 
             {{-- Amankan register supaya tidak error walau route register belum ada --}}
             @if (Route::has('register'))
@@ -58,6 +59,11 @@
             @else
                 <a href="{{ url('/login') }}">Login</a>
             @endif
+=======
+            <a href="{{ route('register') }}">Register Eksternal</a>
+            <a href="{{ url('/contact') }}">Contact</a>
+            <a href="{{ route('login') }}">Login</a>
+>>>>>>> bbcfba2 (commit noorma)
         </nav>
     </div>
 </header>

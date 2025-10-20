@@ -1,7 +1,11 @@
 @include('admins.partials.header', ['title' => 'Manajemen Mata Kuliah'])
 
 <div class="card shadow mb-4">
+<<<<<<< HEAD
     <div class="card-header">
+=======
+        <div class="card-header">
+>>>>>>> bbcfba2 (commit noorma)
         <a href="{{ route('admins.matakuliah.create') }}" class="btn btn-primary">Tambah Mata Kuliah</a>
     </div>
     <div class="card-body">

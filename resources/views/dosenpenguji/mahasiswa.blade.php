@@ -4,7 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<<<<<<< HEAD
   <title>Mahasiswa — Dosen Penguji</title>
+=======
+  <title>Mahasiswa — Dosen Pembimbing</title>
+>>>>>>> bbcfba2 (commit noorma)
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -105,17 +109,29 @@
       <div class="nav-title">Menu</div>
       <a href="{{ url('/dosenpenguji/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
       <a href="{{ url('/dosenpenguji/mahasiswa') }}" class="active"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+<<<<<<< HEAD
       <a href="{{ url('/dosenpenguji/kelompok') }}"><i class="fa-solid fa-users"></i> Kelompok</a>
       <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-clipboard-check"></i> Penilaian</a>
       <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-table-list"></i> Rubrik</a>
       <a href="{{ url('/dosenpenguji/cpmk') }}"><i class="fa-solid fa-bullseye"></i> CPMK</a>
       
+=======
+      <a href="{{ url('/dosenpenguji/kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
+      <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
+      <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-book"></i>Logbook</a>
+      <a href="{{ url('/dosenpenguji/cpmk') }}"><i class="fa-solid fa-list-check"></i>CPMK</a>
+
+>>>>>>> bbcfba2 (commit noorma)
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
 
     <div class="logout">
+<<<<<<< HEAD
       <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+=======
+      <a href="{{ url('/logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+>>>>>>> bbcfba2 (commit noorma)
     </div>
   </aside>
 
@@ -125,7 +141,11 @@
       <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
         <i class="fa-solid fa-bars"></i>
       </button>
+<<<<<<< HEAD
       <div class="welcome"><h1>Mahasiswa — Dosen Penguji</h1></div>
+=======
+      <div class="welcome"><h1>Mahasiswa — Dosen Pembimbing</h1></div>
+>>>>>>> bbcfba2 (commit noorma)
       <div class="userbox">
         <div class="notif"><i class="fa-regular fa-bell"></i><span class="badge">3</span></div>
         <div style="display:flex;align-items:center;gap:10px">
@@ -155,6 +175,7 @@
         {{-- tombol tambah bisa ditaruh di sini saat CRUD siap --}}
       </div>
 
+<<<<<<< HEAD
       <div class="card">
         <div class="table-wrap">
           <table>
@@ -195,6 +216,51 @@
             </div>
           @endif
         @endisset
+=======
+      <div class="table-wrap card">
+        <table id="tabelMahasiswa">
+          <thead>
+            <tr>
+              <th style="width:60px">NO</th>
+              <th style="width:140px">NIM</th>
+              <th>NAMA</th>
+              <th style="width:120px">ANGKATAN</th>
+              <th style="width:160px">NO HP</th>
+              <th style="width:90px">KELAS</th>
+              <th style="width:140px">STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-kelas="A">
+              <td>1</td>
+              <td>220101001</td>
+              <td>Rina Saputri</td>
+              <td>2022</td>
+              <td>08123456789</td>
+              <td>A</td>
+              <td><span class="status aktif">Aktif</span></td>
+            </tr>
+            <tr data-kelas="B">
+              <td>2</td>
+              <td>220101002</td>
+              <td>Andi Pratama</td>
+              <td>2022</td>
+              <td>08129876543</td>
+              <td>B</td>
+              <td><span class="status mengulang">Mengulang</span></td>
+            </tr>
+            <tr data-kelas="A">
+              <td>3</td>
+              <td>220101003</td>
+              <td>Dewi Lestari</td>
+              <td>2023</td>
+              <td>08213344556</td>
+              <td>A</td>
+              <td><span class="status keluar">Keluar</span></td>
+            </tr>
+          </tbody>
+        </table>
+>>>>>>> bbcfba2 (commit noorma)
       </div>
 
     </div>
