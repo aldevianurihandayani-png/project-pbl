@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kelompok_anggota', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('kelompok_id')->constrained('kelompoks')->cascadeOnDelete();
-        $table->string('nim', 30);            // nim anggota
-        $table->string('nama')->nullable();   // opsional kalau ingin tampil nama juga
-        $table->timestamps();
-    });
+        Schema::create('anggota_kelompoks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('kelompok_id')->constrained('kelompoks')->cascadeOnDelete();
+            $table->bigInteger('mahasiswa_nim');
+            $table->foreign('mahasiswa_nim')->references('nim')->on('mahasiswas')->cascadeOnDelete();
+            $table->timestamps();
+        });
     }
 
     /**

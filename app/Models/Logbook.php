@@ -3,17 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Logbook extends Model
 {
-    protected $fillable = [
-        'user_id','tanggal','minggu','aktivitas','rincian',
-        'lampiran_path','status','komentar_dosen'
-    ];
+    protected $table = 'logbooks';
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $fillable = ['tanggal','minggu','aktivitas','keterangan','foto','user_id'];
+
+    protected $casts = [
+        'tanggal' => 'date',
+    ];
+    protected $hidden = ['foto'];
 }

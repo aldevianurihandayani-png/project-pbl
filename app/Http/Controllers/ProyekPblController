@@ -26,6 +26,7 @@ class ProyekPblController extends Controller
     }
 
     public function create()
+    
     {
         // ambil list untuk select (opsional isi di view via ajax)
         return view('proyek_pbl.create');

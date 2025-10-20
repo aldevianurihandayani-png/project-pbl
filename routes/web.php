@@ -31,13 +31,11 @@ Route::get('/contact', fn() => view('contact'))->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 // Halaman daftar logbook
-Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.index');
+Route::resource('logbooks', LogbookController::class);
+Route::get('/logbooks/index', function () {
+    return redirect()->route('logbooks.index');
+});
 
-// Form tambah logbook
-Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');
-
-// Simpan logbook
-Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
 
 // ==============================
 // Autentikasi
@@ -79,9 +77,7 @@ Route::middleware(['auth','role:mahasiswa'])->group(function () {
 // Setelah Login
 // ==============================
 
-// Proses Register
-Route::post('/register', [UserController::class, 'store'])
-    ->name('register.store');
+
 
     //dashboard dosne pembimbing
     //dashboard dosen pembimbing
@@ -171,9 +167,7 @@ Route::get('/mahasiswa/dashboard', function () {
 })->name('mahasiswa.dashboard');
 
 //logbook mahasiswa 
-Route::get('/mahasiswa/logbook', function () {
-    return view('mahasiswa.logbook');
-})->name('mahasiswa.logbook');
+Route::get('/mahasiswa/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('mahasiswa.logbook');
 
 //kelompok mahasiswa 
 Route::get('/mahasiswa/kelompok', function () {

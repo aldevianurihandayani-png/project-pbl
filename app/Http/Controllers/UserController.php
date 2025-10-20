@@ -7,68 +7,45 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RegisterSuccessMail;
-use App\Mail\LogbookSuccessMail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 class UserController extends Controller
 {
     public function register(Request $request)
     {
         $data = $request->validate([
-            'nama'     => ['required','string','max:255'],
+            'name'     => ['required','string','max:255'],   // ✅ ganti 'nama' ke 'name'
             'email'    => ['required','email','unique:users,email'],
             'role'     => ['required', Rule::in([
-                'dosen_pembimbing',
-                'admin',
-                'mahasiswa',
-                'jaminan_mutu',
-                'koor_pbl',
-                'dosen_penguji',
+                'dosen_pembimbing','admin','mahasiswa','jaminan_mutu','koor_pbl','dosen_penguji',
             ])],
             'password' => ['required','min:6','confirmed'],
         ]);
 
-        // Simpan hanya kolom yang memang ada di tabel
         $user = User::create([
-            'nama'     => $data['nama'],
+            'name'     => $data['name'],      // ✅ konsisten dengan nama kolom tabel
             'email'    => $data['email'],
             'role'     => $data['role'],
-            'password' => $data['password'], // auto-hash, lihat model
+            'password' => Hash::make($data['password']),
         ]);
 
-        return redirect()->route('home')->with('success','Registrasi berhasil');
+        try {
+            Mail::to($user->email)->queue(new RegisterSuccessMail($user->name));
+        } catch (\Throwable $e) {
+            \Log::error('Gagal kirim email register: '.$e->getMessage());
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Redirect sesuai role
+        if ($user->role === 'mahasiswa') {
+            return redirect()->route('mahasiswa.dashboard')
+                ->with('success', 'Registrasi berhasil. Email konfirmasi telah dikirim.');
+        }
+
+        return redirect()->route('home')
+            ->with('success', 'Registrasi berhasil. Email konfirmasi telah dikirim.');
     }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'nama'     => ['required','string','max:255'],
-            'email'    => ['required','email','unique:users,email'],
-            'role'     => ['required', Rule::in([
-                'dosen_pembimbing',
-                'admin',
-                'mahasiswa',
-                'jaminan_mutu',
-                'koor_pbl',
-                'dosen_penguji',
-            ])],
-            'password' => ['required','min:6','confirmed'],
-        ]);
-
-        $user = User::create([
-            'nama'     => $data['nama'],
-            'email'    => $data['email'],
-            'role'     => $data['role'],
-            'password' => bcrypt($data['password']),
-        ]);
-
-       try {
-    Mail::to($user->email)->queue(new RegisterSuccessMail($user->nama));
-
-} catch (\Throwable $e) {
-    \Log::error('Gagal kirim email register/logbook: '.$e->getMessage());
-}
-
-return redirect()->route('home')->with('success','Registrasi berhasil. Email konfirmasi telah dikirim.');
-
-
-}
 }

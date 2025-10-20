@@ -37,6 +37,11 @@ class LoginController extends Controller
 
         // Sukses
         $request->session()->regenerate();
+
+        if ($user->role === 'mahasiswa') {
+            return redirect()->route('mahasiswa.dashboard')->with('success', 'Login berhasil');
+        }
+
         return redirect()->route('home')->with('success','Login berhasil');
     }
 
