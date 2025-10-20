@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <title>Mahasiswa — Dosen Penguji</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -171,13 +173,18 @@
       <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-clipboard-check"></i> Penilaian</a>
       <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-table-list"></i> Rubrik</a>
       <a href="{{ url('/dosenpenguji/cpmk') }}"><i class="fa-solid fa-bullseye"></i> CPMK</a>
-      
+
+    
+
       <div class="nav-title">Akun</div>
       <a href="{{ url('/dosenpenguji/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
 
     <div class="logout">
+
       <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+
+      <a href="{{ url('/logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </aside>
 
@@ -257,6 +264,13 @@
                 <i class="fa-solid fa-right-from-bracket"></i> Keluar
               </button>
             </form>
+
+      <div class="welcome"><h1>Mahasiswa — Dosen Pembimbing</h1></div>
+      <div class="userbox">
+        <div class="notif"><i class="fa-regular fa-bell"></i><span class="badge">3</span></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
           </div>
         </div>
       </div>
@@ -279,6 +293,7 @@
           </select>
         </div>
       </div>
+
 
       <div class="card">
         <div class="table-wrap">
@@ -320,8 +335,51 @@
             </div>
           @endif
         @endisset
-      </div>
 
+      <div class="table-wrap card">
+        <table id="tabelMahasiswa">
+          <thead>
+            <tr>
+              <th style="width:60px">NO</th>
+              <th style="width:140px">NIM</th>
+              <th>NAMA</th>
+              <th style="width:120px">ANGKATAN</th>
+              <th style="width:160px">NO HP</th>
+              <th style="width:90px">KELAS</th>
+              <th style="width:140px">STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-kelas="A">
+              <td>1</td>
+              <td>220101001</td>
+              <td>Rina Saputri</td>
+              <td>2022</td>
+              <td>08123456789</td>
+              <td>A</td>
+              <td><span class="status aktif">Aktif</span></td>
+            </tr>
+            <tr data-kelas="B">
+              <td>2</td>
+              <td>220101002</td>
+              <td>Andi Pratama</td>
+              <td>2022</td>
+              <td>08129876543</td>
+              <td>B</td>
+              <td><span class="status mengulang">Mengulang</span></td>
+            </tr>
+            <tr data-kelas="A">
+              <td>3</td>
+              <td>220101003</td>
+              <td>Dewi Lestari</td>
+              <td>2023</td>
+              <td>08213344556</td>
+              <td>A</td>
+              <td><span class="status keluar">Keluar</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 

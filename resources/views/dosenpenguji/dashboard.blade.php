@@ -88,6 +88,7 @@
     }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
 
+
     /* ===== Notifikasi + User Menu (dropdown) ===== */
     header.topbar{ z-index: 5000; } /* pastikan di atas konten lain */
     #topActions{ display:flex; align-items:center; gap:14px; }
@@ -144,6 +145,7 @@
     .user-dd .item:hover{ background:#f4f7ff }
     .user-dd .item i{ width:18px; text-align:center; color:#0e257a }
     .user-dd .logout{ color:#b42318 }
+
   </style>
 </head>
 <body>
@@ -157,6 +159,7 @@
     ];
     $notifCount = count($notifications ?? []);
   @endphp
+
 
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
@@ -172,13 +175,25 @@
       <div class="nav-title">Menu</div>
       <a href="{{ url('/dosenpenguji/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
       <a href="{{ url('/dosenpenguji/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+
       <a href="{{ url('/dosenpenguji/kelompok')}}"><i class="fa-solid fa-users"></i>Kelompok</a>
+
       <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-clipboard-check"></i>Penilaian</a>
       <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-table-list"></i>Rubrik</a>
       <a href="{{ url('/dosenpenguji/cpmk')}}"><i class="fa-solid fa-bullseye"></i>CPMK</a>
+
+      <a href="{{ url('/dosenpenguji/kelompok')}}"><i class="fa-solid fa-user-graduate"></i>Kelompok</a>
+
+      <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-users"></i>Penilaian</a>
+      <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-flag-checkered"></i>Rubrik</a>
+      <a href="{{ url('/dosenpenguji/cpmk')}}"><i class="fa-solid fa-flag-checkered"></i>CPMK</a>
+
       
       <div class="nav-title">Akun</div>
+
       <a href="{{ url('/dosenpenguji/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+      <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+
     </div>
 
     <div class="logout">
@@ -195,6 +210,7 @@
       <div class="welcome">
         <h1>Dashboard Dosen Penguji</h1>
       </div>
+
 
       {{-- ====== Actions: Lonceng + User Menu (baru) ====== --}}
       <div class="top-actions" id="topActions">
@@ -268,6 +284,20 @@
         </div>
       </div>
       {{-- ====== /Actions ====== --}}
+
+      <div class="userbox">
+        <div class="notif">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+          </div>
+          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
+        </div>
+      </div>
+
     </header>
 
     <div class="page">
@@ -336,6 +366,7 @@
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
     });
   </script>
+
 
   {{-- Script dropdown Notifikasi --}}
   <script>

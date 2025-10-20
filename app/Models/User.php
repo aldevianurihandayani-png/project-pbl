@@ -1,4 +1,6 @@
+
 <?php 
+
 
 namespace App\Models;
 
@@ -11,11 +13,15 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
 
+
     // Jika tabel users tidak memiliki created_at & updated_at
     public $timestamps = false;
 
     /**
      * Kolom yang bisa diisi mass assignment.
+
+     * Kolom yang boleh diisi secara mass-assignment
+
      */
     protected $fillable = [
         'name',
@@ -29,13 +35,23 @@ class User extends Authenticatable
         'email_verified_at',
     ];
 
-   
+
+
+    public function mahasiswa()
+    {
+        return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
+    }
+
+    /**
+     * Kolom yang disembunyikan saat model diubah ke array / JSON
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
     /**
+
      * Casting atribut.
      */
     protected function casts(): array
@@ -62,4 +78,10 @@ class User extends Authenticatable
         return null;
     }
 }
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        // Laravel 10+ bisa pakai 'password' => 'hashed' agar auto hash
+    ];
+
 

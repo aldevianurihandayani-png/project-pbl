@@ -26,6 +26,10 @@ class ProyekPblController extends Controller
     }
 
     public function create()
+<<<<<<< HEAD
+    
+=======
+>>>>>>> bbcfba2 (commit noorma)
     {
         // ambil list untuk select (opsional isi di view via ajax)
         return view('proyek_pbl.create');

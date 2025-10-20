@@ -1,21 +1,28 @@
 <?php
 
+
+// app/Http/Controllers/DosenPenguji/KelompokController.php
+
+
 // app/Http/Controllers/DosenPenguji/KelompokController.php
 
 namespace App\Http\Controllers\DosenPenguji;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+<
 
 use App\Models\Kelompok;
 
 use Illuminate\Support\Facades\DB;
 
 
+
 class KelompokController extends Controller
 {
     public function index(Request $request)
     {
+
         $search = $request->query('q');
 
         $kelompok = Kelompok::query()
@@ -28,6 +35,7 @@ class KelompokController extends Controller
             ->withQueryString();
 
         return view('dosenpenguji.kelompok', compact('kelompok'));
+
         $search = trim((string)$request->get('search'));
 
         // Ambil kelompok + dosen pembimbing + daftar anggota

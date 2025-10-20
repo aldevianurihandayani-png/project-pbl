@@ -1,6 +1,7 @@
 @include('admins.partials.header', ['title' => 'Tambah Mata Kuliah'])
 
 <div class="card shadow mb-4">
+<<<<<<< HEAD
     <div class="card-header">
         <h6 class="m-0 font-weight-bold text-primary">Form Mata Kuliah</h6>
     </div>
@@ -64,3 +65,27 @@
 </div>
 
 @include('admins.partials.footer')
+=======
+  <div class="card-header">
+    <strong>Form Tambah Mata Kuliah</strong>
+  </div>
+  <div class="card-body">
+    @if ($errors->any())
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          @foreach ($errors->all() as $err)
+            <li>{{ $err }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    <form action="{{ route('admins.matakuliah.store') }}" method="POST">
+      @csrf
+      @include('admins.matakuliah._form', ['mode' => 'create', 'submitText' => 'Simpan'])
+    </form>
+  </div>
+</div>
+
+@include('admins.partials.footer')
+>>>>>>> bbcfba2 (commit noorma)

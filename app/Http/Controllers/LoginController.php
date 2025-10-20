@@ -38,6 +38,14 @@ class LoginController extends Controller
         // Sukses, regenerasi session
         $request->session()->regenerate();
 
+
+
+        if ($user->role === 'mahasiswa') {
+            return redirect()->route('mahasiswa.dashboard')->with('success', 'Login berhasil');
+        }
+
+        return redirect()->route('home')->with('success','Login berhasil');
+
         // Logika redirect berdasarkan role
         $role = $user->role;
         
@@ -53,6 +61,35 @@ class LoginController extends Controller
         $redirectRoute = $routeMap[$role] ?? 'home';
 
         return redirect()->route($redirectRoute)->with('success', 'Login berhasil');
+
+
+        // Logika redirect berdasarkan role
+        $role = $user->role;
+        $redirectRoute = 'home'; // Default redirect
+
+        switch ($role) {
+            case 'admins':
+                $redirectRoute = 'admins.dashboard';
+                break;
+            case 'dosen_pembimbing':
+                $redirectRoute = 'dosen.dashboard';
+                break;
+            case 'dosen_penguji':
+                $redirectRoute = 'dosenpenguji.dashboard';
+                break;
+            case 'jaminan_mutu':
+                $redirectRoute = 'jaminanmutu.dashboard';
+                break;
+            case 'koordinator':
+                $redirectRoute = 'koordinator.dashboard';
+                break;
+            case 'mahasiswa':
+                $redirectRoute = 'mahasiswa.dashboard';
+                break;
+        }
+
+        return redirect()->route($redirectRoute)->with('success','Login berhasil');
+
     }
 
     public function logout(Request $request)

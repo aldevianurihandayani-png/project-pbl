@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+
+=======
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -60,3 +63,4 @@
 </div>
 </body>
 </html>
+>>>>>>> bbcfba2 (commit noorma)
