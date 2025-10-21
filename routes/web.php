@@ -40,11 +40,11 @@ use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 // Dosen
 
 // Dosen Penguji
-use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
+use App\Http\Controllers\DosenPenguji\MahasiswaController;
 use App\Http\Controllers\DosenPenguji\PenilaianController;
 use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
-use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
+use App\Http\Controllers\DosenPenguji\MatakuliahController;
 use App\Http\Controllers\DosenPenguji\CPMKController;
 
 /*
@@ -76,8 +76,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
     Route::get('/', fn() => redirect()->route('dosenpenguji.dashboard'));
     Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
-    Route::get('/dashboard', fn() => view('dosenpenguji.dashboard'))->name('dashboard');
-    Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
+    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
     Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])->name('penilaian.bulkSave');
     Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])->name('penilaian.deleteGrade');
@@ -85,7 +84,7 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
     Route::post('/penilaian/import', [PenilaianController::class, 'import'])->name('penilaian.import');
     Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
     Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
-    Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
+    Route::get('/matakuliah', [MatakuliahController::class, 'index'])->name('matakuliah');
     Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
 // ==============================
 // PROFIL DOSEN PENGUJI
@@ -214,54 +213,4 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
     Route::resource('/milestone', DosenMilestoneController::class)->only(['index', 'edit', 'update']);
     Route::view('/logbook', 'dosen.logbook')->name('logbook');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Dosen Penguji
-|--------------------------------------------------------------------------
-*/
-Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
-    Route::redirect('/', '/dosenpenguji/dashboard');
-    Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
-
-    Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
-    Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
-    Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])->name('penilaian.bulkSave');
-    Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])->name('penilaian.deleteGrade');
-    Route::get('/penilaian/export', [PenilaianController::class, 'export'])->name('penilaian.export');
-    Route::post('/penilaian/import', [PenilaianController::class, 'import'])->name('penilaian.import');
-
-    Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
-    Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
-    Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
-    Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
-
-    // Profil
-    Route::view('/profile', 'dosenpenguji.profile')->name('profile');
-    Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
-    Route::put('/profile', function (Request $request) {
-        $user = auth()->user();
-
-        $validated = $request->validate([
-            'nama'     => 'nullable|string|max:255',
-            'name'     => 'nullable|string|max:255',
-            'email'    => 'required|email',
-            'password' => 'nullable|min:6',
-        ]);
-
-        $data = [
-            'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
-            'email' => $validated['email'],
-        ];
-
-        if (!empty($validated['password'])) {
-            $data['password'] = Hash::make($validated['password']);
-        }
-
-        $user->update($data);
-        auth()->setUser($user->fresh());
-
-        return redirect()->route('dosenpenguji.profile')->with('success', 'Perubahan berhasil disimpan.');
-    })->name('profile.update');
 });
