@@ -112,9 +112,9 @@ class KelompokController extends Controller
         $data = $request->validate([
             'judul'         => ['required','string','max:255'],
             'topik'         => ['nullable','string','max:255'],
-            'nim'           => ['required','integer','exists:mahasiswa,nim'],
-            'id_proyek_pbl' => ['required','integer','exists:proyek_pbl,id_proyek_pbl'],
-            'id_dosen'      => ['required','integer','exists:dosen,id_dosen'],
+            'nim'           => ['required','integer','exists:mahasiswas,nim'],
+            'id_proyek_pbl' => ['required','integer','exists:proyek_pbls,id'],
+            'id_dosen'      => ['required','integer','exists:dosens,id'],
         ]);
 
         DB::transaction(function () use ($kelompok, $data) {
