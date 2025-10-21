@@ -4,10 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\Auth;
-=======
->>>>>>> cb08c93cdcb0287ad29d651856de91ca81d5fd3f
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
