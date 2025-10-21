@@ -15,36 +15,32 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-<<<<<<< HEAD
+
                         <th>ID</th>
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Tanggal Registrasi</th>
-=======
                         <th>NIM</th>
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Angkatan</th>
                         <th>No. HP</th>
->>>>>>> bbcfba2 (commit noorma)
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($mahasiswas as $mahasiswa)
                         <tr>
-<<<<<<< HEAD
+
                             <td>{{ $mahasiswa->id }}</td>
                             <td>{{ $mahasiswa->name }}</td>
                             <td>{{ $mahasiswa->email }}</td>
                             <td>{{ $mahasiswa->created_at->format('d M Y') }}</td>
-=======
                             <td>{{ $mahasiswa->nim }}</td>
                             <td>{{ $mahasiswa->nama }}</td>
                             <td>{{ $mahasiswa->user->email }}</td>
                             <td>{{ $mahasiswa->angkatan }}</td>
                             <td>{{ $mahasiswa->no_hp }}</td>
->>>>>>> bbcfba2 (commit noorma)
                             <td>
                                 <a href="{{ route('admins.mahasiswa.edit', $mahasiswa) }}" class="btn btn-warning btn-sm">Edit</a>
                                 <form action="{{ route('admins.mahasiswa.destroy', $mahasiswa) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mahasiswa ini?');">
@@ -56,11 +52,10 @@
                         </tr>
                     @empty
                         <tr>
-<<<<<<< HEAD
+
                             <td colspan="5" class="text-center">Tidak ada data mahasiswa.</td>
-=======
-                            <td colspan="6" class="text-center">Tidak ada data mahasiswa.</td>
->>>>>>> bbcfba2 (commit noorma)
+                            
+
                         </tr>
                     @endforelse
                 </tbody>
