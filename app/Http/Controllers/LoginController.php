@@ -19,7 +19,7 @@ class LoginController extends Controller
             'email'    => ['required','email'],
             'password' => ['required'],
             'role'     => ['required', Rule::in([
-                'mahasiswa','dosen_pembimbing','dosen_penguji','koordinator','jaminan_mutu','admins'
+                'mahasiswa','dosen_pembimbing','dosen_penguji','koordinator','jaminan_mutu','admin'
             ])],
         ]);
 
@@ -43,7 +43,7 @@ class LoginController extends Controller
         $redirectRoute = 'home'; // Default redirect
 
         switch ($role) {
-            case 'admins':
+            case 'admin':
                 $redirectRoute = 'admins.dashboard';
                 break;
             case 'dosen_pembimbing':
