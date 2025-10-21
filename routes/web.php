@@ -146,8 +146,14 @@ Route::put('/profile', function (Request $request) {
 | Admin
 |--------------------------------------------------------------------------
 */
-Route::prefix('admins')->name('admins.')->group(function () {
-    Route::view('/dashboard', 'admins.dashboard')->name('dashboard');
+use App\Http\Controllers\Admin\AdminDashboardController;
+
+// --- Route Dashboard Admin ---
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admins/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('admins.dashboard');
+});
+
 
     Route::resource('matakuliah', AdminMataKuliahController::class);
     Route::resource('mahasiswa', AdminMahasiswaController::class);
@@ -172,7 +178,7 @@ Route::prefix('admins')->name('admins.')->group(function () {
     Route::delete('/notifikasi/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
     Route::post('/notifikasi/markAll', [NotificationController::class, 'markAllRead'])->name('notifikasi.markAll');
     Route::get('/notifikasi/{notification}/read', [NotificationController::class, 'markRead'])->name('notifikasi.read');
-});
+;
 
 /*
 |--------------------------------------------------------------------------
