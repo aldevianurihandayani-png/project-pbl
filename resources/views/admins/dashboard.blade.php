@@ -80,8 +80,6 @@
     .muted{ color:var(--muted) }
     ul.clean{ margin:8px 0 0 18px }
 
-<<<<<<< HEAD
-=======
     /* Notification Dropdown */
     .notif-dropdown {
       position: relative;
@@ -199,7 +197,6 @@
       background-color: #e0e0e0;
     }
 
->>>>>>> bbcfba2 (commit noorma)
     @media (max-width: 980px){
       body{ grid-template-columns:1fr }
       .sidebar{ position:fixed; inset:0 auto 0 0; width:240px; transform:translateX(-102%); transition:transform .2s; z-index:10 }
@@ -248,20 +245,6 @@
         <h1>Dashboard Admin</h1>
       </div>
       <div class="userbox">
-<<<<<<< HEAD
-        <div class="notif">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge">3</span>
-        </div>
-        <a href="{{ route('profile.index') }}" style="text-decoration: none; color: inherit;">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-              {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
-            </div>
-            <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
-          </div>
-        </a>
-=======
         <div class="notif-dropdown">
           <div class="notif-icon">
             <i class="fa-regular fa-bell"></i>
@@ -306,7 +289,6 @@
           </div>
           <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
         </div>
->>>>>>> bbcfba2 (commit noorma)
       </div>
     </header>
 
@@ -347,11 +329,7 @@
         <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone</div>
         <div class="card-bd">
           Deadline milestone berikutnya: <strong>10 Oktober 2025</strong>.
-<<<<<<< HEAD
-        </div>
-=======
         }
->>>>>>> bbcfba2 (commit noorma)
       </section>
 
       <!-- Nilai & Peringkat -->
@@ -378,14 +356,6 @@
   </main>
 
   <script>
-<<<<<<< HEAD
-    // Tutup sidebar ketika klik di luar (mobile)
-    document.addEventListener('click', (e)=>{
-      const sb = document.getElementById('sidebar');
-      if(!sb.classList.contains('show')) return;
-      const btn = e.target.closest('.topbar-btn');
-      if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
-=======
     function closeAllMenus() {
       const sidebar = document.getElementById('sidebar');
       const notifDropdownContent = document.querySelector('.notif-dropdown .dropdown-content');
@@ -422,7 +392,6 @@
         if (!event.target.closest('.sidebar') && !event.target.closest('.notif-dropdown')) {
             closeAllMenus();
         }
->>>>>>> bbcfba2 (commit noorma)
     });
   </script>
 </body>

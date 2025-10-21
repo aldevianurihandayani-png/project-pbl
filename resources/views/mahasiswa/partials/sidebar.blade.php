@@ -16,7 +16,7 @@
     <a href="{{ url('/mahasiswa/dashboard') }}" class="{{ request()->is('mahasiswa/dashboard') ? 'active':'' }}">
       <i class="fa-solid fa-house"></i>Dashboard
     </a>
-    <a href="{{ url('/mahasiswa/kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
+    <a href="{{ url('/dosenpenguji.kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
     <a href="{{ url('/mahasiswa/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
     <a href="{{ route('logbooks.index') }}"><i class="fa-regular fa-clipboard"></i>Logbook</a>
     <a href="{{ url('/mahasiswa/laporan-penilaian') }}"><i class="fa-solid fa-file-lines"></i>Laporan Penilaian</a>

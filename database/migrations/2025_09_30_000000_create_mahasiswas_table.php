@@ -4,27 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-<<<<<<< HEAD
 return new class extends Migration
 {
-
     /**
      * Jalankan migrasi.
      */
     public function up(): void
     {
         Schema::create('mahasiswas', function (Blueprint $table) {
-            $table->bigInteger('nim')->primary();         // Primary Key
-            $table->string('nama');                       // Nama Mahasiswa
-            $table->string('email')->unique();            // Email Mahasiswa
-            $table->string('no_telp')->nullable();        // Nomor Telepon
-            $table->integer('angkatan');                  // Angkatan
-            $table->string('kelas');                      // Kelas
-            $table->unsignedBigInteger('id_dosen');       // Foreign Key ke tabel dosen
-
+            $table->string('nim', 15)->primary();         // NIM sebagai PK
+            $table->string('nama', 100);
+            $table->string('email')->unique();
+            $table->string('no_hp', 15)->nullable();
+            $table->integer('angkatan');
+            $table->string('kelas');
+            $table->unsignedBigInteger('id_dosen');       // relasi ke dosens
             $table->timestamps();
 
-            // Relasi ke tabel dosen (pastikan tabel dosens sudah ada)
+            // Relasi ke tabel dosens
             $table->foreign('id_dosen')
                   ->references('id_dosen')
                   ->on('dosens')
@@ -37,20 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-=======
-return new class extends Migration {
-    public function up()
-{
-    Schema::create('mahasiswas', function (Blueprint $table) {
-        $table->string('nim', 15)->primary();
-        $table->string('nama', 100);
-        $table->year('angkatan');
-        $table->string('no_hp', 15)->nullable();
-        $table->timestamps();
-    });
-}
-    public function down(): void {
->>>>>>> bbcfba2 (commit noorma)
         Schema::dropIfExists('mahasiswas');
     }
 };

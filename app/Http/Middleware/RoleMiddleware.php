@@ -3,43 +3,11 @@
 namespace App\Http\Middleware;
 
 use Closure;
-
-
 use Illuminate\Http\Request;
-
-
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Auth;
-
-class RoleMiddleware
-{
-
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string  ...$roles
-     * @return mixed
-     */
-    public function handle(Request $request, Closure $next, ...$roles)
-    {
-        if (!Auth::check()) {
-            return redirect('login');
-        }
-
-        $user = Auth::user();
-
-        foreach ($roles as $role) {
-            if ($user->role == $role) {
-                return $next($request);
-            }
-        }
-
-        abort(403, 'Akses ditolak.');
-    }
-}
-
-
+=======
+>>>>>>> cb08c93cdcb0287ad29d651856de91ca81d5fd3f
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
@@ -47,11 +15,28 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Pakai seperti:
+     *   ->middleware('role:admin')
+     *   ->middleware('role:mahasiswa,admin')  // OR logic
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        return $next($request);
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+
+        // jika tidak diberikan roles, lewati saja (anggap pass-through)
+        if (empty($roles)) {
+            return $next($request);
+        }
+
+        // izinkan jika role user ada di daftar roles
+        if (in_array($user->role, $roles, true)) {
+            return $next($request);
+        }
+
+        abort(403, 'Akses ditolak.');
     }
 }
-

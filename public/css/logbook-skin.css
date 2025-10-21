@@ -114,5 +114,57 @@ form .btn-cancel:hover {
   color: #1f2937;
 }
 
+/* Box & inputs same skin as create/index */
+.edit-logbook-box{
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+  padding:24px 28px;
+}
+
+/* Form controls look consistent even without Bootstrap */
+.edit-logbook-box .form-control,
+.edit-logbook-box .form-select{
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+  padding:10px 12px;
+  font-size:15px;
+  transition:border-color .2s, box-shadow .2s;
+}
+.edit-logbook-box .form-control:focus,
+.edit-logbook-box .form-select:focus{
+  border-color:#0b1d54;
+  box-shadow:0 0 0 3px rgba(11,29,84,.2);
+}
+
+.edit-logbook-box .btn-primary{
+  background:#0b1d54;
+  border:none;
+  padding:10px 20px;
+  border-radius:8px;
+}
+.edit-logbook-box .btn-primary:hover{ background:#142c82; }
+
+.edit-logbook-box .btn-secondary{
+  background:transparent;
+  border:1px solid #cbd5e1;
+  color:#1f2937;
+  padding:10px 20px;
+  border-radius:8px;
+  margin-left:10px;
+}
+.edit-logbook-box .btn-secondary:hover{ background:#f3f4f6; }
+
+/* Preview foto agar tidak kegedean */
+.edit-logbook-box .edit-preview{
+  display:block;
+  max-width:520px;   /* atau 100% */
+  width:100%;
+  height:auto;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+
+
 
 

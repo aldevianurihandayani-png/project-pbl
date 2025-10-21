@@ -7,34 +7,18 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 class Kernel extends HttpKernel
 {
     /**
-     * The application's global HTTP middleware stack.
-
-     *
-     * These middleware are run during every request to your application.
-     *
-     * @var array<int, class-string|string>
+     * Global middleware yang dijalankan pada setiap request.
      */
     protected $middleware = [
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,];
-
-     
-    protected $middleware = [
-        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-        \Illuminate\Http\Middleware\HandleCors::class,
-        \App\Http\Middleware\TrustProxies::class,
-
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 
     /**
-     * The application's route middleware groups.
-
-     *
-     * @var array<string, array<int, class-string|string>>
-
+     * Kelompok middleware (group web dan api).
      */
     protected $middlewareGroups = [
         'web' => [
@@ -53,26 +37,18 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * The application's route middleware.
-     *
-     * These middleware may be assigned to groups or used individually.
-     *
-     * @var array<string, class-string|string>
+     * Route middleware individu / alias.
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth'       => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-    ];
-     
-    protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        // Tambahkan alias role di sini
-        'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+        'can'        => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest'      => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle'   => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified'   => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        // Custom middleware role (pastikan nama class-nya sesuai)
+        'role'       => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }
