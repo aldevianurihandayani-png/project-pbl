@@ -23,9 +23,6 @@ use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\NotificationController;
-
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\LogbookController;
 use App\Models\Logbook;
 use App\Models\Milestone;
 use App\Http\Controllers\KelompokController;
@@ -40,15 +37,7 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 
 
-
-
-use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
-use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
-use App\Http\Controllers\Admin\NotificationController;
-
 // Dosen
-use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
-use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -57,8 +46,6 @@ use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
 use App\Http\Controllers\DosenPenguji\CPMKController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 
 /*
@@ -104,13 +91,6 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-
-use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
-use App\Http\Controllers\DosenPenguji\PenilaianController;
-use App\Http\Controllers\DosenPenguji\RubrikController;
-use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
-use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
-use App\Http\Controllers\DosenPenguji\CPMKController;
 
 // Dosen Penguji Routes
 
