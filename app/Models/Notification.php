@@ -10,6 +10,9 @@ class Notification extends Model
 {
     use HasFactory;
 
+    // Jika kamu TIDAK pakai tabel 'notifications' bawaan Laravel, set table sendiri:
+    // protected $table = 'app_notifications';
+
     protected $fillable = [
         'user_id',
         'title',
@@ -21,7 +24,9 @@ class Notification extends Model
     ];
 
     protected $casts = [
-        'is_read' => 'boolean',
+        'is_read'   => 'boolean',
+        'created_at'=> 'datetime',
+        'updated_at'=> 'datetime',
     ];
 
     public function user()
@@ -29,27 +34,37 @@ class Notification extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function getUnreadCount()
+    /* ---------- Scopes ---------- */
+    public function scopeForCurrent($q)
     {
-        return self::query()
-            ->where('is_read', false)
-            ->where(function ($query) {
-                $query->whereNull('user_id')
-                      ->orWhere('user_id', Auth::id());
-            })
-            ->count();
+        return $q->where(function ($x) {
+            $x->whereNull('user_id')->orWhere('user_id', Auth::id());
+        });
+    }
+
+    public function scopeUnread($q)
+    {
+        return $q->where('is_read', false);
+    }
+
+    /* ---------- Helpers ---------- */
+    public static function getUnreadCount(): int
+    {
+        return static::query()->unread()->forCurrent()->count();
     }
 
     public static function getListForTopbar()
     {
-        return self::query()
-            ->where('is_read', false)
-            ->where(function ($query) {
-                $query->whereNull('user_id')
-                      ->orWhere('user_id', Auth::id());
-            })
+        return static::query()
+            ->unread()
+            ->forCurrent()
             ->latest()
             ->limit(10)
-            ->get(['id', 'title', 'type', 'created_at', 'link_url']);
+            ->get(['id','title','type','created_at','link_url']);
+    }
+
+    public function markAsRead(): bool
+    {
+        return $this->update(['is_read' => true]);
     }
 }

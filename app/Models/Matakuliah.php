@@ -8,6 +8,9 @@ class MataKuliah extends Model
 {
     protected $table = 'mata_kuliah';
     protected $primaryKey = 'kode_mk';
+
+    // PK bukan auto-increment & bertipe string
+
     public $incrementing = false;
     protected $keyType = 'string';
 
@@ -18,6 +21,11 @@ class MataKuliah extends Model
         'semester',
         'id_dosen'
     ];
+
+
+      
+
+    // Route model binding pakai kolom kode_mk
 
     public function getRouteKeyName()
     {

@@ -1,4 +1,5 @@
 {{-- resources/views/dosenpenguji/mahasiswa/index.blade.php --}}
+@extends('layouts.mahasiswa')
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -36,7 +37,6 @@
     }
     .menu a:hover{ background:#11245f; transform:translateX(2px) }
     .menu a.active{ background:#1c3d86 }
-    .menu i{ width:18px; text-align:center }
     .logout{ margin-top:auto }
     .logout a{ color:#ffb2b2; display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; text-decoration:none }
     .logout a:hover{ background:#5c1020 }
@@ -174,16 +174,12 @@
       <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-table-list"></i> Rubrik</a>
       <a href="{{ url('/dosenpenguji/cpmk') }}"><i class="fa-solid fa-bullseye"></i> CPMK</a>
 
-    
-
       <div class="nav-title">Akun</div>
       <a href="{{ url('/dosenpenguji/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
 
     <div class="logout">
-
       <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-
       <a href="{{ url('/logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </aside>
@@ -237,7 +233,7 @@
           @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'NU',0,2)); @endphp
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
             <span class="ava">{{ $initial }}</span>
-            <span>{{ $u->name ?? 'Nama User' }}</span>
+            <span>{{ $u->name ?? 'Aldevianuri Handayani' }}</span>
             <i class="fa-solid fa-chevron-down"></i>
           </button>
 
@@ -294,7 +290,6 @@
         </div>
       </div>
 
-
       <div class="card">
         <div class="table-wrap">
           <table id="tabelMahasiswa">
@@ -322,7 +317,19 @@
                     <td>{{ $m->kelompok?->proyek?->nama_proyek ?? '-' }}</td>
                   </tr>
                 @empty
-                  <tr><td colspan="100%" style="text-align:center">Tidak ada data.</td></tr>
+                  {{-- EMPTY STATE bergambar (tanpa mengubah kolom) --}}
+                  <tr>
+                    <td colspan="7" style="padding:28px 16px;">
+                      <div style="display:grid;place-items:center;text-align:center;gap:8px;">
+                        <svg width="90" height="90" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                          <rect x="8" y="8" width="48" height="48" rx="6" stroke="#c9d3e6" stroke-width="2"/>
+                          <path d="M20 24h24M20 32h24M20 40h16" stroke="#c9d3e6" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <div style="font-weight:800;color:#0b1d54">Belum ada data mahasiswa</div>
+                        <div style="color:#6c7a8a">Tambahkan data terlebih dahulu atau ubah filter kelas.</div>
+                      </div>
+                    </td>
+                  </tr>
                 @endforelse
               @endisset
             </tbody>
@@ -336,52 +343,7 @@
           @endif
         @endisset
 
-      <div class="table-wrap card">
-        <table id="tabelMahasiswa">
-          <thead>
-            <tr>
-              <th style="width:60px">NO</th>
-              <th style="width:140px">NIM</th>
-              <th>NAMA</th>
-              <th style="width:120px">ANGKATAN</th>
-              <th style="width:160px">NO HP</th>
-              <th style="width:90px">KELAS</th>
-              <th style="width:140px">STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-kelas="A">
-              <td>1</td>
-              <td>220101001</td>
-              <td>Rina Saputri</td>
-              <td>2022</td>
-              <td>08123456789</td>
-              <td>A</td>
-              <td><span class="status aktif">Aktif</span></td>
-            </tr>
-            <tr data-kelas="B">
-              <td>2</td>
-              <td>220101002</td>
-              <td>Andi Pratama</td>
-              <td>2022</td>
-              <td>08129876543</td>
-              <td>B</td>
-              <td><span class="status mengulang">Mengulang</span></td>
-            </tr>
-            <tr data-kelas="A">
-              <td>3</td>
-              <td>220101003</td>
-              <td>Dewi Lestari</td>
-              <td>2023</td>
-              <td>08213344556</td>
-              <td>A</td>
-              <td><span class="status keluar">Keluar</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
+
 
   <script>
     // Filter kelas (dummy)
