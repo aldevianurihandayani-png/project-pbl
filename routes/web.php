@@ -47,7 +47,6 @@ use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
 use App\Http\Controllers\DosenPenguji\CPMKController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Halaman Publik
@@ -57,26 +56,6 @@ Route::view('/', 'home')->name('home');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
-
-
-// Halaman daftar logbook
-Route::resource('logbooks', LogbookController::class);
-Route::get('/logbooks/index', function () {
-    return redirect()->route('logbooks.index');
-});
-
-
-// ==============================
-// Autentikasi
-// ==============================
-
-// Form Register
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
-
-// Proses Register
-
 
 /*
 |--------------------------------------------------------------------------
@@ -161,6 +140,7 @@ Route::put('/profile', function (Request $request) {
 
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Admin
@@ -171,48 +151,6 @@ Route::prefix('admins')->name('admins.')->group(function () {
 
     Route::resource('matakuliah', AdminMataKuliahController::class);
     Route::resource('mahasiswa', AdminMahasiswaController::class);
-
-
-    Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
-    Route::resource('logbook', AdminLogbookController::class)->only(['index']);
-    Route::resource('feedback', AdminFeedbackController::class)->only(['index']);
-    Route::resource('notifikasi', AdminNotifikasiController::class)->only(['index']);
-
-});
-
-
-//mahasiswa
-Route::get('/mahasiswa/dashboard', function () {
-    return view('mahasiswa.dashboard');
-})->name('mahasiswa.dashboard');
-
-//logbook mahasiswa 
-Route::get('/mahasiswa/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('mahasiswa.logbook');
-
-//kelompok mahasiswa 
-Route::get('/mahasiswa/kelompok', function () {
-    return view('mahasiswa.kelompok');
-})->name('mahasiswa.kelompok');
-
-//milestone mahasiswa
-Route::get('/mahasiswa/milestone', function () {
-    return view('mahasiswa.milestone');
-})->name('mahasiswa.milestone');
-
-// penilaaian mahasiswa 
-Route::get('/mahasiswa/penilaian', function () {
-    return view('mahasiswa.penilaian');
-})->name('mahasiswa.penilaian');
-
-
-Route::prefix('dosen')->name('dosen.')->group(function () {
-    Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
-    Route::resource('/kelompok', DosenKelompokController::class)->names('kelompok');
-    Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
-    Route::resource('/milestone', DosenMilestoneController::class)->only(['index', 'edit', 'update']);
-    Route::view('/logbook', 'dosen.logbook')->name('logbook');
-
-
     Route::resource('kelompok', AdminKelompokController::class)->only(['index']);
     Route::resource('logbook', AdminLogbookController::class)->only(['index']);
 
@@ -234,9 +172,6 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::delete('/notifikasi/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
     Route::post('/notifikasi/markAll', [NotificationController::class, 'markAllRead'])->name('notifikasi.markAll');
     Route::get('/notifikasi/{notification}/read', [NotificationController::class, 'markRead'])->name('notifikasi.read');
-
-
-
 });
 
 /*
