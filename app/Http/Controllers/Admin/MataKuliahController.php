@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
-
 use App\Models\MataKuliah;
 use App\Models\Dosen;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Validation\Rule;
 
 class MataKuliahController extends Controller
 {
@@ -59,10 +59,8 @@ class MataKuliahController extends Controller
     }
 }
 
-use App\Models\MataKuliah;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+
+
 
 class MataKuliahController extends Controller
 {
