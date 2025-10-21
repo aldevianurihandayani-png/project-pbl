@@ -1,0 +1,118 @@
+/* ====== Skin umum====== */
+:root{
+  --navy:#0b1d54; --ring:rgba(13,23,84,.10);
+  --shadow:0 6px 20px rgba(13,23,84,.08);
+  --text:#1f2937; --muted:#6c7a8a; --bg:#f5f7fb;
+}
+
+.logbook-skin{ background:var(--bg); }
+
+/* Kartu form */
+.form-card{
+  background:#fff;
+  border-radius:12px;
+  border:1px solid var(--ring);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.form-card__head{
+  background:var(--navy);
+  color:#fff;
+  font-weight:700;
+  padding:14px 18px;
+}
+.form-card__body{
+  padding:18px;
+}
+
+/* Spasi antar elemen */
+.form-card .mb-3{ margin-bottom:1rem !important; }
+
+/* Label & teks */
+.form-card .form-label{
+  font-weight:600;
+  color:var(--text);
+  margin-bottom:.45rem;
+}
+
+/* Input, select, textarea */
+.form-card .form-control,
+.form-card .form-select,
+.form-card textarea{
+  width:100%;
+  max-width:720px;          /* biar tidak kepanjangan di layar lebar */
+  border-radius:10px;
+  border:1px solid var(--ring);
+  padding:12px 14px;
+  color:var(--text);
+  box-shadow:inset 0 1px 0 rgba(13,23,84,.03);
+}
+.form-card textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+/* Baris tombol */
+.form-actions{
+  display:flex;
+  gap:.625rem;
+  margin-top:.25rem;
+}
+
+/* Tombol aksi */
+.btn-save{
+  background:#0b1d54 !important;
+  border-color:#0b1d54 !important;
+  border-radius:10px;
+  padding:.6rem 1rem;
+}
+.btn-save:hover{ background:#102a78 !important; border-color:#102a78 !important; }
+.btn-cancel{
+  border-radius:10px;
+  padding:.6rem 1rem;
+}
+
+@media (max-width: 640px){
+  .form-card .form-control,
+  .form-card .form-select,
+  .form-card textarea{ max-width:100%; }
+}
+
+/* ==============================
+   TOMBOL SIMPAN & KEMBALI
+============================== */
+form .btn-save {
+  background-color: #0b1d54 !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+}
+
+form .btn-save:hover {
+  background-color: #142c82 !important;
+  color: #fff !important;
+}
+
+form .btn-cancel {
+  margin-left: 10px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: transparent;
+  color: #374151;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+form .btn-cancel:hover {
+  background-color: #f3f4f6;
+  text-decoration: none;
+  color: #1f2937;
+}
+
+
+

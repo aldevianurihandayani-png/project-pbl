@@ -8,5 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class AnggotaKelompok extends Model
 {
     use HasFactory;
+
     protected $table = 'kelompok_anggota';
+
+    protected $table = 'kelompok_anggota';
+
 }

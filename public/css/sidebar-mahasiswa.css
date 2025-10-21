@@ -1,0 +1,98 @@
+/* ===== Sidebar Mahasiswa (scoped by .sidebar) ===== */
+.sidebar{
+  --sb-bg: #0a0f3d;            /* navy gelap */
+  --sb-bg-2:#0c1452;           /* navy sedikit lebih terang */
+  --sb-txt:#eaf0ff;            /* teks utama */
+  --sb-muted:#9fb0d9;          /* teks sekunder */
+  --sb-hover:#13226a;          /* hover bg */
+  --sb-active:#1a2b78;         /* active bg */
+  --ring: rgba(255,255,255,.06);
+
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 260px;
+  background: linear-gradient(180deg, var(--sb-bg) 0%, #07103a 100%);
+  color: var(--sb-txt);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px;
+  border-right: 1px solid var(--ring);
+  z-index: 50;
+}
+
+/* brand */
+.sidebar .brand{
+  display:flex; align-items:center; gap:12px; margin-bottom:18px;
+}
+.sidebar .brand-badge{
+  width:40px; height:40px; border-radius:50%;
+  display:grid; place-items:center;
+  font-weight:800; color:#fff;
+  background: radial-gradient(60% 60% at 30% 30%, #3147ff, #1827b7 60%, #0b1370 100%);
+  box-shadow: 0 6px 18px rgba(25, 52, 233, .35), inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.sidebar .brand-title{ line-height:1.05 }
+.sidebar .brand-title strong{ font-size:18px; letter-spacing:.3px }
+.sidebar .brand-title small{ display:block; font-size:12px; color:var(--sb-muted) }
+
+/* section title */
+.sidebar .nav-title{
+  font-size:12px; text-transform:uppercase;
+  color:var(--sb-muted);
+  letter-spacing:.08em;
+  margin:12px 8px 6px;
+}
+
+/* menu links */
+.sidebar .menu a,
+.sidebar .logout .menu{
+  display:flex; align-items:center; gap:12px;
+  color:var(--sb-txt); text-decoration:none;
+  padding:10px 12px; margin:4px 6px;
+  border-radius:12px;
+  transition: background .18s ease, transform .18s ease, color .18s ease;
+  border:1px solid transparent;
+}
+.sidebar .menu a i{ width:18px; text-align:center; opacity:.95 }
+
+/* hover */
+.sidebar .menu a:hover,
+.sidebar .logout .menu:hover{
+  background: var(--sb-hover);
+  border-color: var(--ring);
+  transform: translateX(2px);
+}
+
+/* active (Blade sudah kasih class 'active') */
+.sidebar .menu a.active{
+  background: var(--sb-active);
+  border-color: rgba(255,255,255,.1);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+/* logout di bagian bawah */
+.sidebar .logout{ margin-top:auto; }
+.sidebar .logout .menu{
+  color:#ffbdbd;
+}
+.sidebar .logout .menu i{ color:#ffbdbd; }
+
+/* scroll jika menu panjang */
+.sidebar{
+  overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{
+  width:10px;
+}
+.sidebar::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.14);
+  border-radius:99px;
+}
+
+/* responsive: sidebar sedikit mengecil di layar sempit */
+@media (max-width: 1024px){
+  .sidebar{ width: 240px; }
+}
+@media (max-width: 820px){
+  .sidebar{ width: 220px; }
+}

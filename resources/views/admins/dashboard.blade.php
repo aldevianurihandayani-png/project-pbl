@@ -80,6 +80,126 @@
     .muted{ color:var(--muted) }
     ul.clean{ margin:8px 0 0 18px }
 
+<<<<<<< HEAD
+=======
+    /* Notification Dropdown */
+    .notif-dropdown {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .notif-icon {
+      position: relative;
+      padding: 5px;
+    }
+    .notif-icon .badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #e53935;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 10px;
+      padding: 2px 5px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 14px;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 300px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      right: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+    }
+    .notif-dropdown:hover .dropdown-content {
+      display: block;
+    }
+    .dropdown-content.show-dropdown {
+      display: block;
+    }
+    .dropdown-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      font-weight: bold;
+      color: var(--navy-2);
+      background-color: #f0f2f5;
+    }
+    .dropdown-item {
+      display: flex;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
+      align-items: center;
+    }
+    .dropdown-item:hover {
+      background-color: #f1f1f1;
+    }
+    .dropdown-item:last-of-type {
+      border-bottom: none;
+    }
+    .dropdown-item .item-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin-right: 10px;
+      color: #fff;
+      font-size: 14px;
+    }
+    .item-icon.info { background-color: #3498db; }
+    .item-icon.materi { background-color: #2ecc71; }
+    .item-icon.tugas { background-color: #e67e22; }
+
+    .dropdown-item .item-content {
+      flex-grow: 1;
+    }
+    .dropdown-item .item-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .dropdown-item .item-time {
+      font-size: 11px;
+      color: #777;
+    }
+    .dropdown-item.no-notif {
+      text-align: center;
+      font-style: italic;
+      color: #777;
+      padding: 20px 16px;
+    }
+    .dropdown-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-top: 1px solid #eee;
+      background-color: #f0f2f5;
+    }
+    .mark-all-read-btn, .view-all-btn {
+      background: none;
+      border: none;
+      color: var(--secondary-color);
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: none;
+      padding: 5px 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    .mark-all-read-btn:hover, .view-all-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+>>>>>>> bbcfba2 (commit noorma)
     @media (max-width: 980px){
       body{ grid-template-columns:1fr }
       .sidebar{ position:fixed; inset:0 auto 0 0; width:240px; transform:translateX(-102%); transition:transform .2s; z-index:10 }
@@ -128,6 +248,7 @@
         <h1>Dashboard Admin</h1>
       </div>
       <div class="userbox">
+<<<<<<< HEAD
         <div class="notif">
           <i class="fa-regular fa-bell"></i>
           <span class="badge">3</span>
@@ -140,6 +261,52 @@
             <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
           </div>
         </a>
+=======
+        <div class="notif-dropdown">
+          <div class="notif-icon">
+            <i class="fa-regular fa-bell"></i>
+            @if(isset($unreadCount) && $unreadCount > 0)
+              <span class="badge">{{ $unreadCount }}</span>
+            @endif
+          </div>
+          <div class="dropdown-content">
+            <div class="dropdown-header">Notifikasi (@if(isset($unreadCount)){{ $unreadCount }}@else 0 @endif Baru)</div>
+            @if(isset($notifications))
+              @forelse($notifications as $notification)
+                <a href="{{ route('admins.notifikasi.read', $notification) }}" class="dropdown-item">
+                  <div class="item-icon {{ $notification->type }}">
+                    @if($notification->type == 'materi') <i class="fa-solid fa-book"></i>
+                    @elseif($notification->type == 'tugas') <i class="fa-solid fa-clipboard-list"></i>
+                    @else <i class="fa-solid fa-info-circle"></i>
+                    @endif
+                  </div>
+                  <div class="item-content">
+                    <div class="item-title">{{ $notification->title }}</div>
+                    <div class="item-time">{{ $notification->created_at->diffForHumans() }}</div>
+                  </div>
+                </a>
+              @empty
+                <div class="dropdown-item no-notif">Tidak ada notifikasi baru.</div>
+              @endforelse
+            @else
+              <div class="dropdown-item no-notif">Tidak ada notifikasi baru.</div>
+            @endif
+            <div class="dropdown-footer">
+              <form action="{{ route('admins.notifikasi.markAll') }}" method="POST" style="display: inline;">
+                @csrf
+                <button type="submit" class="mark-all-read-btn">Tandai Semua Dibaca</button>
+              </form>
+              <a href="{{ route('admins.notifikasi.index') }}" class="view-all-btn">Lihat Semua</a>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+          </div>
+          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
+        </div>
+>>>>>>> bbcfba2 (commit noorma)
       </div>
     </header>
 
@@ -180,7 +347,11 @@
         <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone</div>
         <div class="card-bd">
           Deadline milestone berikutnya: <strong>10 Oktober 2025</strong>.
+<<<<<<< HEAD
         </div>
+=======
+        }
+>>>>>>> bbcfba2 (commit noorma)
       </section>
 
       <!-- Nilai & Peringkat -->
@@ -207,12 +378,51 @@
   </main>
 
   <script>
+<<<<<<< HEAD
     // Tutup sidebar ketika klik di luar (mobile)
     document.addEventListener('click', (e)=>{
       const sb = document.getElementById('sidebar');
       if(!sb.classList.contains('show')) return;
       const btn = e.target.closest('.topbar-btn');
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
+=======
+    function closeAllMenus() {
+      const sidebar = document.getElementById('sidebar');
+      const notifDropdownContent = document.querySelector('.notif-dropdown .dropdown-content');
+
+      if (sidebar.classList.contains('show')) {
+        sidebar.classList.remove('show');
+      }
+      if (notifDropdownContent && notifDropdownContent.classList.contains('show-dropdown')) {
+        notifDropdownContent.classList.remove('show-dropdown');
+      }
+    }
+
+    // Sidebar toggle
+    document.querySelector('.topbar-btn').addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent this click from immediately closing the sidebar via window listener
+      const sidebar = document.getElementById('sidebar');
+      closeAllMenus(); // Close other menus first
+      sidebar.classList.toggle('show');
+    });
+
+    // Notification Dropdown Toggle
+    const notifDropdown = document.querySelector('.notif-dropdown');
+    if (notifDropdown) {
+        notifDropdown.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent window click from closing immediately
+            const notifDropdownContent = this.querySelector('.dropdown-content');
+            closeAllMenus(); // Close other menus first
+            notifDropdownContent.classList.toggle('show-dropdown');
+        });
+    }
+
+    // Close all menus if the user clicks outside of them
+    window.addEventListener('click', function(event) {
+        if (!event.target.closest('.sidebar') && !event.target.closest('.notif-dropdown')) {
+            closeAllMenus();
+        }
+>>>>>>> bbcfba2 (commit noorma)
     });
   </script>
 </body>

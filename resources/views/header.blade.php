@@ -42,9 +42,28 @@
         <nav>
             <a href="{{ url('/') }}">Home</a>
             <a href="{{ url('/about') }}">Tentang</a>
+<<<<<<< HEAD
+
+            {{-- Amankan register supaya tidak error walau route register belum ada --}}
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}">Register Eksternal</a>
+            @else
+                <a href="{{ url('/register') }}">Register Eksternal</a>
+            @endif
+
+            <a href="{{ url('/contact') }}">Contact</a>
+
+            {{-- Amankan login juga --}}
+            @if (Route::has('login'))
+                <a href="{{ route('login') }}">Login</a>
+            @else
+                <a href="{{ url('/login') }}">Login</a>
+            @endif
+=======
             <a href="{{ route('register') }}">Register Eksternal</a>
             <a href="{{ url('/contact') }}">Contact</a>
             <a href="{{ route('login') }}">Login</a>
+>>>>>>> bbcfba2 (commit noorma)
         </nav>
     </div>
 </header>
