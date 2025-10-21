@@ -95,6 +95,7 @@
       <a href="{{ route('admins.mahasiswa.index') }}" class="{{ request()->routeIs('admins.mahasiswa.*') ? 'active' : '' }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
       <a href="{{ route('admins.kelompok.index') }}" class="{{ request()->routeIs('admins.kelompok.*') ? 'active' : '' }}"><i class="fa-solid fa-users"></i>Kelompok</a>
       <a href="{{ route('admins.feedback.index') }}" class="{{ request()->routeIs('admins.feedback.*') ? 'active' : '' }}"><i class="fa-solid fa-comment"></i>Feedback</a>
+      <a href="{{ route('admins.notifikasi.index') }}" class="{{ request()->routeIs('admins.notifikasi.*') ? 'active' : '' }}"><i class="fa-solid fa-bell"></i>Notifikasi</a>
       
       <div class="nav-title">Akun</div>
       <a href="#"><i class="fa-solid fa-id-badge"></i>Profil</a>
