@@ -223,6 +223,8 @@
       <div class="nav-title">Menu</div>
       <a href="{{ url('/admins/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
       <a href="{{ url('/admins/matakuliah') }}"><i class="fa-solid fa-user-graduate"></i>Mata Kuliah</a>
+      <a href="{{ url('/admins/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+      <a href="{{ url('/admins/kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
       <a href="{{ url('/admins/feedback') }}"><i class="fa-solid fa-users"></i>Feedback</a>
       <a href="{{ url('/admins/notifikasi') }}"><i class="fa-solid fa-flag-checkered"></i>Notifikasi</a>
       
