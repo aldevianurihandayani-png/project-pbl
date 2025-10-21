@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Models\Kelompok;
@@ -10,18 +9,9 @@ use App\Models\Dosen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
-use App\Models\Kelompok;
-use Illuminate\Http\Request;
-
-
 class KelompokController extends Controller
 {
     /**
-
-    
      * Tampilkan daftar kelompok + pencarian sederhana.
      */
     public function index(Request $request)
@@ -137,15 +127,4 @@ class KelompokController extends Controller
         $kelompok->delete();
         return back()->with('success', 'Kelompok berhasil dihapus.');
     }
-
-
-    public function index()
-    {
-        $kelompoks = Kelompok::latest()->paginate(15);
-
-        return view('admins.kelompok.index', [
-            'kelompoks' => $kelompoks,
-        ]);
-    }
-
 }
