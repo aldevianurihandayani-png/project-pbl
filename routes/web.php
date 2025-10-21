@@ -20,13 +20,24 @@ use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
+use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
-use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Models\Logbook;
+use App\Models\Milestone;
+use App\Http\Controllers\KelompokController;
+use App\Http\Controllers\RubrikPenilaianController;
+use App\Http\Controllers\DosenController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
+use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
+
 
 // Dosen
-use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
-use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -35,8 +46,6 @@ use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
 use App\Http\Controllers\DosenPenguji\CPMKController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +68,78 @@ Route::post('/register', [UserController::class, 'register'])->name('register.po
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
+
+// Dosen Penguji Routes
+
+Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
+    Route::get('/', fn() => redirect()->route('dosenpenguji.dashboard'));
+    Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
+    Route::get('/dashboard', fn() => view('dosenpenguji.dashboard'))->name('dashboard');
+    Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
+    Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
+    Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])->name('penilaian.bulkSave');
+    Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])->name('penilaian.deleteGrade');
+    Route::get('/penilaian/export', [PenilaianController::class, 'export'])->name('penilaian.export');
+    Route::post('/penilaian/import', [PenilaianController::class, 'import'])->name('penilaian.import');
+    Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
+    Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
+    Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
+    Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
+// ==============================
+// PROFIL DOSEN PENGUJI
+// ==============================
+
+
+
+
+// Tampil profil (sudah ada — biarkan jika sudah)
+Route::get('/profile', fn () => view('dosenpenguji.profile'))->name('profile');
+
+
+// Form edit profil
+Route::get('/profile/edit', fn () => view('dosenpenguji.profile-edit'))->name('profile.edit');
+
+// Simpan perubahan
+Route::put('/profile', function (Request $request) {
+    $user = auth()->user();
+
+    $validated = $request->validate([
+        'nama'     => 'nullable|string|max:255',
+        'name'     => 'nullable|string|max:255',
+        'email'    => 'required|email',
+        'password' => 'nullable|min:6',
+    ]);
+
+    $data = [
+        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+        'email' => $validated['email'],
+    ];
+
+    if (!empty($validated['password'])) {
+        $data['password'] = Hash::make($validated['password']);
+    }
+
+    $user->update($data);
+    auth()->setUser($user->fresh());
+
+    // ⬇️ Redirect ke halaman profil (bukan back)
+    return redirect()->route('dosenpenguji.profile')
+        ->with('success', 'Perubahan berhasil disimpan.');
+})->name('profile.update');
+});
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard per-ROLE (wajib login)
+|--------------------------------------------------------------------------
+*/
+
+
+
 
 /*
 |--------------------------------------------------------------------------
