@@ -137,7 +137,7 @@ class KelompokController extends Controller
         $kelompok->delete();
         return back()->with('success', 'Kelompok berhasil dihapus.');
     }
-}
+
 
     public function index()
     {
@@ -148,3 +148,4 @@ class KelompokController extends Controller
         ]);
     }
 
+}
