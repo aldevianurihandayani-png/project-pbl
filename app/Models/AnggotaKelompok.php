@@ -11,6 +11,5 @@ class AnggotaKelompok extends Model
 
     protected $table = 'kelompok_anggota';
 
-    protected $table = 'kelompok_anggota';
 
 }
