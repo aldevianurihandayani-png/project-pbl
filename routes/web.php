@@ -13,7 +13,7 @@ use App\Http\Controllers\UserController;
 // Publik
 use App\Http\Controllers\ContactController;
 
-// Logbook umum
+// Logbook umum (resources/views/logbooks/)
 use App\Http\Controllers\LogbookController;
 
 // Admin
@@ -99,21 +99,22 @@ Route::prefix('admins')->name('admins.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
-    // Dashboard
+    // Dashboard utama mahasiswa
     Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
 
-    // CRUD Logbook (resources/views/logbooks/*.blade.php)
-    Route::resource('logbooks', LogbookController::class);
-
-    // Redirect lama untuk kompatibilitas
-    Route::get('/logbook', fn () => redirect()->route('mahasiswa.logbooks.index'))
-        ->name('logbook');
-
-    // Halaman tambahan
+    // Halaman lain mahasiswa
     Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
     Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
     Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Logbooks (global)
+| View di: resources/views/logbooks/
+|--------------------------------------------------------------------------
+*/
+Route::resource('logbooks', LogbookController::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -149,10 +150,9 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
     Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
     Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
 
-    // Profil dosen penguji
+    // Profil
     Route::view('/profile', 'dosenpenguji.profile')->name('profile');
     Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
-
     Route::put('/profile', function (Request $request) {
         $user = auth()->user();
 
