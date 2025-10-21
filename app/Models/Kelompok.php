@@ -12,20 +12,7 @@ class Kelompok extends Model
 
     protected $fillable = [
         'nama', 'kelas', 'anggota', 'dosen_pembimbing'];
-    
-
-
-    protected $fillable = [
-
-        'nama', 'kelas', 'judul', 'ketua_kelompok', 'dosen_pembimbing', 'judul_proyek', 'nama_klien', 'anggota'
-    ];
 
     protected $table = 'kelompoks';   // <— jika tabel kamu singular
 
-    protected $fillable = [
-        'nama', 'kelas', 'judul', 'ketua_kelompok', 'dosen_pembimbing', 'judul_proyek', 'nama_klien', 'anggota'
-    ];
-    protected $table = 'kelompoks';   // <— jika tabel kamu singular
-
-
-}
+    }

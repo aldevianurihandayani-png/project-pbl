@@ -37,11 +37,7 @@ class KelompokController extends Controller
      */
     public function create()
     {
-        return view('kelompok.create', [
-            'mahasiswa' => Mahasiswa::select('nim','nama')->orderBy('nama')->get(),
-            'proyek'    => ProyekPbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
-            'dosen'     => Dosen::select('id_dosen','nama')->orderBy('nama')->get(),
-        ]);
+        return view('kelompok.create', $this->getCreateEditData());
     }
 
     /**
@@ -91,12 +87,21 @@ class KelompokController extends Controller
      */
     public function edit(Kelompok $kelompok)
     {
-        return view('kelompok.edit', [
+        return view('kelompok.edit', array_merge($this->getCreateEditData(), [
             'kelompok' => $kelompok->load(['mahasiswa','proyek','dosen']),
+        ]));
+    }
+
+    /**
+     * Mengambil data untuk form create dan edit.
+     */
+    private function getCreateEditData()
+    {
+        return [
             'mahasiswa' => Mahasiswa::select('nim','nama')->orderBy('nama')->get(),
             'proyek'    => ProyekPbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
             'dosen'     => Dosen::select('id_dosen','nama')->orderBy('nama')->get(),
-        ]);
+        ];
     }
 
     /**
@@ -107,9 +112,9 @@ class KelompokController extends Controller
         $data = $request->validate([
             'judul'         => ['required','string','max:255'],
             'topik'         => ['nullable','string','max:255'],
-            'nim'           => ['required','integer','exists:mahasiswa,nim'],
-            'id_proyek_pbl' => ['required','integer','exists:proyek_pbl,id_proyek_pbl'],
-            'id_dosen'      => ['required','integer','exists:dosen,id_dosen'],
+            'nim'           => ['required','integer','exists:mahasiswas,nim'],
+            'id_proyek_pbl' => ['required','integer','exists:proyek_pbls,id'],
+            'id_dosen'      => ['required','integer','exists:dosens,id'],
         ]);
 
         DB::transaction(function () use ($kelompok, $data) {
