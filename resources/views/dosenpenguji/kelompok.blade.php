@@ -237,7 +237,6 @@
 
     <div class="logout">
       <a href="{{ url('/logout') }}"><i class="fa-solid fa-power-off"></i> Logout</a>
-
       <a href="{{ url('/dosenpenguji/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
       <a href="{{ url('/dosenpenguji/mahasiswa') }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
       <a href="{{ url('/dosenpenguji/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
@@ -352,7 +351,7 @@
       <div class="toolbar">
         <h2 class="title">Data Kelompok</h2>
 
-<<<<<<< HEAD
+
         {{-- FILTER + CARI --}}
         <form class="filters" method="GET" action="{{ url('/dosenpenguji/kelompok') }}" id="filterForm">
           <label>Kelas:
@@ -414,7 +413,6 @@
         {{ $kelompok->links() }}
       </div>
       @endisset
-=======
         <div class="filters">
           <label>Kelas:
             <select id="fKelas">
@@ -478,18 +476,16 @@
           </div>
         </div>
       </div>
->>>>>>> bbcfba2 (commit noorma)
     </div>
   </main>
 
   <script>
     const fKelas = document.getElementById('fKelas');
     const fSemester = document.getElementById('fSemester');
-<<<<<<< HEAD
+
     fKelas.addEventListener('change', ()=> document.getElementById('filterForm').submit());
     fSemester.addEventListener('change', ()=> document.getElementById('filterForm').submit());
 
-=======
     const rows = document.querySelectorAll('#rows .row');
 
     function applyFilter(){
@@ -533,7 +529,6 @@
     }
 
     // close sidebar on outside click (mobile)
->>>>>>> bbcfba2 (commit noorma)
     document.addEventListener('click', (e)=>{
       const sb = document.getElementById('sidebar');
       if(!sb.classList.contains('show')) return;
