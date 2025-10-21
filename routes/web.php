@@ -71,7 +71,7 @@ Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-<<<<<<< HEAD
+
 // Halaman daftar logbook
 Route::resource('logbooks', LogbookController::class);
 Route::get('/logbooks/index', function () {
