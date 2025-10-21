@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 // ==============================
 // Import Controller
@@ -23,10 +21,8 @@ use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
-use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
-use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\NotificationController;
 
 // Dosen
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
@@ -39,7 +35,8 @@ use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
 use App\Http\Controllers\DosenPenguji\CPMKController;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,29 +47,6 @@ Route::view('/', 'home')->name('home');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
-
-<<<<<<< HEAD
-=======
-
-// Halaman daftar logbook
-Route::resource('logbooks', LogbookController::class);
-Route::get('/logbooks/index', function () {
-    return redirect()->route('logbooks.index');
-});
-
-
-// ==============================
-// Autentikasi
-// ==============================
-
-// Form Register
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
-
-// Proses Register
-
->>>>>>> 7cd9056a012903a924d313ab69bdb84af595d906
 
 /*
 |--------------------------------------------------------------------------
@@ -86,7 +60,6 @@ Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-
 /*
 |--------------------------------------------------------------------------
 | Admin
@@ -97,15 +70,28 @@ Route::prefix('admins')->name('admins.')->group(function () {
 
     Route::resource('matakuliah', AdminMataKuliahController::class);
     Route::resource('mahasiswa', AdminMahasiswaController::class);
-
-
-    Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
+    Route::resource('kelompok', AdminKelompokController::class)->only(['index']);
     Route::resource('logbook', AdminLogbookController::class)->only(['index']);
-    Route::resource('feedback', AdminFeedbackController::class)->only(['index']);
-    Route::resource('notifikasi', AdminNotifikasiController::class)->only(['index']);
 
+    // Feedback
+    Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('feedback.index');
+    Route::get('/feedback/create', [AdminFeedbackController::class, 'create'])->name('feedback.create');
+    Route::post('/feedback', [AdminFeedbackController::class, 'store'])->name('feedback.store');
+    Route::post('/feedback/{feedback}/reply', [AdminFeedbackController::class, 'reply'])->name('feedback.reply');
+    Route::patch('/feedback/{feedback}/status', [AdminFeedbackController::class, 'setStatus'])->name('feedback.setStatus');
+    Route::delete('/feedback/{feedback}', [AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
+
+    // Notifikasi
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('notifikasi.index');
+    Route::get('/notifikasi/create', [NotificationController::class, 'create'])->name('notifikasi.create');
+    Route::post('/notifikasi', [NotificationController::class, 'store'])->name('notifikasi.store');
+    Route::get('/notifikasi/{notification}', [NotificationController::class, 'show'])->name('notifikasi.show');
+    Route::get('/notifikasi/{notification}/edit', [NotificationController::class, 'edit'])->name('notifikasi.edit');
+    Route::put('/notifikasi/{notification}', [NotificationController::class, 'update'])->name('notifikasi.update');
+    Route::delete('/notifikasi/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
+    Route::post('/notifikasi/markAll', [NotificationController::class, 'markAllRead'])->name('notifikasi.markAll');
+    Route::get('/notifikasi/{notification}/read', [NotificationController::class, 'markRead'])->name('notifikasi.read');
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -117,7 +103,6 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
 
     // Halaman lain mahasiswa
-    Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
     Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
     Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
     Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
@@ -142,25 +127,6 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
     Route::resource('/milestone', DosenMilestoneController::class)->only(['index', 'edit', 'update']);
     Route::view('/logbook', 'dosen.logbook')->name('logbook');
-
-    // Feedback
-    Route::get('/feedback', [AdminFeedbackController::class, 'index'])->name('feedback.index');
-    Route::get('/feedback/create', [AdminFeedbackController::class, 'create'])->name('feedback.create');
-    Route::post('/feedback', [AdminFeedbackController::class, 'store'])->name('feedback.store');
-    Route::post('/feedback/{feedback}/reply', [AdminFeedbackController::class, 'reply'])->name('feedback.reply');
-    Route::patch('/feedback/{feedback}/status', [AdminFeedbackController::class, 'setStatus'])->name('feedback.setStatus');
-    Route::delete('/feedback/{feedback}', [AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
-
-    // Notifikasi
-    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('notifikasi.index');
-    Route::get('/notifikasi/create', [NotificationController::class, 'create'])->name('notifikasi.create');
-    Route::post('/notifikasi', [NotificationController::class, 'store'])->name('notifikasi.store');
-    Route::get('/notifikasi/{notification}', [NotificationController::class, 'show'])->name('notifikasi.show');
-    Route::get('/notifikasi/{notification}/edit', [NotificationController::class, 'edit'])->name('notifikasi.edit');
-    Route::put('/notifikasi/{notification}', [NotificationController::class, 'update'])->name('notifikasi.update');
-    Route::delete('/notifikasi/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
-    Route::post('/notifikasi/markAll', [NotificationController::class, 'markAllRead'])->name('notifikasi.markAll');
-    Route::get('/notifikasi/{notification}/read', [NotificationController::class, 'markRead'])->name('notifikasi.read');
 });
 
 /*
