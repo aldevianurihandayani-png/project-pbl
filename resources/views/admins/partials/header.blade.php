@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{{ $title ?? 'Dashboard' }} — Admin SIMAP</title>
 
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
   <style>
@@ -35,8 +36,12 @@
     .menu a.active{ background:#1c3d86 }
     .menu i{ width:18px; text-align:center }
     .logout{ margin-top:auto }
+
     .logout button{ color:#ffb2b2 }
     .logout button:hover{ background:#5c1020; color:#fff }
+
+    .logout button { color:#ffb2b2; background: transparent; border: 0; padding: 0; }
+    .logout button:hover{ background:#5c1020 }
 
     /* Main / header */
     main{ display:flex; flex-direction:column; min-width:0 }
@@ -79,6 +84,7 @@
     <div class="menu">
       <div class="nav-title">Menu</div>
 
+
       {{-- Gunakan url() supaya tidak error jika nama route belum dibuat --}}
       <a href="{{ url('/admins/dashboard') }}"
          class="{{ request()->is('admins/dashboard') ? 'active' : '' }}">
@@ -118,6 +124,22 @@
       <button type="submit" class="btn btn-link" style="text-decoration:none; display:block; text-align:left; padding:10px 12px;">
         <i class="fa-solid fa-right-from-bracket"></i> Logout
       </button>
+
+      <a href="{{ url('/admins/dashboard') }}" class="{{ request()->is('admins/dashboard') ? 'active' : '' }}"><i class="fa-solid fa-house"></i>Dashboard</a>
+      <a href="{{ route('admins.matakuliah.index') }}" class="{{ request()->routeIs('admins.matakuliah.*') ? 'active' : '' }}"><i class="fa-solid fa-book"></i>Mata Kuliah</a>
+      <a href="{{ route('admins.mahasiswa.index') }}" class="{{ request()->routeIs('admins.mahasiswa.*') ? 'active' : '' }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
+      <a href="{{ route('admins.kelompok.index') }}" class="{{ request()->routeIs('admins.kelompok.*') ? 'active' : '' }}"><i class="fa-solid fa-users"></i>Kelompok</a>
+      <a href="{{ route('admins.feedback.index') }}" class="{{ request()->routeIs('admins.feedback.*') ? 'active' : '' }}"><i class="fa-solid fa-comment"></i>Feedback</a>
+      <a href="{{ route('admins.notifikasi.index') }}" class="{{ request()->routeIs('admins.notifikasi.*') ? 'active' : '' }}"><i class="fa-solid fa-bell"></i>Notifikasi</a>
+      
+      <div class="nav-title">Akun</div>
+      <a href="#"><i class="fa-solid fa-id-badge"></i>Profil</a>
+    </div>
+
+    <form action="{{ route('logout') }}" method="POST" class="logout">
+        @csrf
+        <button type="submit" class="btn btn-link menu" style="text-decoration: none; display: block; text-align: left; padding-left: 12px;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+
     </form>
   </aside>
 
@@ -131,6 +153,7 @@
       <div class="welcome">
         <h1>{{ $title ?? 'Dashboard' }}</h1>
       </div>
+
 
       <div class="userbox">
         <a href="{{ url('/admins/notifikasi') }}" class="notif">
@@ -155,3 +178,21 @@
 
 </body>
 </html>
+
+      <div class="userbox">
+        <a href="{{ route('admins.notifikasi.index') }}" class="notif">
+          <i class="fa-regular fa-bell"></i>
+          @if(isset($unreadCount) && $unreadCount > 0)
+            <span class="badge">{{ $unreadCount }}</span>
+          @endif
+        </a>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
+            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
+          </div>
+          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
+        </div>
+      </div>
+    </header>
+
+    <div class="page">

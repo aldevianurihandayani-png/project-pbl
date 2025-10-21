@@ -6,61 +6,81 @@ use App\Http\Controllers\Controller;
 use App\Models\MataKuliah;
 use App\Models\Dosen;
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Validation\Rule;
 
 class MataKuliahController extends Controller
 {
-    public function index() {
-        $mataKuliah = MataKuliah::with('dosen')->paginate(10);
-        return view('admins.matakuliah.index', compact('mataKuliah'));
+    /** LIST */
+    public function index()
+    {
+        // konsisten: $matakuliah (kecil semua) + relasi dosen + urut + paginate
+        $matakuliah = MataKuliah::with('dosen')
+            ->orderBy('kode_mk')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admins.matakuliah.index', compact('matakuliah'));
     }
 
-    public function create() {
-        $dosen = Dosen::all();
+    /** FORM CREATE */
+    public function create()
+    {
+        $dosen = Dosen::orderBy('name')->pluck('name', 'id');
         return view('admins.matakuliah.create', compact('dosen'));
     }
 
-    public function store(Request $request) {
-        $request->validate([
-            'kode_mk' => 'required|unique:mata_kuliah',
-            'nama_mk' => 'required',
-            'sks' => 'required|integer',
-            'semester' => 'required|integer',
-            'id_dosen' => 'required'
+    /** SIMPAN BARU */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'kode_mk'  => ['required','string','max:20','unique:mata_kuliah,kode_mk'],
+            'nama_mk'  => ['required','string','max:150'],
+            'sks'      => ['required','integer','min:1'],
+            'semester' => ['required','integer','min:1'],
+            'id_dosen' => ['required','exists:dosen,id'],
         ]);
 
-        MataKuliah::create($request->all());
-        return redirect()->route('matakuliah.index')->with('success', 'Mata kuliah berhasil ditambahkan.');
+        MataKuliah::create($validated);
+
+        return redirect()->route('admins.matakuliah.index')
+            ->with('success','Mata kuliah berhasil ditambahkan.');
     }
 
-    public function edit($kode_mk) {
-        $mk = MataKuliah::findOrFail($kode_mk);
-        $dosen = Dosen::all();
-        return view('admins.matakuliah.edit', compact('mk', 'dosen'));
+    /** FORM EDIT */
+    public function edit(string $kode_mk)
+    {
+        $mk    = MataKuliah::where('kode_mk',$kode_mk)->firstOrFail();
+        $dosen = Dosen::orderBy('name')->pluck('name','id');
+        return view('admins.matakuliah.edit', compact('mk','dosen'));
     }
 
-    public function update(Request $request, $kode_mk) {
-        $mk = MataKuliah::findOrFail($kode_mk);
-        $request->validate([
-            'nama_mk' => 'required',
-            'sks' => 'required|integer',
-            'semester' => 'required|integer',
-            'id_dosen' => 'required'
+    /** UPDATE */
+    public function update(Request $request, string $kode_mk)
+    {
+        $mk = MataKuliah::where('kode_mk',$kode_mk)->firstOrFail();
+
+        $validated = $request->validate([
+            // kalau kode_mk juga diedit, pakai rule ignore:
+            // 'kode_mk' => ['required','string','max:20', Rule::unique('mata_kuliah','kode_mk')->ignore($mk->kode_mk,'kode_mk')],
+            'nama_mk'  => ['required','string','max:150'],
+            'sks'      => ['required','integer','min:1'],
+            'semester' => ['required','integer','min:1'],
+            'id_dosen' => ['required','exists:dosen,id'],
         ]);
-        $mk->update($request->all());
-        return redirect()->route('matakuliah.index')->with('success', 'Mata kuliah berhasil diperbarui.');
+
+        $mk->update($validated);
+
+        return redirect()->route('admins.matakuliah.index')
+            ->with('success','Mata kuliah berhasil diperbarui.');
     }
 
-    public function destroy($kode_mk) {
-        $mk = MataKuliah::findOrFail($kode_mk);
+    /** HAPUS */
+    public function destroy(string $kode_mk)
+    {
+        $mk = MataKuliah::where('kode_mk',$kode_mk)->firstOrFail();
         $mk->delete();
-        return redirect()->route('matakuliah.index')->with('success', 'Mata kuliah berhasil dihapus.');
+
+        return redirect()->route('admins.matakuliah.index')
+            ->with('success','Mata kuliah berhasil dihapus.');
     }
 }
-
-
-
-
-
-    
