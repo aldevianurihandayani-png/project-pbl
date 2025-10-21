@@ -7,21 +7,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-
-
 use App\Models\Mahasiswa;
-
-
 
 class MahasiswaController extends Controller
 {
     public function index()
     {
-
-        $mahasiswas = User::where('role', 'mahasiswa')->latest()->paginate(15);
-
         $mahasiswas = Mahasiswa::with('user')->latest()->paginate(15);
-
         return view('admins.mahasiswa.index', compact('mahasiswas'));
     }
 
@@ -33,14 +25,6 @@ class MahasiswaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        User::create([
-
             'nim' => ['required', 'string', 'max:15', 'unique:mahasiswas,nim'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
@@ -50,13 +34,10 @@ class MahasiswaController extends Controller
         ]);
 
         $user = User::create([
-
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'mahasiswa',
-
-
             'nim' => $request->nim,
         ]);
 
@@ -65,33 +46,10 @@ class MahasiswaController extends Controller
             'nama' => $request->name,
             'angkatan' => $request->angkatan,
             'no_hp' => $request->no_hp,
-
         ]);
 
         return redirect()->route('admins.mahasiswa.index')->with('success', 'Mahasiswa berhasil ditambahkan.');
     }
-
-
-    
-
-    public function update(Request $request, User $mahasiswa)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class.','. $mahasiswa->id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        $mahasiswa->update($data);}
 
     public function edit(Mahasiswa $mahasiswa)
     {
@@ -131,19 +89,8 @@ class MahasiswaController extends Controller
 
         $mahasiswa->update($mahasiswaData);
 
-
         return redirect()->route('admins.mahasiswa.index')->with('success', 'Data mahasiswa berhasil diperbarui.');
     }
-
-
-    public function destroy(User $mahasiswa)
-    {
-        // Pastikan tidak menghapus diri sendiri jika admin juga seorang user
-        if ($mahasiswa->id === auth()->id()) {
-            return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
-        }
-
-        $mahasiswa->delete();}
 
     public function destroy(Mahasiswa $mahasiswa)
     {
@@ -154,7 +101,6 @@ class MahasiswaController extends Controller
 
         $mahasiswa->user->delete(); // Delete the associated User record
         $mahasiswa->delete(); // Delete the Mahasiswa record
-
 
         return redirect()->route('admins.mahasiswa.index')->with('success', 'Mahasiswa berhasil dihapus.');
     }
