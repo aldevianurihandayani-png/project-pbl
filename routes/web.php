@@ -84,7 +84,7 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasi
 | Dosen
 |--------------------------------------------------------------------------
 */
-Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen'])->group(function () {
+Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen_pembimbing'])->group(function () {
     Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
     Route::resource('kelompok', DosenKelompokController::class)->names('kelompok');
     Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
