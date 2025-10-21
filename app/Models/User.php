@@ -1,6 +1,4 @@
-
-<?php 
-
+<?php
 
 namespace App\Models;
 
@@ -12,38 +10,27 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-
-
-    // Jika tabel users tidak memiliki created_at & updated_at
+    // Jika tabel users tidak punya created_at & updated_at
     public $timestamps = false;
 
     /**
-     * Kolom yang bisa diisi mass assignment.
-
-     * Kolom yang boleh diisi secara mass-assignment
-
+     * Kolom yang boleh diisi mass assignment
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
+        'nim',                 // tambahkan jika dipakai pada relasi
         'nidn',
         'prodi',
         'profile_photo_path',
-        'role',
         'foto',
         'email_verified_at',
     ];
 
-
-
-    public function mahasiswa()
-    {
-        return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
-    }
-
     /**
-     * Kolom yang disembunyikan saat model diubah ke array / JSON
+     * Kolom yang disembunyikan saat diserialisasi
      */
     protected $hidden = [
         'password',
@@ -51,37 +38,34 @@ class User extends Authenticatable
     ];
 
     /**
-
-     * Casting atribut.
+     * Casting atribut
      */
-    protected function casts(): array
-    {
-        return [
-            'password' => 'hashed', // otomatis bcrypt
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed', // otomatis bcrypt
+    ];
 
     /**
-     * Atribut tambahan saat model di-serialize.
+     * Atribut tambahan saat model di-serialize
      */
     protected $appends = ['avatar_url'];
 
     /**
-     * Accessor: URL foto profil atau fallback.
+     * Relasi ke Mahasiswa (1:1 via kolom nim)
+     */
+    public function mahasiswa()
+    {
+        return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
+    }
+
+    /**
+     * Accessor: URL foto profil atau null (fallback)
      */
     public function getAvatarUrlAttribute()
     {
         if ($this->profile_photo_path) {
             return asset('storage/' . $this->profile_photo_path);
         }
-        // fallback: null atau bisa diganti path default avatar
         return null;
     }
 }
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        // Laravel 10+ bisa pakai 'password' => 'hashed' agar auto hash
-    ];
-
-
