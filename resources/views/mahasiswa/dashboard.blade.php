@@ -6,27 +6,6 @@
 @section('content')
   <!-- ========== MAIN ========== -->
   <main>
-    <header class="topbar">
-      <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      <div class="welcome">
-        <h1>Dashboard Mahasiswa</h1>
-      </div>
-      <div class="userbox">
-        <div class="notif">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge">3</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(($nama ?? (auth()->user()?->name ?? 'MS')),0,2)) }}
-          </div>
-          <strong>{{ $nama ?? (auth()->user()?->name ?? 'Mahasiswa') }}</strong>
-        </div>
-      </div>
-    </header>
-
     <div class="page">
       <!-- KPI -->
       <section class="kpi">
@@ -142,7 +121,9 @@
               <tr><th colspan="3" style="text-align:right">Total</th><th>{{ $nilaiAkhir ?? 86 }}</th></tr>
             </tbody>
           </table>
-          <p class="muted" style="margin-top:8px">Unduh versi PDF dari Laporan Penilaian tersedia pada menu <em>Laporan Penilaian</em>.</p>
+          <p class="muted" style="margin-top:8px">
+            Unduh versi PDF dari Laporan Penilaian tersedia pada menu <em>Laporan Penilaian</em>.
+          </p>
         </div>
       </section>
     </div>
