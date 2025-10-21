@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
 {
@@ -14,6 +14,9 @@ class Notification extends Model
         'user_id',
         'title',
         'message',
+        'type',
+        'course',
+        'link_url',
         'is_read',
     ];
 
@@ -24,19 +27,7 @@ class Notification extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-
-use Illuminate\Support\Facades\Auth;
-
-class Notification extends Model
-{
-    protected $fillable = [
-        'user_id',
-        'type',
-        'title',
-        'course',
-        'link_url',
-        'is_read',
-    ];
+    }
 
     public static function getUnreadCount()
     {
@@ -60,7 +51,5 @@ class Notification extends Model
             ->latest()
             ->limit(10)
             ->get(['id', 'title', 'type', 'created_at', 'link_url']);
-
     }
 }
-    }

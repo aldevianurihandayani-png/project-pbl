@@ -111,7 +111,7 @@ class UserController extends Controller
 
         // Redirect per-role
         $route = match ($user->role) {
-            'admins'            => 'admins.dashboard',
+            'admin'            => 'admins.dashboard',
             'dosen_pembimbing'  => 'dosen.dashboard',
             'dosen_penguji'     => 'dosenpenguji.dashboard',
             'koordinator'       => 'koordinator.dashboard',
