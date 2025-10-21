@@ -9,37 +9,41 @@ class MahasiswaController extends Controller
 {
     public function index(Request $request)
     {
+        $searchFields = ['nim', 'nama', 'angkatan', 'no_hp'];
+        $mahasiswa = $this->getMahasiswa($request, $searchFields);
         $search = $request->search;
 
-        $mahasiswa = Mahasiswa::when($search, function ($q) use ($search) {
-                $q->where('nim', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%")
-                  ->orWhere('angkatan', 'like', "%{$search}%")
-                  ->orWhere('no_hp', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(10);
-
-        // kirim variabel bernama $mahasiswa (bukan $mahasiswas)
         return view('mahasiswa.index', compact('mahasiswa', 'search'));
     }
 
-    // method resource lain (create/store/edit/update/destroy) menyusul...
-
-
     public function indexDosenPenguji(Request $request)
     {
+        $searchFields = ['nama', 'nim'];
+        $with = ['kelompok.dosen', 'kelompok.proyek'];
+        $mahasiswa = $this->getMahasiswa($request, $searchFields, $with);
         $search = $request->search;
-
-        $mahasiswa = Mahasiswa::with(['kelompok.dosen', 'kelompok.proyek'])
-            ->when($search, function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('nim', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(10);
 
         return view('dosenpenguji.mahasiswa', compact('mahasiswa', 'search'));
     }
 
+    private function getMahasiswa(Request $request, array $searchFields, array $with = [])
+    {
+        $search = $request->search;
+
+        $query = Mahasiswa::query();
+
+        if (!empty($with)) {
+            $query->with($with);
+        }
+
+        $query->when($search, function ($q) use ($search, $searchFields) {
+            $q->where(function ($query) use ($search, $searchFields) {
+                foreach ($searchFields as $field) {
+                    $query->orWhere($field, 'like', "%{$search}%");
+                }
+            });
+        });
+
+        return $query->latest()->paginate(10);
+    }
 }
