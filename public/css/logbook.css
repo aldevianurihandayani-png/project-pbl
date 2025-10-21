@@ -104,3 +104,82 @@ button:hover {
 .table-logbook tr:nth-child(even) {
   background-color: #f2f2f2;
 }
+
+/* =============================
+   STYLE EDIT LOGBOOK
+============================= */
+
+/* Kotak form utama */
+.edit-logbook-box {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 24px 28px;
+  margin-top: 1.5rem;
+}
+
+/* Header judul form */
+.edit-logbook-box h1 {
+  color: #0b1d54;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Label dan input */
+.edit-logbook-box .form-label {
+  font-weight: 600;
+  color: #0b1d54;
+}
+
+.edit-logbook-box .form-control,
+.edit-logbook-box .form-select {
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  padding: 10px 12px;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.edit-logbook-box .form-control:focus,
+.edit-logbook-box .form-select:focus {
+  border-color: #0b1d54;
+  box-shadow: 0 0 0 3px rgba(11, 29, 84, 0.2);
+}
+
+/* Tombol */
+.edit-logbook-box .btn-primary {
+  background-color: #0b1d54;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.edit-logbook-box .btn-primary:hover {
+  background-color: #142c82;
+}
+
+.edit-logbook-box .btn-secondary {
+  background-color: transparent;
+  border: 1px solid #cbd5e1;
+  color: #1f2937;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  margin-left: 10px;
+}
+
+.edit-logbook-box .btn-secondary:hover {
+  background-color: #f3f4f6;
+}
+
+/* Preview foto */
+.edit-logbook-box img {
+  display: block;
+  margin-top: 10px;
+  border-radius: 10px;
+  max-width: 300px;
+  height: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
