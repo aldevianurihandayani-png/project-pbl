@@ -4,6 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use Illuminate\Support\Facades\View;
+use App\Models\Notification;
+use App\Http\Controllers\Admin\NotificationController;
+use Illuminate\Support\Facades\Auth;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -19,6 +24,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+
+        View::composer(['layouts.app', 'admins.dashboard', 'admins.feedback.index'], function ($view) {
+            if (Auth::check()) {
+                $unreadCount = Notification::getUnreadCount();
+                $notifications = Notification::getListForTopbar();
+                $view->with(compact('unreadCount', 'notifications'));
+            }
+        });
+
     }
 }

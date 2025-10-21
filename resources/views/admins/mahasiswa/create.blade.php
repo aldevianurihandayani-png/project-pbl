@@ -8,6 +8,16 @@
         <form action="{{ route('admins.mahasiswa.store') }}" method="POST">
             @csrf
             <div class="form-group">
+<<<<<<< HEAD
+=======
+                <label for="nim">NIM</label>
+                <input type="text" class="form-control @error('nim') is-invalid @enderror" id="nim" name="nim" value="{{ old('nim') }}" required>
+                @error('nim')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="form-group">
+>>>>>>> bbcfba2 (commit noorma)
                 <label for="name">Nama Lengkap</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
                 @error('name')
@@ -22,6 +32,23 @@
                 @enderror
             </div>
             <div class="form-group">
+<<<<<<< HEAD
+=======
+                <label for="angkatan">Angkatan</label>
+                <input type="number" class="form-control @error('angkatan') is-invalid @enderror" id="angkatan" name="angkatan" value="{{ old('angkatan') }}" required min="1900" max="{{ date('Y') + 1 }}">
+                @error('angkatan')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="form-group">
+                <label for="no_hp">No. HP (Opsional)</label>
+                <input type="text" class="form-control @error('no_hp') is-invalid @enderror" id="no_hp" name="no_hp" value="{{ old('no_hp') }}">
+                @error('no_hp')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="form-group">
+>>>>>>> bbcfba2 (commit noorma)
                 <label for="password">Password</label>
                 <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
                 @error('password')

@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 
   <title>Register - Sistem PBL</title>
   <style>
@@ -25,6 +26,8 @@
     .register-card p a:hover{text-decoration:underline}
     footer{background:#001744;color:#fff;text-align:center;padding:15px}
 
+=======
+>>>>>>> bbcfba2 (commit noorma)
   <title>Register - SIMAP Politala</title>
   <style>
     :root { --navy:#001744; --navy-2:#001133; --bg:#f4f7fb; }
@@ -49,7 +52,10 @@
     .alert-error{background:#fdecea;color:#b81d24}
     footer{background:var(--navy);color:#fff;text-align:center;padding:14px}
     label{display:block;margin-bottom:6px;color:#05225d;font-size:14px;font-weight:600}
+<<<<<<< HEAD
 
+=======
+>>>>>>> bbcfba2 (commit noorma)
   </style>
 </head>
 <body>
@@ -59,17 +65,22 @@
     <nav>
       <a href="{{ url('/') }}">Home</a>
       <a href="{{ url('/about') }}">Tentang</a>
+<<<<<<< HEAD
 
       <a href="{{ route('register') }}">Register Eksternal</a>
 
       <a href="{{ route('register') }}">Register</a>
 
+=======
+      <a href="{{ route('register') }}">Register</a>
+>>>>>>> bbcfba2 (commit noorma)
       <a href="{{ url('/contact') }}">Contact</a>
       <a href="{{ route('login') }}">Login</a>
     </nav>
   </div>
 
   <div class="container">
+<<<<<<< HEAD
 
     <div class="register-card">
       <img src="{{ asset('assets/PBL.png') }}" alt="Logo PBL" class="logo">
@@ -85,6 +96,8 @@
             @foreach ($errors->all() as $error)
               <li>{{ $error }}</li>
 
+=======
+>>>>>>> bbcfba2 (commit noorma)
     <div class="card">
       <img src="{{ asset('assets/PBL.png') }}" alt="Logo PBL" class="logo">
       <h2>Sistem Informasi Manajemen PBL</h2>
@@ -105,6 +118,7 @@
         </div>
       @endif
 
+<<<<<<< HEAD
      
       <form action="{{ route('register.post') }}" method="POST">
         @csrf
@@ -141,6 +155,8 @@
   </footer>
 
 
+=======
+>>>>>>> bbcfba2 (commit noorma)
       {{-- Penting: action ke route register.post & field name HARUS "name" --}}
       <form action="{{ route('register.post') }}" method="POST" novalidate>
         @csrf
@@ -198,4 +214,8 @@
 
   <footer>© 2025 SIMAP Politala — Jurusan Teknologi Informasi.</footer>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> bbcfba2 (commit noorma)

@@ -9,7 +9,10 @@ class Dosen extends Model
 {
     use HasFactory;
 
-    
+
+
+    protected $table = 'dosen';
+
     protected $primaryKey = 'id_dosen';
     public $incrementing = true;     // set true jika kolom PK auto-increment
     protected $keyType = 'int';

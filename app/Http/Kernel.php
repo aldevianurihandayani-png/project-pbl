@@ -8,6 +8,7 @@ class Kernel extends HttpKernel
 {
     /**
      * The application's global HTTP middleware stack.
+
      *
      * These middleware are run during every request to your application.
      *
@@ -18,13 +19,22 @@ class Kernel extends HttpKernel
         \Illuminate\Http\Middleware\HandleCors::class,
         \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,];
+
+     
+    protected $middleware = [
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\TrustProxies::class,
+
     ];
 
     /**
      * The application's route middleware groups.
+
      *
      * @var array<string, array<int, class-string|string>>
+
      */
     protected $middlewareGroups = [
         'web' => [
@@ -57,6 +67,12 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    ];
+     
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        // Tambahkan alias role di sini
         'role' => \App\Http\Middleware\EnsureUserHasRole::class,
     ];
 }

@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "1648efeb6bbb20f1f8bd8d7dcc0db7a4",
+=======
+    "content-hash": "c514d8f7b9fc5970bdd94287905ef584",
+>>>>>>> bbcfba2 (commit noorma)
     "packages": [
         {
             "name": "brick/math",
@@ -510,6 +514,7 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "firebase/php-jwt",
             "version": "v6.11.1",
             "source": {
@@ -573,6 +578,8 @@
             "time": "2025-04-09T20:32:01+00:00"
         },
         {
+=======
+>>>>>>> bbcfba2 (commit noorma)
             "name": "fruitcake/php-cors",
             "version": "v1.3.0",
             "source": {
@@ -1457,6 +1464,7 @@
             "time": "2025-03-19T13:51:03+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "laravel/socialite",
             "version": "v5.23.0",
             "source": {
@@ -1529,6 +1537,8 @@
             "time": "2025-07-23T14:16:08+00:00"
         },
         {
+=======
+>>>>>>> bbcfba2 (commit noorma)
             "name": "laravel/tinker",
             "version": "v2.10.1",
             "source": {
@@ -1972,6 +1982,7 @@
             "time": "2024-09-21T08:32:55+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "league/oauth1-client",
             "version": "v1.11.0",
             "source": {
@@ -2048,6 +2059,8 @@
             "time": "2024-12-10T19:59:05+00:00"
         },
         {
+=======
+>>>>>>> bbcfba2 (commit noorma)
             "name": "league/uri",
             "version": "7.5.1",
             "source": {
@@ -2726,6 +2739,7 @@
             "time": "2025-05-08T08:14:37+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "paragonie/constant_time_encoding",
             "version": "v3.1.3",
             "source": {
@@ -2845,6 +2859,8 @@
             "time": "2020-10-15T08:29:30+00:00"
         },
         {
+=======
+>>>>>>> bbcfba2 (commit noorma)
             "name": "phiki/phiki",
             "version": "v2.0.4",
             "source": {
@@ -2991,6 +3007,7 @@
             "time": "2025-08-21T11:53:16+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "phpseclib/phpseclib",
             "version": "3.0.47",
             "source": {
@@ -3101,6 +3118,8 @@
             "time": "2025-10-06T01:07:24+00:00"
         },
         {
+=======
+>>>>>>> bbcfba2 (commit noorma)
             "name": "psr/clock",
             "version": "1.0.0",
             "source": {

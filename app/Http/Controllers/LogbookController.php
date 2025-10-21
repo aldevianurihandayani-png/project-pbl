@@ -29,6 +29,10 @@ class LogbookController extends Controller
     public function mahasiswaIndex()
     {
         $items = Logbook::where('user_id', Auth::id())->latest('tanggal')->paginate(10);
+    }}
+
+use Illuminate\Support\Facades\Validator;
+
 
 class LogbookController extends Controller
 {
@@ -48,6 +52,8 @@ class LogbookController extends Controller
         if ($request->filled('sampai')) $q->whereDate('tanggal', '<=', $request->sampai);
 
         $items = $q->orderByDesc('tanggal')->paginate(10)->withQueryString();
+    
+
 
 
         return view('mahasiswa.logbook', compact('items'));
@@ -65,10 +71,18 @@ class LogbookController extends Controller
 
         return view('logbooks.create');
 
+        return view('mahasiswa.logbook', compact('items'));
+    }
+
+    public function create()
+    {
+        return view('mahasiswa.logbook_create');
+
     }
 
     public function store(Request $request)
     {
+
 
         if (!Auth::check() || !in_array(Auth::user()->role, ['mahasiswa','admin'])) {
             return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
@@ -99,6 +113,7 @@ class LogbookController extends Controller
     public function show(Logbook $logbook)
     {
         return view('logbooks.show', compact('logbook'));
+
 
         $validator = Validator::make($request->all(), [
             'tanggal'     => ['required', 'date'],
@@ -134,6 +149,7 @@ class LogbookController extends Controller
     public function edit(Logbook $logbook)
     {
 
+
         if (Auth::check() && (Auth::user()->role === 'mahasiswa' || Auth::user()->role === 'admin')) {
             $mingguOptions = $this->mingguEnum;
             return view('logbooks.edit', compact('logbook', 'mingguOptions'));
@@ -142,10 +158,14 @@ class LogbookController extends Controller
 
         return view('mahasiswa.logbook_edit', compact('logbook'));
 
+
+        return view('mahasiswa.logbook_edit', compact('logbook'));
+
     }
 
     public function update(Request $request, Logbook $logbook)
     {
+
         if (!Auth::check() || !in_array(Auth::user()->role, ['mahasiswa','admin'])) {
             return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
         }
@@ -175,6 +195,7 @@ class LogbookController extends Controller
         ]);
 
         return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil diperbarui.');
+
 
         $validator = Validator::make($request->all(), [
             'tanggal'     => ['required', 'date'],
@@ -222,6 +243,7 @@ class LogbookController extends Controller
         $logbook->delete();
 
         return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil dihapus.');
+
 
         if ($logbook->lampiran_path && Storage::exists($logbook->lampiran_path)) {
             Storage::delete($logbook->lampiran_path);
