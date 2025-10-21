@@ -6,34 +6,27 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
-<<<<<<< HEAD
-=======
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\NotificationController;
->>>>>>> bbcfba2 (commit noorma)
+
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogbookController;
 use App\Models\Logbook;
 use App\Models\Milestone;
-<<<<<<< HEAD
 use App\Http\Controllers\KelompokController;
 use App\Http\Controllers\RubrikPenilaianController;
 use App\Http\Controllers\DosenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
-use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 
 
 
-=======
->>>>>>> bbcfba2 (commit noorma)
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +38,6 @@ Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-<<<<<<< HEAD
 // Halaman daftar logbook
 Route::resource('logbooks', LogbookController::class);
 Route::get('/logbooks/index', function () {
@@ -64,8 +56,6 @@ Route::get('/register', function () {
 
 // Proses Register
 
-=======
->>>>>>> bbcfba2 (commit noorma)
 /*
 |--------------------------------------------------------------------------
 | Autentikasi
@@ -78,7 +68,6 @@ Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-<<<<<<< HEAD
 
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
 use App\Http\Controllers\DosenPenguji\PenilaianController;
@@ -147,13 +136,13 @@ Route::put('/profile', function (Request $request) {
 });
 
 
-=======
+
 /*
 |--------------------------------------------------------------------------
 | Dashboard per-ROLE (wajib login)
 |--------------------------------------------------------------------------
 */
->>>>>>> bbcfba2 (commit noorma)
+
 
 /*
 |--------------------------------------------------------------------------
@@ -164,7 +153,7 @@ Route::prefix('admins')->name('admins.')->group(function () {
     Route::view('/dashboard', 'admins.dashboard')->name('dashboard');
     Route::resource('matakuliah', AdminMataKuliahController::class);
     Route::resource('mahasiswa', AdminMahasiswaController::class);
-<<<<<<< HEAD
+
 
     Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
     Route::resource('logbook', AdminLogbookController::class)->only(['index']);
@@ -204,7 +193,7 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
     Route::resource('/milestone', DosenMilestoneController::class)->only(['index', 'edit', 'update']);
     Route::view('/logbook', 'dosen.logbook')->name('logbook');
-=======
+
     Route::resource('kelompok', AdminKelompokController::class)->only(['index']);
     Route::resource('logbook', AdminLogbookController::class)->only(['index']);
     Route::get('/feedback', [App\Http\Controllers\Admin\FeedbackController::class,'index'])->name('feedback.index');
@@ -223,5 +212,5 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::delete('/notifikasi/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
     Route::post('/notifikasi/markAll', [NotificationController::class, 'markAllRead'])->name('notifikasi.markAll');
     Route::get('/notifikasi/{notification}/read', [NotificationController::class, 'markRead'])->name('notifikasi.read');
->>>>>>> bbcfba2 (commit noorma)
+
 });
