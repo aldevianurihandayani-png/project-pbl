@@ -51,6 +51,28 @@ Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
+<<<<<<< HEAD
+=======
+
+// Halaman daftar logbook
+Route::resource('logbooks', LogbookController::class);
+Route::get('/logbooks/index', function () {
+    return redirect()->route('logbooks.index');
+});
+
+
+// ==============================
+// Autentikasi
+// ==============================
+
+// Form Register
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
+
+// Proses Register
+
+>>>>>>> 7cd9056a012903a924d313ab69bdb84af595d906
 
 /*
 |--------------------------------------------------------------------------
