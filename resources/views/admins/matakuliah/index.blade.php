@@ -52,7 +52,6 @@
             </table>
         </div>
          <div class="d-flex justify-content-center">
-            {{ dd(get_class($matakuliah)) }}
             {{ $matakuliah->links() }}
         </div>
     </div>

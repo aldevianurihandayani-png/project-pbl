@@ -1,4 +1,4 @@
-@extends('layouts.dosen')
+@extends('logbooks.index')
 
 @section('title','Logbook — Dosen Pembimbing')
 

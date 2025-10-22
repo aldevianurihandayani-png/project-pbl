@@ -26,15 +26,7 @@
                             <td>{{ $kelompok->kelas }}</td>
                             <td>{{ $kelompok->dosen_pembimbing }}</td>
                             <td>
-<<<<<<< HEAD
-<<<<<<< HEAD
-                                <a href="{{ route('admins.kelompok.show', $kelompok) }}" class="btn btn-info btn-sm">Detail</a>
-=======
                                 <a href="#" class="btn btn-info btn-sm">Detail</a>
->>>>>>> 7e4c8f16039fdbc37547803aea3ddc7c4610d0c4
-=======
-                                <a href="#" class="btn btn-info btn-sm">Detail</a>
->>>>>>> bbcfba2 (commit noorma)
                             </td>
                         </tr>
                     @empty
