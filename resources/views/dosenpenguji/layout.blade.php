@@ -172,14 +172,14 @@ header.topbar{ z-index: 5000; }          /* pastikan di atas konten lain */
           </div>
 
           <div class="userbox">
-            @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'NU',0,2)); @endphp
+            @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'AL',0,2)); @endphp
             <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
               @if(method_exists($u ?? null,'getAvatarUrlAttribute') && $u?->avatar_url)
                 <img src="{{ $u->avatar_url }}" alt="Avatar" class="ava" style="object-fit:cover;">
               @else
                 <span class="ava">{{ $initial }}</span>
               @endif
-              <span>{{ $u->name ?? 'Nama User' }}</span>
+              <span>{{ $u->name ?? 'Aldevianuri Handayani' }}</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
 
@@ -192,7 +192,7 @@ header.topbar{ z-index: 5000; }          /* pastikan di atas konten lain */
                 @endif
                 <div style="min-width:0">
                   <div style="font-weight:800;color:#0e257a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                    {{ $u->name ?? 'Nama User' }}
+                    {{ $u->name ?? 'Aldevianuri Handayani' }}
                   </div>
                   <div style="font-size:12px;color:#6c7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                     {{ $u->email ?? 'email @example.com' }}
