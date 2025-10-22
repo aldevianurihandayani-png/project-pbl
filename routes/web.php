@@ -61,19 +61,58 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 | Admin (role: admin)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admins')->name('admins.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('matakuliah', AdminMataKuliahController::class)->names('matakuliah');
-    Route::resource('mahasiswa', AdminMahasiswaController::class)->names('mahasiswa');
-    Route::resource('kelompok', AdminKelompokController::class)->names('kelompok');
-    Route::resource('logbook', AdminLogbookController::class)->names('logbook');
-    Route::resource('feedback', AdminFeedbackController::class)->names('feedback');
-    Route::get('/notifikasi', [AdminNotifikasiController::class, 'index'])->name('notifikasi.index');
-    Route::resource('profile', AdminProfileController::class)->names('profile');
-    Route::resource('notifikasi', AdminNotifikasiController::class);
-    Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
-    Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
+/*
+|--------------------------------------------------------------------------
+| Admin (role: admin)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admins')
+    ->name('admins.')
+    ->middleware(['auth', 'role:admin'])
+    ->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Mata Kuliah (PAKAI controller admin, 1x saja)
+    Route::resource('matakuliah', AdminMataKuliahController::class)
+        ->names('matakuliah');
+
+    // Mahasiswa
+    Route::resource('mahasiswa', AdminMahasiswaController::class)
+        ->names('mahasiswa');
+
+    // Kelompok
+    Route::resource('kelompok', AdminKelompokController::class)
+        ->names('kelompok');
+
+    // Logbook
+    Route::resource('logbook', AdminLogbookController::class)
+        ->names('logbook');
+
+    // Feedback
+    Route::resource('feedback', AdminFeedbackController::class)
+        ->names('feedback');
+
+    // Profile
+    Route::resource('profile', AdminProfileController::class)
+        ->names('profile');
+
+    // Notifikasi — JANGAN pakai GET terpisah untuk index; cukup resource + extra actions
+    Route::resource('notifikasi', AdminNotifikasiController::class)
+        ->names('notifikasi')
+        ->only(['index', 'show', 'store', 'update', 'destroy']);
+
+    // Aksi khusus notifikasi
+    Route::post('notifikasi/mark-all', [AdminNotifikasiController::class, 'markAllRead'])
+        ->name('notifikasi.markAll');
+    Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])
+        ->name('notifikasi.read');
 });
+
+
+    
 
 /*
 |--------------------------------------------------------------------------
