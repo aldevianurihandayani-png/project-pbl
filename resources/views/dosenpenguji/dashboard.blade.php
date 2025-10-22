@@ -236,7 +236,7 @@
         <div class="userbox">
           @php
             // Tampilkan nama khusus sesuai permintaan
-            $displayName = 'aldevianuri handayani';
+            $displayName = 'Aldevianuri handayani';
             $u = auth()->user();
             $initial = strtoupper(substr($displayName,0,2));
           @endphp
