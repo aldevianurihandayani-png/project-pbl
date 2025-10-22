@@ -61,14 +61,15 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 | Admin (role: admin)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admins')->name('admins.')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('admins')->name('admins.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('matakuliah', AdminMataKuliahController::class);
-    Route::resource('mahasiswa', AdminMahasiswaController::class);
-    Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
-    Route::resource('logbook', AdminLogbookController::class)->only(['index']);
-    Route::resource('feedback', AdminFeedbackController::class);
-
+    Route::resource('matakuliah', AdminMataKuliahController::class)->names('matakuliah');
+    Route::resource('mahasiswa', AdminMahasiswaController::class)->names('mahasiswa');
+    Route::resource('kelompok', AdminKelompokController::class)->names('kelompok');
+    Route::resource('logbook', AdminLogbookController::class)->names('logbook');
+    Route::resource('feedback', AdminFeedbackController::class)->names('feedback');
+    Route::get('/notifikasi', [AdminNotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::resource('profile', AdminProfileController::class)->names('profile');
     Route::resource('notifikasi', AdminNotifikasiController::class);
     Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
     Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
