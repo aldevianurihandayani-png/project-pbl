@@ -130,7 +130,20 @@ header.topbar{ z-index: 5000; }          /* pastikan di atas konten lain */
       <div class="nav-title">Akun</div>
       <a href="{{ route('dosenpenguji.profile') }}" class="{{ request()->routeIs('dosenpenguji.profile') ? 'active' : '' }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
-    <div class="logout"><a href="{{ url('/logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></div>
+
+    {{-- Tombol Logout (pakai POST biar sesuai route Laravel) --}}
+<div class="logout">
+  <form action="{{ route('logout') }}" method="POST" style="margin:0">
+    @csrf
+    <button type="submit" style="
+      width:100%;background:none;border:0;cursor:pointer;
+      color:#ffb2b2; display:flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:12px; text-align:left;
+    ">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </form>
+</div>
   </aside>
 
   <main>
