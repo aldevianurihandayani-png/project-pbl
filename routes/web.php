@@ -22,19 +22,25 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 
-
 // Dosen
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController;
-
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
-
 use App\Http\Controllers\DosenPenguji\PenilaianController;
 use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController;
-use App\Http\Controllers\DosenPenguji\CPMKController;
+use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
+// Alias supaya simbol CPMKController mengarah ke kelas CpmkController milikmu
+use App\Http\Controllers\DosenPenguji\CpmkController as CPMKController;
+// >>> ADD: controller CRUD item penilaian
+use App\Http\Controllers\DosenPenguji\PenilaianItemController;
+
+// MODEL untuk quick-edit CPMK
+use App\Models\Cpmk;
+// >>> ADD: MODEL untuk quick-edit Rubrik
+use App\Models\Rubrik;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,10 +64,7 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-
-
-// Dosen Penguji Routes
-
+// Dosen Penguji Routes (versi tanpa middleware; dibiarkan apa adanya)
 Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
     Route::get('/', fn() => redirect()->route('dosenpenguji.dashboard'));
     Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
@@ -75,49 +78,39 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
     Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
     Route::get('/matakuliah', [MatakuliahController::class, 'index'])->name('matakuliah');
     Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
-// ==============================
-// PROFIL DOSEN PENGUJI
-// ==============================
 
+    // ==============================
+    // PROFIL DOSEN PENGUJI
+    // ==============================
+    Route::get('/profile', fn () => view('dosenpenguji.profile'))->name('profile');
+    Route::get('/profile/edit', fn () => view('dosenpenguji.profile-edit'))->name('profile.edit');
 
+    Route::put('/profile', function (Request $request) {
+        $user = auth()->user();
 
+        $validated = $request->validate([
+            'nama'     => 'nullable|string|max:255',
+            'name'     => 'nullable|string|max:255',
+            'email'    => 'required|email',
+            'password' => 'nullable|min:6',
+        ]);
 
-// Tampil profil (sudah ada — biarkan jika sudah)
-Route::get('/profile', fn () => view('dosenpenguji.profile'))->name('profile');
+        $data = [
+            'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+            'email' => $validated['email'],
+        ];
 
+        if (!empty($validated['password'])) {
+            $data['password'] = Hash::make($validated['password']);
+        }
 
-// Form edit profil
-Route::get('/profile/edit', fn () => view('dosenpenguji.profile-edit'))->name('profile.edit');
+        $user->update($data);
+        auth()->setUser($user->fresh());
 
-// Simpan perubahan
-Route::put('/profile', function (Request $request) {
-    $user = auth()->user();
-
-    $validated = $request->validate([
-        'nama'     => 'nullable|string|max:255',
-        'name'     => 'nullable|string|max:255',
-        'email'    => 'required|email',
-        'password' => 'nullable|min:6',
-    ]);
-
-    $data = [
-        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
-        'email' => $validated['email'],
-    ];
-
-    if (!empty($validated['password'])) {
-        $data['password'] = Hash::make($validated['password']);
-    }
-
-    $user->update($data);
-    auth()->setUser($user->fresh());
-
-    // ⬇️ Redirect ke halaman profil (bukan back)
-    return redirect()->route('dosenpenguji.profile')
-        ->with('success', 'Perubahan berhasil disimpan.');
-})->name('profile.update');
+        return redirect()->route('dosenpenguji.profile')
+            ->with('success', 'Perubahan berhasil disimpan.');
+    })->name('profile.update');
 });
-
 
 
 /*
@@ -125,9 +118,6 @@ Route::put('/profile', function (Request $request) {
 | Dashboard per-ROLE (wajib login)
 |--------------------------------------------------------------------------
 */
-
-
-
 
 
 /*
@@ -176,7 +166,7 @@ Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen_pembimbi
 
 /*
 |--------------------------------------------------------------------------
-| Dosen Penguji
+| Dosen Penguji (wajib login) — DI SINI KITA TAMBAH ROUTE PUT CPMK dan RUBRIK
 |--------------------------------------------------------------------------
 */
 Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:dosen_penguji'])->group(function () {
@@ -189,9 +179,52 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:
     Route::get('/penilaian/export', [PenilaianController::class, 'export'])->name('penilaian.export');
     Route::post('/penilaian/import', [PenilaianController::class, 'import'])->name('penilaian.import');
     Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
+
+    // >>> ADD: CRUD item penilaian (create/edit/update/delete)
+    Route::prefix('penilaian-item')->name('penilaian.item.')->group(function () {
+        Route::get('/create', [PenilaianItemController::class, 'create'])->name('create');
+        Route::post('/', [PenilaianItemController::class, 'store'])->name('store');
+        Route::get('/{item}/edit', [PenilaianItemController::class, 'edit'])->name('edit');
+        Route::put('/{item}', [PenilaianItemController::class, 'update'])->name('update');
+        Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
+    });
+
+    // >>> ADD: UPDATE Rubrik (Quick-Edit modal) — by ID
+    Route::put('/rubrik/{id}', function (\Illuminate\Http\Request $request, $id) {
+        $data = $request->validate([
+            'nama_rubrik' => ['required','string','max:255'],
+            'deskripsi'   => ['nullable','string'],
+            'bobot'       => ['required','numeric','min:0','max:100'],
+            'urutan'      => ['required','integer','min:1'],
+            // 'kode_mk'   => ['nullable','string'],
+        ]);
+
+        $updated = Rubrik::query()->whereKey($id)->update($data);
+
+        return back()->with($updated ? 'success' : 'error',
+            $updated ? 'Komponen rubrik berhasil diperbarui.' : 'Rubrik tidak ditemukan / gagal diperbarui.');
+    })->name('dosenpenguji.rubrik.update');
+
     Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
     Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
     Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
+
+    // ====== TAMBAHAN BARU: UPDATE CPMK (Quick-Edit modal) ======
+    Route::put('/cpmk/{kode_mk}/{kode}', function (Request $request, $kode_mk, $kode) {
+        $data = $request->validate([
+            'deskripsi' => ['required','string'],
+            'bobot'     => ['required','numeric','min:0','max:100'],
+            'urutan'    => ['required','integer','min:1'],
+        ]);
+
+        $updated = Cpmk::where('kode_mk', $kode_mk)
+                       ->where('kode', $kode)
+                       ->update($data);
+
+        return back()->with($updated ? 'success' : 'error',
+            $updated ? 'CPMK berhasil diperbarui.' : 'CPMK tidak ditemukan / gagal diperbarui.');
+    })->name('cpmk.update');
+
     Route::view('/profile', 'dosenpenguji.profile')->name('profile');
     Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
     Route::put('/profile', function (Request $request) {
@@ -221,4 +254,3 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:
 |--------------------------------------------------------------------------
 */
 Route::resource('logbooks', LogbookController::class);
-
