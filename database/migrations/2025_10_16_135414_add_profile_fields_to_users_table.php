@@ -28,6 +28,28 @@ return new class extends Migration {
             if (Schema::hasColumn('users', 'avatar_url')) $table->dropColumn('avatar_url');
             if (Schema::hasColumn('users', 'prodi')) $table->dropColumn('prodi');
             if (Schema::hasColumn('users', 'nidn')) $table->dropColumn('nidn');
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('nidn')->nullable()->after('email');
+            $table->string('prodi')->nullable()->after('nidn');
+            $table->string('profile_photo_path')->nullable()->after('prodi'); // simpan path foto
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['nidn', 'prodi', 'profile_photo_path']);
         });
     }
 };

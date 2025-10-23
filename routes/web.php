@@ -5,11 +5,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
-// Controllers
+// Controllers umum
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\LogbookController; // untuk MAHASISWA
+
+// Admin
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
@@ -18,14 +21,20 @@ use App\Http\Controllers\Admin\NotificationController as AdminNotificationContro
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
-use App\Http\Controllers\Admin\AdminDashboardController;
+
+// Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
+
 
 // Dosen
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController;
+
+use App\Http\Controllers\Dosen\LogbookController as DosenLogbookController;
+
+// Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
 use App\Http\Controllers\DosenPenguji\PenilaianController;
 use App\Http\Controllers\DosenPenguji\RubrikController;
@@ -62,6 +71,21 @@ Route::post('/register', [UserController::class, 'register'])->name('register.po
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Admin (role: admin)
+|--------------------------------------------------------------------------
+*/
+/*
+|--------------------------------------------------------------------------
+| Admin (role: admin)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admins')
+    ->name('admins.')
+    ->middleware(['auth', 'role:admin'])
+    ->group(function () {
 
 
 // Dosen Penguji Routes (versi tanpa middleware; dibiarkan apa adanya)
@@ -140,11 +164,59 @@ Route::prefix('admins')->name('admins.')->middleware(['auth', 'role:admin'])->gr
 /*
 |--------------------------------------------------------------------------
 | Mahasiswa
+=======
+    // Dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Mata Kuliah (PAKAI controller admin, 1x saja)
+    Route::resource('matakuliah', AdminMataKuliahController::class)
+        ->names('matakuliah');
+
+    // Mahasiswa
+    Route::resource('mahasiswa', AdminMahasiswaController::class)
+        ->names('mahasiswa');
+
+    // Kelompok
+    Route::resource('kelompok', AdminKelompokController::class)
+        ->names('kelompok');
+
+    // Logbook
+    Route::resource('logbook', AdminLogbookController::class)
+        ->names('logbook');
+
+    // Feedback
+    Route::resource('feedback', AdminFeedbackController::class)
+        ->names('feedback');
+
+    // Profile
+    Route::resource('profile', AdminProfileController::class)
+        ->names('profile');
+
+    // Notifikasi — JANGAN pakai GET terpisah untuk index; cukup resource + extra actions
+    Route::resource('notifikasi', AdminNotifikasiController::class)
+        ->names('notifikasi')
+        ->only(['index', 'show', 'store', 'update', 'destroy']);
+
+    // Aksi khusus notifikasi
+    Route::post('notifikasi/mark-all', [AdminNotifikasiController::class, 'markAllRead'])
+        ->name('notifikasi.markAll');
+    Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])
+        ->name('notifikasi.read');
+});
+
+
+    
+
+/*
+|--------------------------------------------------------------------------
+| Mahasiswa (role: mahasiswa)
+>>>>>>> 15e387c5b93b47b4b15897497bf45cfb996723b0
 |--------------------------------------------------------------------------
 */
 Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa'])->group(function () {
     Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
-    Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
+    Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook'); // daftar logbook mahasiswa
     Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
     Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
     Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
@@ -152,32 +224,42 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasi
 
 /*
 |--------------------------------------------------------------------------
-| Dosen
+| Dosen Pembimbing (role: dosen_pembimbing)
 |--------------------------------------------------------------------------
 */
 Route::prefix('dosen')->name('dosen.')->middleware(['auth', 'role:dosen_pembimbing'])->group(function () {
     Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
+
     Route::resource('kelompok', DosenKelompokController::class)->names('kelompok');
     Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
     Route::resource('milestone', DosenMilestoneController::class)->only(['index', 'edit', 'update']);
-    Route::view('/logbook', 'dosen.logbook')->name('logbook');
-});
 
+    // LOGBOOK (CRUD + toggle status) — TIDAK ADA Route::view UNTUK /logbook
+    Route::resource('logbook', DosenLogbookController::class)->names('logbook');
+    Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
+        ->name('logbook.toggleStatus');
+});
 
 /*
 |--------------------------------------------------------------------------
+
 | Dosen Penguji (wajib login) — DI SINI KITA TAMBAH ROUTE PUT CPMK dan RUBRIK
+
+| Dosen Penguji (role: dosen_penguji)  — hanya SEKALI (hilangkan yang duplikat)
+
 |--------------------------------------------------------------------------
 */
 Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:dosen_penguji'])->group(function () {
     Route::redirect('/', '/dosenpenguji/dashboard');
     Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
+
     Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
     Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])->name('penilaian.bulkSave');
     Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])->name('penilaian.deleteGrade');
     Route::get('/penilaian/export', [PenilaianController::class, 'export'])->name('penilaian.export');
     Route::post('/penilaian/import', [PenilaianController::class, 'import'])->name('penilaian.import');
+
     Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
 
     // >>> ADD: CRUD item penilaian (create/edit/update/delete)
@@ -209,6 +291,7 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:
     Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
     Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
 
+
     // ====== TAMBAHAN BARU: UPDATE CPMK (Quick-Edit modal) ======
     Route::put('/cpmk/{kode_mk}/{kode}', function (Request $request, $kode_mk, $kode) {
         $data = $request->validate([
@@ -225,16 +308,20 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:
             $updated ? 'CPMK berhasil diperbarui.' : 'CPMK tidak ditemukan / gagal diperbarui.');
     })->name('cpmk.update');
 
+
+    // Profil
     Route::view('/profile', 'dosenpenguji.profile')->name('profile');
     Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
     Route::put('/profile', function (Request $request) {
         $user = auth()->user();
+
         $validated = $request->validate([
             'nama'     => 'nullable|string|max:255',
             'name'     => 'nullable|string|max:255',
             'email'    => 'required|email',
             'password' => 'nullable|min:6',
         ]);
+
         $data = [
             'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
             'email' => $validated['email'],
@@ -242,15 +329,17 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:
         if (!empty($validated['password'])) {
             $data['password'] = Hash::make($validated['password']);
         }
+
         $user->update($data);
         auth()->setUser($user->fresh());
+
         return redirect()->route('dosenpenguji.profile')->with('success', 'Perubahan berhasil disimpan.');
     })->name('profile.update');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Logbooks (global)
+| Logbooks (global) — untuk resource umum (dipakai mahasiswa controller)
 |--------------------------------------------------------------------------
 */
 Route::resource('logbooks', LogbookController::class);
