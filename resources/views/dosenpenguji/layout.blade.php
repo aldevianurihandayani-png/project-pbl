@@ -135,7 +135,7 @@ header.topbar{ z-index: 5000; }          /* pastikan di atas konten lain */
 
   <main>
     <header class="topbar">
-        <div class="welcome"><h1>@yield('header', 'Manajemen')</h1></div>
+        <div class="welcome"><h1>@yield('header', 'Penilaian')</h1></div>
         <div class="top-actions" id="topActions">
           {{-- Bell --}}
           <div class="bell" id="bellBtn" aria-label="Notifikasi">
