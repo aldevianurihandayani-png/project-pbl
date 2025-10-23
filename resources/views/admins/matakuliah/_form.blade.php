@@ -1,80 +1,92 @@
-@php
-  // helper untuk value lama atau dari model
-  $val = fn($field, $default='') => old($field, isset($matakuliah) ? ($matakuliah->{$field} ?? $default) : $default);
-@endphp
+<form action="{{ isset($matakuliah)
+                  ? route('admins.matakuliah.update', $matakuliah)
+                  : route('admins.matakuliah.store') }}"
+      method="POST">
+    @csrf
+    @if(isset($matakuliah)) @method('PUT') @endif
 
-<div class="row">
-  <div class="col-md-6">
-    <div class="form-group mb-3">
-      <label for="kode_mk">Kode MK</label>
-      <input
-        type="text" id="kode_mk" name="kode_mk"
-        class="form-control @error('kode_mk') is-invalid @enderror"
-        value="{{ $val('kode_mk') }}"
-        {{ (isset($mode) && $mode === 'edit') ? 'readonly' : 'required' }}
-      >
-      @error('kode_mk') <div class="invalid-feedback">{{ $message }}</div> @enderror
-      @if(isset($mode) && $mode === 'edit')
-        <small class="text-muted">Kode MK sebagai primary key tidak dapat diubah.</small>
-      @endif
+    {{-- ========== DATA MATA KULIAH ========== --}}
+    <div class="card">
+      <div class="card-header">Data Mata Kuliah</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="kode_mk" class="form-label">Kode Mata Kuliah</label>
+          <input type="text" id="kode_mk" name="kode_mk"
+                 class="form-control @error('kode_mk') is-invalid @enderror"
+                 value="{{ old('kode_mk', $matakuliah->kode_mk ?? '') }}" required>
+          @error('kode_mk') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="mb-3">
+          <label for="nama_mk" class="form-label">Nama Mata Kuliah</label>
+          <input type="text" id="nama_mk" name="nama_mk"
+                 class="form-control @error('nama_mk') is-invalid @enderror"
+                 value="{{ old('nama_mk', $matakuliah->nama_mk ?? '') }}" required>
+          @error('nama_mk') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="sks" class="form-label">Jumlah SKS</label>
+            <input type="number" id="sks" name="sks"
+                   class="form-control @error('sks') is-invalid @enderror"
+                   value="{{ old('sks', $matakuliah->sks ?? '') }}" required>
+            @error('sks') <div class="invalid-feedback">{{ $message }}</div> @enderror
+          </div>
+          <div class="col-md-6">
+            <label for="semester" class="form-label">Semester</label>
+            <input type="number" id="semester" name="semester"
+                   class="form-control @error('semester') is-invalid @enderror"
+                   value="{{ old('semester', $matakuliah->semester ?? '') }}" required>
+            @error('semester') <div class="invalid-feedback">{{ $message }}</div> @enderror
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="col-md-6">
-    <div class="form-group mb-3">
-      <label for="nama_mk">Nama Mata Kuliah</label>
-      <input
-        type="text" id="nama_mk" name="nama_mk"
-        class="form-control @error('nama_mk') is-invalid @enderror"
-        value="{{ $val('nama_mk') }}" required
-      >
-      @error('nama_mk') <div class="invalid-feedback">{{ $message }}</div> @enderror
+    {{-- ========== DATA DOSEN (INLINE) ========== --}}
+    <div class="card mt-4">
+      <div class="card-header">Data Dosen Pengampu (opsional, bisa tambah/ubah di sini)</div>
+      <div class="card-body">
+        {{-- kalau sedang edit & MK sudah punya dosen, kirim dosen_id tersembunyi agar update --}}
+        <input type="hidden" name="dosen_id" value="{{ old('dosen_id', $matakuliah->dosen->id_dosen ?? '') }}">
+
+        <div class="mb-3">
+          <label for="nama_dosen" class="form-label">Nama Dosen</label>
+          <input type="text" id="nama_dosen" name="nama_dosen"
+                 class="form-control @error('nama_dosen') is-invalid @enderror"
+                 value="{{ old('nama_dosen', $matakuliah->dosen?->nama_dosen ?? '') }}"
+                 placeholder="Tulis nama dosen jika ingin membuat/mengubah dosen">
+          @error('nama_dosen') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Jabatan</label>
+            <input type="text" name="jabatan" class="form-control"
+                   value="{{ old('jabatan', $matakuliah->dosen->jabatan ?? '') }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">NIP</label>
+            <input type="text" name="nip" class="form-control"
+                   value="{{ old('nip', $matakuliah->dosen->nip ?? '') }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">No. Telp</label>
+            <input type="text" name="no_telp" class="form-control"
+                   value="{{ old('no_telp', $matakuliah->dosen->no_telp ?? '') }}">
+          </div>
+        </div>
+
+        <small class="text-muted d-block mt-2">
+          Kosongkan semua kolom dosen jika tidak ingin menambah/mengubah dosen.
+          Jika diisi, sistem akan <b>membuat atau memperbarui</b> dosen lalu mengaitkannya.
+        </small>
+      </div>
     </div>
-  </div>
 
-  <div class="col-md-3">
-    <div class="form-group mb-3">
-      <label for="sks">SKS</label>
-      <input
-        type="number" id="sks" name="sks" min="1" max="8"
-        class="form-control @error('sks') is-invalid @enderror"
-        value="{{ $val('sks', 2) }}" required
-      >
-      @error('sks') <div class="invalid-feedback">{{ $message }}</div> @enderror
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary" type="submit">{{ isset($matakuliah) ? 'Simpan Perubahan' : 'Simpan' }}</button>
+      <a class="btn btn-secondary" href="{{ route('admins.matakuliah.index') }}">Batal</a>
     </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="form-group mb-3">
-      <label for="semester">Semester</label>
-      <input
-        type="number" id="semester" name="semester" min="1" max="14"
-        class="form-control @error('semester') is-invalid @enderror"
-        value="{{ $val('semester', 1) }}" required
-      >
-      @error('semester') <div class="invalid-feedback">{{ $message }}</div> @enderror
-    </div>
-  </div>
-
-  <div class="col-md-6">
-    <div class="form-group mb-3">
-      <label for="nama_dosen">Dosen Pengampu</label>
-      <input
-        type="text" list="dosen-list" id="nama_dosen" name="nama_dosen"
-        class="form-control @error('nama_dosen') is-invalid @enderror"
-        value="{{ old('nama_dosen', $val('nama_dosen', $matakuliah->dosen->name ?? '')) }}" required autocomplete="off"
-      >
-      <datalist id="dosen-list">
-        @foreach ($dosens as $dosen)
-          <option value="{{ $dosen->name }}">
-        @endforeach
-      </datalist>
-      @error('nama_dosen') <div class="invalid-feedback">{{ $message }}</div> @enderror
-    </div>
-  </div>
-</div>
-
-<div class="d-flex gap-2">
-  <button type="submit" class="btn btn-primary">{{ $submitText ?? 'Simpan' }}</button>
-  <a href="{{ route('admins.matakuliah.index') }}" class="btn btn-secondary">Batal</a>
-</div>
+</form>

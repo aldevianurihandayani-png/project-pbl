@@ -15,11 +15,6 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-
-                        <th>ID</th>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Tanggal Registrasi</th>
                         <th>NIM</th>
                         <th>Nama</th>
                         <th>Email</th>
@@ -31,11 +26,6 @@
                 <tbody>
                     @forelse ($mahasiswas as $mahasiswa)
                         <tr>
-
-                            <td>{{ $mahasiswa->id }}</td>
-                            <td>{{ $mahasiswa->name }}</td>
-                            <td>{{ $mahasiswa->email }}</td>
-                            <td>{{ $mahasiswa->created_at->format('d M Y') }}</td>
                             <td>{{ $mahasiswa->nim }}</td>
                             <td>{{ $mahasiswa->nama }}</td>
                             <td>{{ $mahasiswa->user->email }}</td>
@@ -52,10 +42,7 @@
                         </tr>
                     @empty
                         <tr>
-
-                            <td colspan="5" class="text-center">Tidak ada data mahasiswa.</td>
-                            
-
+                            <td colspan="6" class="text-center">Tidak ada data mahasiswa.</td>
                         </tr>
                     @endforelse
                 </tbody>
