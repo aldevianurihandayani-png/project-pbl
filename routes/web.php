@@ -102,6 +102,7 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->group(function () {
     Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
     Route::get('/matakuliah', [MatakuliahController::class, 'index'])->name('matakuliah');
     Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
+    });
 
     // ==============================
     // PROFIL DOSEN PENGUJI
@@ -164,7 +165,7 @@ Route::prefix('admins')->name('admins.')->middleware(['auth', 'role:admin'])->gr
 /*
 |--------------------------------------------------------------------------
 | Mahasiswa
-=======
+
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard');
@@ -211,7 +212,6 @@ Route::prefix('admins')->name('admins.')->middleware(['auth', 'role:admin'])->gr
 /*
 |--------------------------------------------------------------------------
 | Mahasiswa (role: mahasiswa)
->>>>>>> 15e387c5b93b47b4b15897497bf45cfb996723b0
 |--------------------------------------------------------------------------
 */
 Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa'])->group(function () {
@@ -338,8 +338,8 @@ Route::prefix('dosenpenguji')->name('dosenpenguji.')->middleware(['auth', 'role:
 });
 
 /*
-|--------------------------------------------------------------------------
-| Logbooks (global) — untuk resource umum (dipakai mahasiswa controller)
-|--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+ Logbooks (global) — untuk resource umum (dipakai mahasiswa controller)
+--------------------------------------------------------------------------
 */
 Route::resource('logbooks', LogbookController::class);
