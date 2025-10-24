@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\VerifyEmailCustom;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail 
+
 {
     use HasFactory, Notifiable;
 
-    // Jika tabel users tidak punya created_at & updated_at
     public $timestamps = false;
 
     /**
@@ -23,6 +25,7 @@ class User extends Authenticatable
         'password',
         'role',
         'nim',
+        'nim',                 
         'nidn',
         'prodi',
         'profile_photo_path',
@@ -31,34 +34,33 @@ class User extends Authenticatable
         'avatar_url',
     ];
 
-    /**
-     * Kolom yang disembunyikan saat diserialisasi
-     */
+    
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Casting atribut
-     */
+   
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed', // otomatis bcrypt (Laravel 10+)
     ];
+
 
     /**
      * Atribut tambahan saat model di-serialize
      */
     protected $appends = ['avatar_url_computed'];
 
-    /**
-     * Relasi ke Mahasiswa (1:1 via kolom nim)
-     */
+ 
+    protected $appends = ['avatar_url'];
+
+    
     public function mahasiswa()
     {
         return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
     }
+
 
     /**
      * Accessor/Mutator untuk memetakan atribut 'name' ke kolom DB 'nama'.
@@ -66,6 +68,9 @@ class User extends Authenticatable
      * - set $user->name = '...' akan menulis ke kolom 'nama'
      */
     public function getNameAttribute()
+
+   
+    public function getAvatarUrlAttribute()
     {
         return $this->attributes['nama'] ?? null;
     }

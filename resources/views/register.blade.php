@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Register - SIMAP Politala</title>
   <style>
     :root { --navy:#001744; --navy-2:#001133; --bg:#f4f7fb; }
@@ -50,7 +49,13 @@
       <img src="{{ asset('assets/PBL.png') }}" alt="Logo PBL" class="logo">
       <h2>Sistem Informasi Manajemen PBL</h2>
 
-      {{-- Flash success --}}
+      {{-- Flash message (verifikasi / sukses) --}}
+      @if(session('message'))
+        <div class="alert alert-success">{{ session('message') }}</div>
+      @endif
+      @if(session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+      @endif
       @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
       @endif
@@ -66,27 +71,32 @@
         </div>
       @endif
 
-      <form action="{{ route('register.post') }}" method="POST" novalidate>
+      {{-- Form registrasi --}}
+      <form action="{{ url('/register') }}" method="POST" novalidate>
         @csrf
 
         <div class="row">
           <label for="name">Nama Lengkap</label>
           <input id="name" type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required>
+          @error('name') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
           <label for="nim">NIM / NIP (opsional)</label>
           <input id="nim" type="text" name="nim" placeholder="NIM / NIP" value="{{ old('nim') }}">
+          @error('nim') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
           <label for="prodi">Program Studi (opsional)</label>
           <input id="prodi" type="text" name="prodi" placeholder="Program Studi" value="{{ old('prodi') }}">
+          @error('prodi') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
           <label for="email">Email</label>
           <input id="email" type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
+          @error('email') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
@@ -99,12 +109,15 @@
             <option value="koordinator"      {{ old('role')=='koordinator'?'selected':'' }}>Koordinator PBL</option>
             <option value="jaminan_mutu"     {{ old('role')=='jaminan_mutu'?'selected':'' }}>Jaminan Mutu</option>
             <option value="admins"            {{ old('role')=='admins'?'selected':'' }}>Admin</option>
+
           </select>
+          @error('role') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
           <label for="password">Password</label>
           <input id="password" type="password" name="password" placeholder="Password" required>
+          @error('password') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">

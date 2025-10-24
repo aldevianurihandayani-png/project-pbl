@@ -13,16 +13,40 @@
 
   <div class="menu">
     <div class="nav-title">Menu</div>
-    <a href="{{ url('/mahasiswa/dashboard') }}" class="{{ request()->is('mahasiswa/dashboard') ? 'active':'' }}">
-      <i class="fa-solid fa-house"></i>Dashboard
+
+    {{-- Dashboard --}}
+    <a href="{{ route('mahasiswa.dashboard') }}" 
+       class="{{ request()->is('mahasiswa/dashboard') ? 'active' : '' }}">
+      <i class="fa-solid fa-house"></i> Dashboard
     </a>
-    <a href="{{ url('/dosenpenguji.kelompok') }}"><i class="fa-solid fa-users"></i>Kelompok</a>
-    <a href="{{ url('/mahasiswa/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
-    <a href="{{ route('logbooks.index') }}"><i class="fa-regular fa-clipboard"></i>Logbook</a>
-    <a href="{{ url('/mahasiswa/laporan-penilaian') }}"><i class="fa-solid fa-file-lines"></i>Laporan Penilaian</a>
+
+    {{-- Kelompok (dosen penguji) --}}
+    <a href="{{ route('dosenpenguji.kelompok') }}">
+      <i class="fa-solid fa-users"></i> Kelompok
+    </a>
+
+    {{-- Milestone --}}
+    <a href="{{ route('mahasiswa.milestone.index') }}" 
+       class="{{ request()->is('mahasiswa/milestone*') ? 'active' : '' }}">
+      <i class="fa-solid fa-flag-checkered"></i> Milestone
+    </a>
+
+    {{-- Logbook --}}
+    <a href="{{ route('logbooks.index') }}">
+      <i class="fa-regular fa-clipboard"></i> Logbook
+    </a>
+
+    {{-- Laporan Penilaian --}}
+    <a href="{{ route('mahasiswa.laporan-penilaian') }}">
+      <i class="fa-solid fa-file-lines"></i> Laporan Penilaian
+    </a>
 
     <div class="nav-title">Akun</div>
-    <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+
+    {{-- Profil --}}
+    <a href="{{ url('/profile') }}">
+      <i class="fa-solid fa-id-badge"></i> Profil
+    </a>
   </div>
 
   <div class="logout">
