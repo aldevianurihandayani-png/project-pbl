@@ -4,19 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // contoh kolom — sesuaikan dengan kebutuhanmu
+            // tambahkan jika belum ada
             if (!Schema::hasColumn('users', 'nidn')) {
-                $table->string('nidn')->nullable()->after('password');
+                $table->string('nidn')->nullable()->after('email');
             }
             if (!Schema::hasColumn('users', 'prodi')) {
                 $table->string('prodi')->nullable()->after('nidn');
             }
-            if (!Schema::hasColumn('users', 'avatar_url')) {
-                $table->string('avatar_url')->nullable()->after('prodi');
+            if (!Schema::hasColumn('users', 'profile_photo_path')) {
+                $table->string('profile_photo_path')->nullable()->after('prodi'); // path foto
+            }
+            if (!Schema::hasColumn('users', 'email_verified_at')) {
+                $table->timestamp('email_verified_at')->nullable()->after('email');
             }
         });
     }
@@ -24,32 +28,17 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // drop kolom balik
-            if (Schema::hasColumn('users', 'avatar_url')) $table->dropColumn('avatar_url');
-            if (Schema::hasColumn('users', 'prodi')) $table->dropColumn('prodi');
-            if (Schema::hasColumn('users', 'nidn')) $table->dropColumn('nidn');
-
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('nidn')->nullable()->after('email');
-            $table->string('prodi')->nullable()->after('nidn');
-            $table->string('profile_photo_path')->nullable()->after('prodi'); // simpan path foto
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['nidn', 'prodi', 'profile_photo_path']);
+            // drop hanya kalau ada
+            if (Schema::hasColumn('users', 'profile_photo_path')) {
+                $table->dropColumn('profile_photo_path');
+            }
+            if (Schema::hasColumn('users', 'prodi')) {
+                $table->dropColumn('prodi');
+            }
+            if (Schema::hasColumn('users', 'nidn')) {
+                $table->dropColumn('nidn');
+            }
+           
         });
     }
 };
