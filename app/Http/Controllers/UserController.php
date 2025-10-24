@@ -38,7 +38,7 @@ class UserController extends Authenticatable
             'name'     => ['required','string','max:255'],
             'email'    => ['required','email','unique:users,email'],
             'role'     => ['required', Rule::in([
-                'dosen_pembimbing','admin','mahasiswa','jaminan_mutu','koor_pbl','dosen_penguji',
+                'dosen_pembimbing','admins','mahasiswa','jaminan_mutu','koor_pbl','dosen_penguji',
             ])],
             'password' => ['required','min:6','confirmed'],
         ]);
@@ -103,7 +103,7 @@ class UserController extends Controller
             'name'     => $data['name'],
             'email'    => $data['email'],
             'password' => Hash::make($data['password']),
-            'role'     => $data['role'] ?? 'mahasiswa',
+            'role'     => $data['role'],
         ]);
 
         // Auto login
