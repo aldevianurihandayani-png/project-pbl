@@ -225,7 +225,7 @@
         </div>
 
         <div class="userbox">
-          @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'NU',0,2)); @endphp
+          @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'AL',0,2)); @endphp
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
             <span class="ava">{{ $initial }}</span>
             <span>{{ $u->name ?? 'Aldevianuri Handayani' }}</span>
@@ -237,7 +237,7 @@
               <div class="bigava">{{ $initial }}</div>
               <div style="min-width:0">
                 <div style="font-weight:800;color:#0e257a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                  {{ $u->name ?? 'Nama User' }}
+                  {{ $u->name ?? 'Aldevianuri Handayani' }}
                 </div>
                 <div style="font-size:12px;color:#6c7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                   {{ $u->email ?? 'email@example.com' }}

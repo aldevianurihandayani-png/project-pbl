@@ -1,6 +1,5 @@
 <?php
 
-
 // app/Http/Controllers/DosenPenguji/KelompokController.php
 
 namespace App\Http\Controllers\DosenPenguji;
@@ -8,51 +7,47 @@ namespace App\Http\Controllers\DosenPenguji;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Kelompok;
-use Illuminate\Support\Facades\DB;
-
+use App\Models\ProyekPbl;
+use App\Models\Mahasiswa;
+use Illuminate\Support\Facades\Auth;
 
 class KelompokController extends Controller
 {
+    /**
+     * Menampilkan data untuk dashboard dosen penguji dengan query yang dioptimalkan.
+     */
+    public function dashboard()
+    {
+        // OPTIMASI: Menggunakan eager loading (with) untuk mengambil relasi proyek, anggota, dan mahasiswa
+        // dalam satu query utama untuk menghindari N+1 problem.
+        $kelompoks = Kelompok::with(['proyekPbl', 'anggota', 'mahasiswa'])
+            ->paginate(10); // OPTIMASI: Menggunakan paginasi untuk data yang besar.
+
+        $totalProyek = ProyekPbl::count();
+        $totalMahasiswa = Mahasiswa::count();
+        $totalKelompok = Kelompok::count();
+
+        return view('dosenpenguji.dashboard', compact('kelompoks', 'totalProyek', 'totalMahasiswa', 'totalKelompok'));
+    }
+
+    /**
+     * Menampilkan daftar kelompok dengan fungsionalitas pencarian yang dioptimalkan.
+     */
     public function index(Request $request)
     {
-
         $search = $request->query('q');
 
-        $kelompok = Kelompok::query()
+        // OPTIMASI: Eager loading untuk relasi 'proyek' dan 'anggota.mahasiswa'
+        // untuk menghindari N+1 problem saat menampilkan data di view.
+        $kelompok = Kelompok::with(['proyekPbl', 'anggota.mahasiswa'])
             ->when($search, function($q) use ($search) {
                 $q->where('nama_kelompok', 'like', "%{$search}%")
-                  ->orWhereHas('proyek', fn($qp) => $qp->where('nama_proyek', 'like', "%{$search}%"));
+                  ->orWhereHas('proyekPbl', fn($qp) => $qp->where('judul', 'like', "%{$search}%"));
             })
             ->orderBy('nama_kelompok')
             ->paginate(10)
             ->withQueryString();
 
         return view('dosenpenguji.kelompok', compact('kelompok'));
-
-        $search = trim((string)$request->get('search'));
-
-        // Ambil kelompok + dosen pembimbing + daftar anggota
-        $q = DB::table('kelompok as k')
-            ->leftJoin('dosens as d', 'd.id', '=', 'k.dosen_id')
-            ->leftJoin('mahasiswas as m', 'm.kelompok_id', '=', 'k.id')
-            ->selectRaw('k.id, k.nama_kelompok,
-                         COALESCE(d.nama, "-") as dosen_pembimbing,
-                         GROUP_CONCAT(m.nama ORDER BY m.nama SEPARATOR ", ") as anggota')
-            ->groupBy('k.id', 'k.nama_kelompok', 'd.nama')
-            ->orderBy('k.id');
-
-        if ($search !== '') {
-            $like = "%{$search}%";
-            // pakai HAVING karena anggota hasil group_concat
-            $q->havingRaw('k.nama_kelompok LIKE ? OR dosen_pembimbing LIKE ? OR anggota LIKE ?', [$like,$like,$like]);
-        }
-
-        $kelompok = $q->paginate(10)->withQueryString();
-
-        // kirim ke blade (pakai layout existing dashboard penguji)
-        return view('penguji.kelompok.index', [
-            'kelompok' => $kelompok,
-            'search'   => $search,
-        ]);
     }
 }

@@ -1,8 +1,19 @@
 {{-- resources/views/dosenpenguji/profile-edit.blade.php --}}
 @extends('dosenpenguji.layout')
 @section('title', 'Edit Profil — Dosen Penguji')
+@section('header', 'Edit Profil Dosen Penguji') {{-- judul besar biar konsisten --}}
 
 @section('content')
+<style>
+  /* Samakan gaya seperti halaman CPMK & Rubrik */
+  .page-header {display:none;} /* sembunyikan header lama agar tidak dobel */
+  .table th, .table td {padding:10px 12px; border-bottom:1px solid #eef1f6;}
+  .table th {color:#0e257a; font-weight:800; background:#f6f8fd;}
+  .form-group label {font-weight:600; color:#0e257a;}
+  .form-control {border:1px solid #d0d7e7; border-radius:8px; padding:8px 10px;}
+  .form-control:focus {border-color:#0e257a; box-shadow:0 0 0 2px rgba(14,37,122,0.15);}
+</style>
+
 <div class="page-header">
   <h1 class="page-title">Edit Profil Dosen Penguji</h1>
 </div>
@@ -37,7 +48,7 @@
             @if ($u->avatar_url)
               <img id="preview" src="{{ $u->avatar_url }}" alt="Foto Profil" style="width:100%;height:100%;object-fit:cover">
             @else
-              <span id="preview-initial" style="font-size:56px;color:#31408a;font-weight:700">{{ strtoupper(substr($u->name ?? 'DP', 0, 2)) }}</span>
+              <span id="preview-initial" style="font-size:56px;color:#31408a;font-weight:700">{{ strtoupper(substr($u->name ?? 'AL', 0, 2)) }}</span>
               <img id="preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
             @endif
           </div>

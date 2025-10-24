@@ -44,8 +44,8 @@
     .menu i{ width:18px; text-align:center }
 
     .logout{ margin-top:auto }
-    .logout button { color:#ffb2b2; background: transparent; border: 0; padding: 0; }
-    .logout button:hover{ background:#5c1020 }
+    .logout a{ color:#ffb2b2 }
+    .logout a:hover{ background:#5c1020 }
 
     /* ========== MAIN ========== */
     main{ display:flex; flex-direction:column; min-width:0 }
@@ -94,8 +94,6 @@
       <a href="{{ route('admins.matakuliah.index') }}" class="{{ request()->routeIs('admins.matakuliah.*') ? 'active' : '' }}"><i class="fa-solid fa-book"></i>Mata Kuliah</a>
       <a href="{{ route('admins.mahasiswa.index') }}" class="{{ request()->routeIs('admins.mahasiswa.*') ? 'active' : '' }}"><i class="fa-solid fa-user-graduate"></i>Mahasiswa</a>
       <a href="{{ route('admins.kelompok.index') }}" class="{{ request()->routeIs('admins.kelompok.*') ? 'active' : '' }}"><i class="fa-solid fa-users"></i>Kelompok</a>
-      <a href="{{ route('admins.feedback.index') }}" class="{{ request()->routeIs('admins.feedback.*') ? 'active' : '' }}"><i class="fa-solid fa-comment"></i>Feedback</a>
-      <a href="{{ route('admins.notifikasi.index') }}" class="{{ request()->routeIs('admins.notifikasi.*') ? 'active' : '' }}"><i class="fa-solid fa-bell"></i>Notifikasi</a>
       
       <div class="nav-title">Akun</div>
       <a href="#"><i class="fa-solid fa-id-badge"></i>Profil</a>
@@ -119,9 +117,7 @@
       <div class="userbox">
         <a href="{{ route('admins.notifikasi.index') }}" class="notif">
           <i class="fa-regular fa-bell"></i>
-          @if(isset($unreadCount) && $unreadCount > 0)
-            <span class="badge">{{ $unreadCount }}</span>
-          @endif
+          <span class="badge">3</span>
         </a>
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
@@ -132,4 +128,8 @@
       </div>
     </header>
 
-    <div class="page">
+        <div class="page">
+
+    
+
+      </body>

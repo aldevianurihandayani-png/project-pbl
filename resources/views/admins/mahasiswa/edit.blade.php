@@ -9,10 +9,8 @@
             @csrf
             @method('PUT')
             <div class="form-group">
-<<<<<<< HEAD
                 <label for="name">Nama Lengkap</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $mahasiswa->name) }}" required>
-=======
                 <label for="nim">NIM</label>
                 <input type="text" class="form-control @error('nim') is-invalid @enderror" id="nim" name="nim" value="{{ old('nim', $mahasiswa->nim) }}" required>
                 @error('nim')
@@ -22,24 +20,18 @@
             <div class="form-group">
                 <label for="name">Nama Lengkap</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $mahasiswa->nama) }}" required>
->>>>>>> bbcfba2 (commit noorma)
                 @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
             <div class="form-group">
                 <label for="email">Alamat Email</label>
-<<<<<<< HEAD
                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $mahasiswa->email) }}" required>
-=======
                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $mahasiswa->user->email) }}" required>
->>>>>>> bbcfba2 (commit noorma)
                 @error('email')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-<<<<<<< HEAD
-=======
             <div class="form-group">
                 <label for="angkatan">Angkatan</label>
                 <input type="number" class="form-control @error('angkatan') is-invalid @enderror" id="angkatan" name="angkatan" value="{{ old('angkatan', $mahasiswa->angkatan) }}" required min="1900" max="{{ date('Y') + 1 }}">
@@ -54,7 +46,6 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
->>>>>>> bbcfba2 (commit noorma)
             <hr>
             <p class="text-muted">Isi bagian di bawah ini hanya jika Anda ingin mengubah password.</p>
             <div class="form-group">

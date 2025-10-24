@@ -175,15 +175,26 @@
       <a href="{{ url('/dosenpenguji/kelompok')}}"><i class="fa-solid fa-users"></i>Kelompok</a>
       <a href="{{ url('/dosenpenguji/penilaian') }}"><i class="fa-solid fa-clipboard-check"></i>Penilaian</a>
       <a href="{{ url('/dosenpenguji/rubrik') }}"><i class="fa-solid fa-table-list"></i>Rubrik</a>
-      <a href="{{ url('/dosenpenguji/cpmk')}}"><i class="fa-solid fa-flag-checkered"></i>CPMK</a>
+      <a href="{{ url('/dosenpenguji/cpmk')}}"><i class="fa-solid fa-bullseye"></i>CPMK</a>
 
       <div class="nav-title">Akun</div>
       <a href="{{ url('/dosenpenguji/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
 
-    <div class="logout">
-      <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-    </div>
+    {{-- Tombol Logout (pakai POST biar sesuai route Laravel) --}}
+<div class="logout">
+  <form action="{{ route('logout') }}" method="POST" style="margin:0">
+    @csrf
+    <button type="submit" style="
+      width:100%;background:none;border:0;cursor:pointer;
+      color:#ffb2b2; display:flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:12px; text-align:left;
+    ">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </form>
+</div>
+
   </aside>
 
   <!-- ========== MAIN ========== -->
@@ -236,7 +247,7 @@
         <div class="userbox">
           @php
             // Tampilkan nama khusus sesuai permintaan
-            $displayName = 'aldevianuri handayani';
+            $displayName = 'Aldevianuri handayani';
             $u = auth()->user();
             $initial = strtoupper(substr($displayName,0,2));
           @endphp

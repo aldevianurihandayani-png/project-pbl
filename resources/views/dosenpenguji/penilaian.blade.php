@@ -67,7 +67,7 @@
     .table-wrap{ overflow:auto; }
     table{ width:100%; border-collapse:collapse; min-width:1000px }
     th,td{ padding:10px 12px; font-size:14px; border-bottom:1px solid #eef1f6; vertical-align:middle; }
-    thead th{ background:#eef3fa; color:var(--navy); text-align:left; font-size:12px; text-transform:uppercase; }
+    thead th{ background:#eef3fa; color:#navy; text-align:left; font-size:12px; text-transform:uppercase; }
     tbody tr:hover td{ background:#f9fbff }
     .grade-cell{ position:relative; }
     .grade-input{ width:60px; padding:6px 8px; border:1px solid #d8dfeb; border-radius:6px; text-align:center; font-size:14px; transition: border .2s; }
@@ -223,10 +223,10 @@
 
         {{-- User Menu --}}
         <div class="userbox">
-          @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'NU',0,2)); @endphp
+          @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'AL',0,2)); @endphp
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
             <span class="ava">{{ $initial }}</span>
-            <span>{{ $u->name ?? 'Nama User' }}</span>
+            <span>{{ $u->name ?? 'Aldevianuri Handayani' }}</span>
             <i class="fa-solid fa-chevron-down"></i>
           </button>
 
@@ -235,7 +235,7 @@
               <div class="bigava">{{ $initial }}</div>
               <div style="min-width:0">
                 <div style="font-weight:800;color:#0e257a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                  {{ $u->name ?? 'Nama User' }}
+                  {{ $u->name ?? 'Aldevianuri Handayani' }}
                 </div>
                 <div style="font-size:12px;color:#6c7a8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                   {{ $u->email ?? 'email@example.com' }}
@@ -282,6 +282,12 @@
         <div class="actions">
           <button type="button" class="btn btn-secondary" onclick="document.getElementById('import-form').click()"><i class="fa-solid fa-upload"></i> Import</button>
           <a href="{{ route('dosenpenguji.penilaian.export', request()->query()) }}" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export</a>
+
+          {{-- >>> Tambah Nilai (baru ditambahkan) --}}
+          <a href="{{ route('dosenpenguji.penilaian.item.create', request()->query()) }}" class="btn btn-warning">
+            <i class="fa-solid fa-plus"></i> Tambah Nilai
+          </a>
+
           <button type="submit" form="grade-form" class="btn btn-success"><i class="fa-solid fa-save"></i> Simpan Semua</button>
         </div>
         <form id="import-form" action="{{ route('dosenpenguji.penilaian.import') }}" method="POST" enctype="multipart/form-data" style="display:none;">
