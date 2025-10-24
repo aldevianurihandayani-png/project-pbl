@@ -6,21 +6,29 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Dashboard — Mahasiswa')</title>
 
+  {{-- 1) Bootstrap CSS dulu --}}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  {{-- 2) Icons/fonts --}}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ asset('css/mahasiswa.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  {{-- 3) CSS kamu (override Bootstrap) --}}
+  <link rel="stylesheet" href="{{ asset('css/mahasiswa.css') }}">
+
+  {{-- Tambahan style dari partial/halaman --}}
   @stack('sidebar-styles')
   @stack('styles')
 </head>
 <body>
-  {{-- SIDEBAR (partial) --}}
+  {{-- SIDEBAR --}}
   @include('mahasiswa.partials.sidebar')
 
   {{-- MAIN --}}
   <main class="app-content">
     <header class="topbar">
       <button class="topbar-btn" id="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
-      <div class="welcome"><h1>@yield('page_title', 'Dashboard Mahasiswa')</h1></div>
+      <div class="welcome"><h1 class="mb-0">@yield('page_title', 'Dashboard Mahasiswa')</h1></div>
       <div class="userbox">
         <div class="notif">
           <i class="fa-regular fa-bell"></i><span class="badge">3</span>
@@ -39,7 +47,12 @@
     </div>
   </main>
 
+  {{-- Bootstrap JS (wajib kalau pakai komponen interaktif) --}}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {{-- JS kamu --}}
   <script src="{{ asset('js/mahasiswa.js') }}"></script>
+
   @stack('scripts')
 </body>
 </html>

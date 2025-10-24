@@ -6,15 +6,20 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Dashboard — Mahasiswa')</title>
 
+  {{-- 1) Frameworks terlebih dulu --}}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  {{-- 2) CSS aplikasi (bisa override Bootstrap) --}}
   <link rel="stylesheet" href="{{ asset('css/mahasiswa.css') }}">
-<link rel="stylesheet" href="{{ asset('css/logbook.css') }}">
-  {{-- Jika sidebar/halaman butuh CSS tambahan, dorong lewat @push --}}
+  <link rel="stylesheet" href="{{ asset('css/logbook.css') }}">
+
+  {{-- 3) CSS tambahan per-halaman / sidebar (paling akhir agar bisa override) --}}
   @stack('sidebar-styles')
   @stack('styles')
 </head>
 <body>
-  {{-- SIDEBAR (partial) --}}
+  {{-- SIDEBAR --}}
   @include('mahasiswa.partials.sidebar')
 
   {{-- MAIN --}}
@@ -40,6 +45,8 @@
     </div>
   </main>
 
+  {{-- JS di akhir --}}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ asset('js/mahasiswa.js') }}"></script>
   @stack('scripts')
 </body>

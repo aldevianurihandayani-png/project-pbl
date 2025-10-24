@@ -22,7 +22,6 @@ class ProyekPbl extends Model
         'id_kelompok',
     ];
 
-    //Relasi 
     public function mataKuliah()
     {
         return $this->belongsTo(MataKuliah::class, 'kode_mk', 'kode_mk');
@@ -35,6 +34,7 @@ class ProyekPbl extends Model
 
     public function kelompok()
     {
-        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id_kelompok');
+        
+        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 }

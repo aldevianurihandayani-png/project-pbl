@@ -6,8 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Milestone extends Model
 {
-    protected $table = 'milestone';   // penting jika tabel bukan 'milestones'
-    protected $fillable = ['minggu','kegiatan','deadline','status','approved','approved_at'];
-    public $timestamps = true;        // atau false jika tabelmu tidak pakai created_at/updated_at
-}
+    protected $table = 'milestone';
+    protected $primaryKey = 'id_milestone';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
+    protected $fillable = [
+        'deskripsi',
+        'tanggal',
+        'status',
+        'id_proyek_pbl',
+    ];
+
+    protected $casts = [
+        'tanggal' => 'date',
+        'status'  => 'boolean',
+    ];
+
+    public function proyek()
+    {
+        return $this->belongsTo(ProyekPbl::class, 'id_proyek_pbl', 'id_proyek_pbl');
+    }
+}

@@ -27,6 +27,8 @@ use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
 use App\Http\Controllers\DosenPenguji\CPMKController;
+use App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -71,13 +73,14 @@ Route::prefix('admins')->name('admins.')->middleware(['auth', 'role:admin'])->gr
 | Mahasiswa
 |--------------------------------------------------------------------------
 */
-Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa'])->group(function () {
+Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth','role:mahasiswa'])->group(function () {
     Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
     Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
     Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
-    Route::view('/milestone', 'mahasiswa.milestone')->name('milestone');
-    Route::view('/penilaian', 'mahasiswa.penilaian')->name('penilaian');
+    Route::resource('milestone', MahasiswaMilestoneController::class)->except(['show']);
+    Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
 });
+
 
 /*
 |--------------------------------------------------------------------------
