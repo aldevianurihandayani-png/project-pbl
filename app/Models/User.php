@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\VerifyEmailCustom;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail 
+
 {
     use HasFactory, Notifiable;
 
-    // Jika tabel users tidak punya created_at & updated_at
     public $timestamps = false;
 
     /**
@@ -21,7 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'nim',                 // tambahkan jika dipakai pada relasi
+        'nim',                 
         'nidn',
         'prodi',
         'profile_photo_path',
@@ -29,38 +31,28 @@ class User extends Authenticatable
         'email_verified_at',
     ];
 
-    /**
-     * Kolom yang disembunyikan saat diserialisasi
-     */
+    
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Casting atribut
-     */
+   
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed', // otomatis bcrypt
     ];
 
-    /**
-     * Atribut tambahan saat model di-serialize
-     */
+ 
     protected $appends = ['avatar_url'];
 
-    /**
-     * Relasi ke Mahasiswa (1:1 via kolom nim)
-     */
+    
     public function mahasiswa()
     {
         return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
     }
 
-    /**
-     * Accessor: URL foto profil atau null (fallback)
-     */
+   
     public function getAvatarUrlAttribute()
     {
         if ($this->profile_photo_path) {

@@ -15,12 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('tanggal');
-            $table->string('minggu', 20)->nullable();      // e.g. "Minggu 5"
+            $table->string('minggu', 20)->nullable();     
             $table->string('aktivitas', 150);
-            $table->text('keterangan')->nullable();        // deskripsi/notes
-            $table->string('foto')->nullable();            // path storage/public
-            $table->enum('status', ['menunggu','disetujui','ditolak'])->default('menunggu');
-            $table->text('komentar_dosen')->nullable();
+            $table->text('keterangan')->nullable();        
+            $table->string('foto')->nullable();            
             $table->timestamps();
         });
     }

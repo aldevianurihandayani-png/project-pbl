@@ -6,10 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\RubrikPenilaian;
-use App\Models\Rubrik;
+use App\Models\Rubrik;                  // master rubrik
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema; // <-- tambah
+use Illuminate\Support\Facades\Schema;
 
 class PenilaianController extends Controller
 {
@@ -19,10 +18,10 @@ class PenilaianController extends Controller
     public function index(Request $request)
     {
         // Dropdown MK selalu terisi
-        $matakuliah = MataKuliah::orderBy('nama_mk')->get();
+        $matakuliah = MataKuliah::orderBy('nama_mk')->get(['kode_mk','nama_mk']);
 
-        $kodeMk = $request->query('matakuliah'); // ex: IF184201
-        $kelas  = $request->query('kelas');      // ex: A/B/C/...
+        $kodeMk = $request->query('matakuliah');   // ex: "INS"
+        $kelas  = $request->query('kelas');        // ex: "A"
 
         // default untuk view
         $rubrics    = collect();
@@ -30,7 +29,7 @@ class PenilaianController extends Controller
         $totalBobot = 0;
 
         if (!empty($kodeMk)) {
-            // ===== Ambil rubrik utk MK terpilih (deteksi nama kolom secara aman)
+            // ===== 1) Ambil rubrik utk MK terpilih (deteksi nama kolom secara aman)
             $rubrikTable = (new Rubrik)->getTable();
             $rubricsQ = Rubrik::query();
 
@@ -39,30 +38,101 @@ class PenilaianController extends Controller
             } elseif (Schema::hasColumn($rubrikTable, 'mata_kuliah_kode')) {
                 $rubricsQ->where('mata_kuliah_kode', $kodeMk);
             }
-            $rubrics = $rubricsQ->orderBy('id')->get();
+
+            $rubrics = $rubricsQ->orderBy('urutan')->orderBy('id')
+                ->get(['id','nama_rubrik','bobot','urutan']);
             $totalBobot = (int) $rubrics->sum('bobot');
 
-            // ===== Ambil mahasiswa (opsional filter kelas)
-            $mhsQ = Mahasiswa::select('nim','nama','kelas')
-                ->when($kelas, fn($q) => $q->where('kelas', $kelas))
-                ->orderBy('nama');
+            // ===== 2) Ambil daftar mahasiswa yang terdaftar di MK tsb
+            // Prefer via tabel kelompok -> kelompok_anggota -> mahasiswa
+            if (Schema::hasTable('kelompok') && Schema::hasTable('kelompok_anggota')) {
+                $mhsQ = DB::table('kelompok as k')
+                    ->join('kelompok_anggota as ka', 'ka.kelompok_id', '=', 'k.id')
+                    ->join('mahasiswa as m', 'm.nim', '=', 'ka.nim')
+                    ->where('k.kode_mk', $kodeMk);
 
-            // gunakan pagination agar kompatibel dengan blade kamu
-            $mahasiswa = $mhsQ->paginate(15)->withQueryString();
+                // filter kelas kalau tersedia kolomnya
+                if (!empty($kelas) && Schema::hasColumn('mahasiswa', 'kelas')) {
+                    $mhsQ->where('m.kelas', $kelas);
+                }
 
-            // ===== Sisipkan nilai yg sudah ada ke setiap mahasiswa
-            $nimList   = $mahasiswa->pluck('nim')->all();
-            $rubricIds = $rubrics->pluck('id')->all();
+                $mhsQ->distinct()->orderBy('m.nama');
 
-            $nilaiMap = RubrikPenilaian::select('mahasiswa_nim as nim','rubrik_id','nilai')
-                ->whereIn('mahasiswa_nim', $nimList ?: ['-'])
-                ->whereIn('rubrik_id', $rubricIds ?: ['-'])
-                ->get()
-                ->groupBy('nim');
+                // gunakan pagination agar kompatibel dengan blade kamu
+                $mahasiswa = $mhsQ->paginate(15, ['m.nim','m.nama','m.kelas'])->withQueryString();
+            } else {
+                // Fallback awal: kalau struktur kelompok belum ada, ambil dari tabel mahasiswa
+                $mhsQ = Mahasiswa::select('nim','nama','kelas')
+                    ->when($kelas, fn($q) => $q->where('kelas', $kelas))
+                    ->orderBy('nama');
 
-            // tambahkan properti koleksi "penilaian" agar blade bisa firstWhere('rubric_id', ...)
+                $mahasiswa = $mhsQ->paginate(15)->withQueryString();
+            }
+
+            // ===== 2b) Fallback agar tidak kosong:
+            // jika query di atas tetap menghasilkan 0 baris,
+            // coba tampilkan mahasiswa yang minimal sudah punya nilai utk rubrik MK ini,
+            // bila tetap kosong juga -> tampilkan semua mahasiswa (opsional filter kelas).
+            $isEmpty = $mahasiswa instanceof \Illuminate\Contracts\Pagination\Paginator
+                ? ($mahasiswa->total() === 0)
+                : ($mahasiswa->count() === 0);
+
+            if ($isEmpty) {
+                // cari nim yang sudah punya nilai utk rubrik MK terpilih
+                $sourceTable = Schema::hasTable('rubrik_penilaian')
+                    ? 'rubrik_penilaian'
+                    : (Schema::hasTable('penilaian') ? 'penilaian' : null);
+
+                if ($sourceTable && $rubrics->isNotEmpty()) {
+                    $nimSet = DB::table($sourceTable)
+                        ->whereIn('rubrik_id', $rubrics->pluck('id'))
+                        ->distinct()
+                        ->pluck('mahasiswa_nim');
+
+                    if ($nimSet->isNotEmpty()) {
+                        $mahasiswa = Mahasiswa::whereIn('nim', $nimSet)
+                            ->select('nim','nama','kelas')
+                            ->orderBy('nama')
+                            ->paginate(15)
+                            ->withQueryString();
+                    }
+                }
+
+                // jika masih kosong → tampilkan semua mahasiswa (opsional filter kelas)
+                $stillEmpty = $mahasiswa instanceof \Illuminate\Contracts\Pagination\Paginator
+                    ? ($mahasiswa->total() === 0)
+                    : ($mahasiswa->count() === 0);
+
+                if ($stillEmpty) {
+                    $mahasiswa = Mahasiswa::select('nim','nama','kelas')
+                        ->when($kelas, fn($q) => $q->where('kelas', $kelas))
+                        ->orderBy('nama')
+                        ->paginate(15)
+                        ->withQueryString();
+                }
+            }
+
+            // ===== 3) Ambil nilai per (nim × rubrik) dari storage nilai
+            // Gunakan VIEW/TABLE: rubrik_penilaian bila ada, kalau tidak ada pakai table penilaian
+            $nilaiMap = collect();
+            if ($rubrics->isNotEmpty() && $mahasiswa->count()) {
+                $nilaiSource = Schema::hasTable('rubrik_penilaian')
+                    ? 'rubrik_penilaian'
+                    : (Schema::hasTable('penilaian') ? 'penilaian' : null);
+
+                if ($nilaiSource) {
+                    $nilaiMap = DB::table($nilaiSource)
+                        ->select(['mahasiswa_nim as nim','rubrik_id','nilai'])
+                        ->whereIn('mahasiswa_nim', $mahasiswa->pluck('nim'))
+                        ->whereIn('rubrik_id', $rubrics->pluck('id'))
+                        ->get()
+                        ->groupBy('nim'); // => [nim] => koleksi baris
+                }
+            }
+
+            // ===== 4) Sisipkan koleksi penilaian ke tiap objek mahasiswa
             $mahasiswa->getCollection()->transform(function ($m) use ($nilaiMap) {
-                $m->penilaian = collect($nilaiMap->get($m->nim, []));
+                $m->penilaian = collect($nilaiMap->get($m->nim, [])); // agar Blade bisa ->firstWhere('rubric_id', …)
                 return $m;
             });
         }
@@ -82,62 +152,58 @@ class PenilaianController extends Controller
     public function bulkSave(Request $request)
     {
         $validated = $request->validate([
-            'bobot' => ['required', 'array'],
-            'bobot.*' => ['required', 'numeric', 'min:0'],
-            'nilai' => ['nullable', 'array'],
-            'nilai.*.*' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'bobot'       => ['required', 'array'],
+            'bobot.*'     => ['required', 'numeric', 'min:0'],
+            'nilai'       => ['nullable', 'array'],
+            'nilai.*.*'   => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
+
         // Validasi total bobot
         if (array_sum($validated['bobot']) != 100) {
             return back()->withErrors(['bobot' => 'Total bobot harus 100.'])->withInput();
         }
+
         DB::beginTransaction();
         try {
-            // 1. Update Bobot Rubrik
+            // 1) Update bobot rubrik
             foreach ($validated['bobot'] as $rubricId => $bobot) {
-                Rubrik::find($rubricId)->update(['bobot' => $bobot]);
+                Rubrik::find($rubricId)?->update(['bobot' => $bobot]);
             }
-            // 2. Update atau Buat Nilai Mahasiswa
+
+            // 2) Update / Insert nilai mahasiswa
             if (isset($validated['nilai'])) {
                 foreach ($validated['nilai'] as $nim => $grades) {
                     foreach ($grades as $rubricId => $nilai) {
-                        if ($nilai !== null) {
-                            RubrikPenilaian::updateOrInsert(
+                        if ($nilai !== null && $nilai !== '') {
+                            DB::table('penilaian')->updateOrInsert(
                                 ['mahasiswa_nim' => $nim, 'rubrik_id' => $rubricId],
-                                ['nilai' => $nilai]
+                                ['nilai' => $nilai, 'updated_at' => now(), 'created_at' => now()]
                             );
                         }
                     }
                 }
             }
+
             DB::commit();
             return redirect()->back()->with('success', 'Nilai berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan nilai: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan nilai: '.$e->getMessage());
         }
     }
 
-    /**
-     * Mengimpor nilai dari file.
-     */
     public function import(Request $request)
     {
-        // Logika untuk import akan ditambahkan di sini.
         return redirect()->back()->with('info', 'Fitur ini sedang dalam pengembangan.');
     }
 
-    /**
-     * Mengekspor nilai ke file.
-     */
     public function export(Request $request)
     {
-        // Logika untuk export akan ditambahkan di sini.
         return redirect()->back()->with('info', 'Fitur ini sedang dalam pengembangan.');
     }
 
     /**
-     * Menghapus satu data nilai.
+     * Menghapus satu data nilai (via AJAX).
      */
     public function deleteGrade(Request $request, $nim, $rubric_id)
     {

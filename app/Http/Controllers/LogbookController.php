@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Mail\LogbookSubmittedMail;
 
 class LogbookController extends Controller
 {
-    /** Opsi enum untuk kolom minggu: "Minggu 1" .. "Minggu 18" */
     private array $mingguEnum;
 
     public function __construct()
