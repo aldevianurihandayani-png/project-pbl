@@ -41,21 +41,17 @@ use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\DosenPenguji\CPMKController;
 use App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController;
 
-=======
-// Alias supaya simbol CPMKController mengarah ke kelas CpmkController milikmu
-use App\Http\Controllers\DosenPenguji\CpmkController as CPMKController;
-// >>> ADD: controller CRUD item penilaian
 use App\Http\Controllers\DosenPenguji\PenilaianItemController;
 
 // MODEL untuk quick-edit CPMK
 use App\Models\Cpmk;
 // >>> ADD: MODEL untuk quick-edit Rubrik
 use App\Models\Rubrik;
->>>>>>> 0d1938a5c22f044d4c3e33ed500be1c0e2634823
+
 
 /*
 |--------------------------------------------------------------------------
