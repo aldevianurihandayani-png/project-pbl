@@ -18,7 +18,7 @@ class Mahasiswa extends Model
     public function logbook(){ return $this->hasMany(Logbook::class); }
     public function laporan_penilaian(){ return $this->hasMany(laporan_penilaian::class); }
 
-    protected $table = 'mahasiswa';
+    protected $table = 'mahasiswas';
     protected $primaryKey = 'nim';
     protected $keyType = 'string';
     public $incrementing = false;
