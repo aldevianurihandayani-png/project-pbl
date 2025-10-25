@@ -50,10 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Atribut tambahan saat model di-serialize
      */
-    protected $appends = ['avatar_url_computed'];
-
- 
-    protected $appends = ['avatar_url'];
+    protected $appends = ['avatar_url_computed','avatar_url'];
 
     
     public function mahasiswa()
@@ -68,8 +65,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * - set $user->name = '...' akan menulis ke kolom 'nama'
      */
     public function getNameAttribute()
+    {
+        return $this->attributes['nama'] ?? ($this->attributes['name'] ?? null);
+    }
 
-   
+
     public function getAvatarUrlAttribute()
     {
         return $this->attributes['nama'] ?? null;
