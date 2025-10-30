@@ -6,14 +6,13 @@
 <div class="container my-5">
     <h1 class="mb-4">Logbook</h1>
 
-    {{-- Alert sukses --}}
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Tombol tambah logbook dipisah dari tabel --}}
+    
     @if(auth()->check() && (auth()->user()->role == 'mahasiswa' || auth()->user()->role == 'admin'))
     <div class="mb-4">
         <a href="{{ route('logbooks.create') }}" class="btn btn-primary tambah-logbook">
@@ -22,7 +21,7 @@
     </div>
     @endif
 
-    {{-- Tabel logbook --}}
+    
     <div class="table-container">
         <div class="table-responsive">
             <table class="table table-bordered align-middle">

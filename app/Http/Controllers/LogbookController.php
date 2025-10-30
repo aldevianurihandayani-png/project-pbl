@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail;
 use App\Mail\LogbookSubmittedMail;
 
 class LogbookController extends Controller
@@ -67,7 +68,8 @@ class LogbookController extends Controller
             ? $request->file('foto')->store('logbooks', 'public')
             : null;
 
-        Logbook::create([
+        // simpan logbook
+        $logbook = Logbook::create([
             'tanggal'    => $validated['tanggal'],
             'minggu'     => $validated['minggu'],
             'aktivitas'  => $validated['aktivitas'],
@@ -76,7 +78,20 @@ class LogbookController extends Controller
             'user_id'    => Auth::id(),
         ]);
 
-        return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil ditambahkan.');
+        // kirim email konfirmasi ke user
+        try {
+            $user = Auth::user();
+            Mail::to($user->email)->send(new LogbookSubmittedMail($user, $logbook));
+
+
+        } catch (\Throwable $e) {
+            \Log::error('MAIL ERROR: '.$e->getMessage());
+            // Data sudah tersimpan, beri tahu bahwa email gagal
+            return redirect()->route('logbooks.index')
+                ->with('success', 'Logbook berhasil ditambahkan, namun email gagal: '.$e->getMessage());
+        }
+
+        return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil ditambahkan & email terkirim.');
     }
 
     /** GET /logbooks/{logbook} */
