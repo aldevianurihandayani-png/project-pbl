@@ -108,6 +108,8 @@
             <option value="dosen_penguji"    {{ old('role')=='dosen_penguji'?'selected':'' }}>Dosen Penguji</option>
             <option value="koordinator"      {{ old('role')=='koordinator'?'selected':'' }}>Koordinator PBL</option>
             <option value="jaminan_mutu"     {{ old('role')=='jaminan_mutu'?'selected':'' }}>Jaminan Mutu</option>
+            <option value="admins"            {{ old('role')=='admins'?'selected':'' }}>Admin</option>
+
           </select>
           @error('role') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>

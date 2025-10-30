@@ -30,13 +30,13 @@
          class="{{ request()->routeIs('dosen.mahasiswa*') ? 'active' : '' }}">Mahasiswa</a>
 
       <a href="#"
-         class="{{ request()->routeIs('dosen.kelompok*') ? 'active' : '' }}">Kelompok</a>
+         class="{{ request()->routeIs('dosen.kelompok.index') ? 'active' : '' }}">Kelompok</a>
 
       <a href="#"
-         class="{{ request()->routeIs('dosen.milestone*') ? 'active' : '' }}">Milestone</a>
+         class="{{ request()->routeIs('dosen.milestone.index') ? 'active' : '' }}">Milestone</a>
 
-      <a href="{{ route('dosen.logbook') }}"
-         class="{{ request()->routeIs('dosen.logbook') ? 'active' : '' }}">Logbook</a>
+      <a href="{{ route('dosen.logbook.index') }}"
+         class="{{ request()->routeIs('dosen.logbook.index') ? 'active' : '' }}">Logbook</a>
 
       <a href="#"
          class="{{ request()->routeIs('dosen.cpmk*') ? 'active' : '' }}">CPMK</a>

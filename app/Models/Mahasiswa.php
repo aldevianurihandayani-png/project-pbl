@@ -9,10 +9,14 @@ class Mahasiswa extends Model
 {
     use HasFactory;
 
+
+    protected $table = 'mahasiswas';
+
     // ⬇ WAJIB: sesuaikan nama tabelnya
     protected $table = 'mahasiswas';
 
     // PK kamu pakai NIM (string)
+
     protected $primaryKey = 'nim';
     protected $keyType = 'string';
     public $incrementing = false;

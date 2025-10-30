@@ -15,11 +15,21 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
+        $aliases = [
+        'admin'        => 'admins',
+        'dosenpenguji' => 'dosen_penguji',
+        'dosenpembimbing' => 'dosen_pembimbing',
+        'koor_pbl'     => 'koordinator',
+        'jaminanmutu'  => 'jaminan_mutu',
+    ];
+    $role = $request->input('role');
+    $request->merge(['role' => $aliases[$role] ?? $role]);
+    
         $data = $request->validate([
             'email'    => ['required','email'],
             'password' => ['required'],
             'role'     => ['required', Rule::in([
-                'mahasiswa','dosen_pembimbing','dosen_penguji','koordinator','jaminan_mutu','admin'
+                'mahasiswa','dosen_pembimbing','dosen_penguji','koordinator','jaminan_mutu','admins'
             ])],
         ]);
 
@@ -43,7 +53,7 @@ class LoginController extends Controller
         $redirectRoute = 'home'; // Default redirect
 
         switch ($role) {
-            case 'admin':
+            case 'admins':
                 $redirectRoute = 'admins.dashboard';
                 break;
             case 'dosen_pembimbing':
