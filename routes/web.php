@@ -256,3 +256,9 @@ Route::prefix('dosenpenguji')
 |--------------------------------------------------------------------------
 */
 Route::resource('logbooks', LogbookController::class);
+
+use App\Http\Controllers\DriveTestController;
+
+Route::get('/drive-test', [DriveTestController::class, 'form']);
+Route::post('/drive-test', [DriveTestController::class, 'upload'])->name('drive.test.upload');
+
