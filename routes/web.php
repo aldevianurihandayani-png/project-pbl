@@ -11,6 +11,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogbookController; // untuk MAHASISWA (global)
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\TPK\TPKMahasiswaController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -262,3 +263,11 @@ use App\Http\Controllers\DriveTestController;
 Route::get('/drive-test', [DriveTestController::class, 'form']);
 Route::post('/drive-test', [DriveTestController::class, 'upload'])->name('drive.test.upload');
 
+
+// ================= TPK MAHASISWA ==================
+Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
+    Route::get('/',        [TPKMahasiswaController::class, 'index'])->name('index');
+    Route::get('/create',  [TPKMahasiswaController::class, 'create'])->name('create');
+    Route::post('/store',  [TPKMahasiswaController::class, 'store'])->name('store');
+    Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
+});

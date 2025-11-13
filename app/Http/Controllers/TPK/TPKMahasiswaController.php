@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\TPK;
 
-use App\Models\TpkKelompok;
+use App\Http\Controllers\Controller;
 use App\Models\TpkMahasiswa;
 use Illuminate\Http\Request;
 
@@ -15,7 +15,8 @@ class TPKMahasiswaController extends Controller
     {
         $data_tpk = TpkMahasiswa::all();
 
-        return view('tpk.index', compact('data_tpk'));
+        // VIEW-NYA SESUAI FOLDERMU: resources/views/tpk/tpkmahasiswa/index.blade.php
+        return view('tpk.tpkmahasiswa.index', compact('data_tpk'));
     }
 
     /**
@@ -23,7 +24,8 @@ class TPKMahasiswaController extends Controller
      */
     public function create()
     {
-        return view('tpk.create');
+        // resources/views/tpk/tpkmahasiswa/create.blade.php
+        return view('tpk.tpkmahasiswa.create');
     }
 
     /**
@@ -38,10 +40,11 @@ class TPKMahasiswaController extends Controller
             'nilai_dosen'    => 'required|numeric',
         ]);
 
-       TpkMahasiswa::create($validatedData);
+        TpkMahasiswa::create($validatedData);
 
+        // NAMA ROUTE-NYA: tpk.mahasiswa.index
         return redirect()
-            ->route('tpkk.index')
+            ->route('tpk.mahasiswa.index')
             ->with('success', 'Data mahasiswa PBL berhasil ditambahkan!');
     }
 
@@ -54,28 +57,21 @@ class TPKMahasiswaController extends Controller
 
         if ($data_tpk->isEmpty()) {
             return redirect()
-                ->route('tpkk.index')
+                ->route('tpk.mahasiswa.index')
                 ->with('error', 'Data mahasiswa PBL belum tersedia untuk dihitung.');
         }
 
-        /**
-            * 1. Matriks perbandingan berpasangan (pairwise comparison) untuk kriteria
-         */
+        // 1. Matriks perbandingan AHP (dari gambar)
         $pairwiseMatrix = [
             [1,      2,      1 / 7],  // Keaktifan
             [1 / 2,  1,      1 / 7],  // Nilai Kelompok
             [7,      7,      1],      // Nilai Dosen
         ];
 
-        // 2. Hitung bobot kriteria dengan AHP
+        // 2. Hitung bobot kriteria
         $weights = $this->calculateWeightsFromPairwise($pairwiseMatrix);
-        // $weights[0] = bobot Keaktifan
-        // $weights[1] = bobot Nilai Kelompok
-        // $weights[2] = bobot Nilai Dosen
 
-        /**
-         * 3. Matriks keputusan untuk SAW
-         */
+        // 3. Matriks keputusan SAW
         $decisionMatrix  = [];
         $mahasiswaNames  = [];
 
@@ -89,16 +85,16 @@ class TPKMahasiswaController extends Controller
             ];
         }
 
-        // 4. Semua kriteria bertipe benefit (semakin besar semakin baik)
+        // 4. Semua kriteria benefit
         $criteriaTypes = ['benefit', 'benefit', 'benefit'];
 
-        // 5. Normalisasi matriks keputusan dengan SAW
+        // 5. Normalisasi SAW
         $normalizedMatrix = $this->normalizeDecisionMatrix($decisionMatrix, $criteriaTypes);
 
-        // 6. Hitung skor akhir SAW
+        // 6. Hitung skor SAW
         $scores = $this->calculateScores($normalizedMatrix, $weights);
 
-        // 7. Gabungkan skor dengan data mahasiswa dan urutkan
+        // 7. Gabung & urutkan ranking
         $ranking = [];
         foreach ($scores as $index => $score) {
             $ranking[] = [
@@ -110,15 +106,14 @@ class TPKMahasiswaController extends Controller
             ];
         }
 
-        // Urutkan dari score terbesar ke terkecil
         usort($ranking, function ($a, $b) {
             return $b['score'] <=> $a['score'];
         });
 
         $best_student = $ranking[0];
 
-        // Tampilkan ke view hasil
-        return view('tpk.hasil', [
+        // VIEW HASIL: resources/views/tpk/tpkmahasiswa/hasil.blade.php
+        return view('tpk.tpkmahasiswa.hasil', [
             'ranking'      => $ranking,
             'best_student' => $best_student,
             'weights'      => [
@@ -129,15 +124,13 @@ class TPKMahasiswaController extends Controller
         ]);
     }
 
-    /**
-     * Hitung bobot AHP dari matriks pairwise (normalisasi kolom + rata-rata baris).
-     */
+    // ====== FUNGSI BANTU AHP & SAW TIDAK DIUBAH ======
+
     private function calculateWeightsFromPairwise(array $pairwiseMatrix): array
     {
         $columnSums = [];
         $n = count($pairwiseMatrix);
 
-        // Hitung jumlah tiap kolom
         for ($j = 0; $j < $n; $j++) {
             $sum = 0;
             for ($i = 0; $i < $n; $i++) {
@@ -146,7 +139,6 @@ class TPKMahasiswaController extends Controller
             $columnSums[$j] = $sum;
         }
 
-        // Normalisasi matriks
         $normalizedMatrix = [];
         for ($i = 0; $i < $n; $i++) {
             $row = [];
@@ -156,7 +148,6 @@ class TPKMahasiswaController extends Controller
             $normalizedMatrix[] = $row;
         }
 
-        // Bobot = rata-rata tiap baris
         $weights = [];
         foreach ($normalizedMatrix as $row) {
             $weights[] = array_sum($row) / $n;
@@ -165,18 +156,12 @@ class TPKMahasiswaController extends Controller
         return $weights;
     }
 
-    /**
-     * Normalisasi matriks keputusan untuk SAW.
-     *
-     * $criteriaTypes: ['benefit'|'cost', ...]
-     */
     private function normalizeDecisionMatrix(array $decisionMatrix, array $criteriaTypes): array
     {
         $normalizedMatrix = [];
         $rows = count($decisionMatrix);
         $cols = count($decisionMatrix[0]);
 
-        // Cari max/min tiap kolom
         $maxValues = array_fill(0, $cols, PHP_FLOAT_MIN);
         $minValues = array_fill(0, $cols, PHP_FLOAT_MAX);
 
@@ -188,7 +173,6 @@ class TPKMahasiswaController extends Controller
             }
         }
 
-        // Normalisasi
         for ($i = 0; $i < $rows; $i++) {
             $row = [];
             for ($j = 0; $j < $cols; $j++) {
@@ -196,10 +180,8 @@ class TPKMahasiswaController extends Controller
                 $isCost  = isset($criteriaTypes[$j]) && $criteriaTypes[$j] === 'cost';
 
                 if ($isCost) {
-                    // Kriteria cost: min / value
                     $row[] = $value != 0 ? $minValues[$j] / $value : 0;
                 } else {
-                    // Kriteria benefit: value / max
                     $row[] = $maxValues[$j] != 0 ? $value / $maxValues[$j] : 0;
                 }
             }
@@ -209,9 +191,6 @@ class TPKMahasiswaController extends Controller
         return $normalizedMatrix;
     }
 
-    /**
-     * Hitung skor SAW dari matriks normal dan bobot kriteria.
-     */
     private function calculateScores(array $normalizedMatrix, array $weights): array
     {
         $scores = [];
