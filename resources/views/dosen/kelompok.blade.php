@@ -300,19 +300,8 @@
                   $jumlahKelompok = $items->count();
                   $contoh = $items->first();
 
-                  // ambil semester & huruf kelas dari string, contoh TI-3E -> 3 & E
-                  $semesterCard = null;
-                  $hurufCard = null;
-                  if (preg_match('/(\d)([A-E])$/', $namaKelas, $m)) {
-                      $semesterCard = $m[1];
-                      $hurufCard    = $m[2];
-                  }
-
-                  // URL detail: pakai route index + filter semester & kelas
-                  $detailUrl = route('dosen.kelompok.index', [
-                      'semester' => $semesterCard,
-                      'kelas'    => $hurufCard,
-                  ]);
+                  // URL detail: ke halaman CRUD kelas tertentu (TI-3E, dst)
+                  $detailUrl = route('dosen.kelompok.kelas', $namaKelas);
               @endphp
 
               <div class="kelas-card" data-href="{{ $detailUrl }}">
