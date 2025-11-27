@@ -15,7 +15,7 @@
     <li><strong>Aktivitas:</strong> {{ $aktivitas }}</li>
   </ul>
 
-  <p>Terima kasih sudah memperbarui logbook kamu di SIMAP Politala.</p>
+  <p>Terima kasih sudah memperbarui logbook kamu di SIMAP Politala. Tetap semangat dan jangan menyerah!</p>
 
   <hr>
   <small>SIMAP Politala - Sistem Informasi Manajemen PBL</small>
