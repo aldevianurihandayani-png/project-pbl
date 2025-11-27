@@ -106,7 +106,7 @@
           class="form-control @error('nama_dosen') is-invalid @enderror"
           id="nama_dosen"
           name="nama_dosen"
-          value="{{ old('nama_dosen', $matakuliah->dosen?->nama ?? '') }}"
+          value="{{ old('nama_dosen', $matakuliah->nama_dosen) }}"
           list="dosen-list"
           autocomplete="off"
           placeholder="cth: M. Najamudin Ridha, S.Kom."
@@ -129,7 +129,7 @@
           class="form-control @error('jabatan') is-invalid @enderror"
           id="jabatan"
           name="jabatan"
-          value="{{ old('jabatan', $matakuliah->dosen?->jabatan ?? '') }}"
+          value="{{ old('jabatan', $matakuliah->jabatan) }}"
           placeholder="cth: Dosen Tetap / Koordinator PBL"
         >
         @error('jabatan')
@@ -144,7 +144,7 @@
           class="form-control @error('nip') is-invalid @enderror"
           id="nip"
           name="nip"
-          value="{{ old('nip', $matakuliah->dosen?->nidn ?? '') }}"
+          value="{{ old('nip', $matakuliah->nip) }}"
           placeholder="cth: 19800521 201001 1 001"
         >
         @error('nip')
@@ -159,7 +159,7 @@
           class="form-control @error('no_telp') is-invalid @enderror"
           id="no_telp"
           name="no_telp"
-          value="{{ old('no_telp', $matakuliah->dosen?->no_telp ?? '') }}"
+          value="{{ old('no_telp', $matakuliah->no_telp) }}"
           placeholder="cth: 081234567890"
         >
         @error('no_telp')

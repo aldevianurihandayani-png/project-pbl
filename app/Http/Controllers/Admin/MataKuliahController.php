@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MataKuliah;
-use App\Models\Dosen;
+use App\Models\Dosen; // <-- TAMBAHKAN INI
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -13,8 +13,7 @@ class MataKuliahController extends Controller
     /** ==================== LIST ==================== **/
     public function index()
     {
-        $matakuliah = MataKuliah::with('dosen:id_dosen,nama_dosen')
-            ->orderBy('kode_mk')
+        $matakuliah = MataKuliah::orderBy('kode_mk')
             ->paginate(10)
             ->withQueryString();
 
@@ -24,9 +23,8 @@ class MataKuliahController extends Controller
     /** ==================== FORM CREATE ==================== **/
     public function create()
     {
-        // kirim daftar dosen untuk datalist (opsional)
-        $dosens = Dosen::orderBy('nama_dosen')->get(['id_dosen','nama_dosen']);
-        return view('admins.matakuliah.create', compact('dosens'));
+        // View create sekarang cuma butuh form, tidak perlu daftar dosen
+        return view('admins.matakuliah.create');
     }
 
     /** ==================== SIMPAN BARU ==================== **/
@@ -34,44 +32,40 @@ class MataKuliahController extends Controller
     {
         $validated = $request->validate(
             [
-                'kode_mk'   => ['required', 'string', 'max:20', 'unique:mata_kuliah,kode_mk'],
-                'nama_mk'   => ['required', 'string', 'max:150'],
-                'sks'       => ['required', 'integer', 'min:1'],
-                'semester'  => ['required', 'integer', 'min:1'],
+                'kode_mk'    => ['required', 'string', 'max:20', 'unique:mata_kuliah,kode_mk'],
+                'nama_mk'    => ['required', 'string', 'max:150'],
+                'sks'        => ['required', 'integer', 'min:1'],
+                'semester'   => ['required', 'integer', 'min:1'],
 
-                // dosen diisi manual lewat nama (opsional)
-                'nama_dosen' => ['nullable', 'string', 'max:150'],
+                // ambil nama dosen dari input teks
+                'nama_dosen' => ['required', 'string', 'max:150'],
+
+                // field tambahan
                 'jabatan'    => ['nullable', 'string', 'max:100'],
                 'nip'        => ['nullable', 'string', 'max:50'],
                 'no_telp'    => ['nullable', 'string', 'max:50'],
             ],
             [],
             [
-                'kode_mk'   => 'Kode Mata Kuliah',
-                'nama_mk'   => 'Nama Mata Kuliah',
-                'sks'       => 'Jumlah SKS',
-                'semester'  => 'Semester',
-                'nama_dosen'=> 'Nama Dosen',
+                'kode_mk'    => 'Kode Mata Kuliah',
+                'nama_mk'    => 'Nama Mata Kuliah',
+                'sks'        => 'Jumlah SKS',
+                'semester'   => 'Semester',
+                'nama_dosen' => 'Dosen Pengampu',
             ]
         );
 
-        // Ambil id dosen dari tabel users
-        $dosenId = null;
-        if (!empty($validated['nama_dosen'])) {
-            $userDosen = \App\Models\User::where('nama', trim($validated['nama_dosen']))
-                                        ->where('role', 'dosen')
-                                        ->first();
-            if ($userDosen) {
-                $dosenId = $userDosen->id;
-            }
-        }
-
         MataKuliah::create([
-            'kode_mk'   => $validated['kode_mk'],
-            'nama_mk'   => $validated['nama_mk'],
-            'sks'       => $validated['sks'],
-            'semester'  => $validated['semester'],
-            'id_dosen'  => $dosenId, // boleh null
+            'kode_mk'    => $validated['kode_mk'],
+            'nama_mk'    => $validated['nama_mk'],
+            'sks'        => $validated['sks'],
+            'semester'   => $validated['semester'],
+            'nama_dosen' => $validated['nama_dosen'],
+            'jabatan'    => $validated['jabatan'] ?? null,
+            'nip'        => $validated['nip'] ?? null,
+            'no_telp'    => $validated['no_telp'] ?? null,
+            // kalau masih ada kolom id_dosen di tabel dan tidak dipakai lagi:
+            'id_dosen'   => null,
         ]);
 
         return redirect()->route('admins.matakuliah.index')
@@ -81,9 +75,10 @@ class MataKuliahController extends Controller
     /** ==================== FORM EDIT ==================== **/
     public function edit(MataKuliah $matakuliah)
     {
-        // kirim daftar dosen untuk datalist (opsional)
-        $dosens = Dosen::orderBy('nama_dosen')->get(['id_dosen','nama_dosen']);
-        return view('admins.matakuliah.edit', compact('matakuliah','dosens'));
+        // ambil daftar dosen untuk datalist di form edit
+        $dosens = Dosen::orderBy('nama_dosen')->get();
+
+        return view('admins.matakuliah.edit', compact('matakuliah', 'dosens'));
     }
 
     /** ==================== UPDATE DATA ==================== **/
@@ -91,49 +86,41 @@ class MataKuliahController extends Controller
     {
         $validated = $request->validate(
             [
-                // jika kamu juga mengizinkan ganti kode_mk, pakai rule unique ignore
-                // 'kode_mk' => ['required','string','max:20', Rule::unique('mata_kuliah','kode_mk')->ignore($matakuliah->kode_mk,'kode_mk')],
-                'nama_mk'   => ['required', 'string', 'max:150'],
-                'sks'       => ['required', 'integer', 'min:1'],
-                'semester'  => ['required', 'integer', 'min:1'],
+                // kalau mau izinkan ubah kode_mk, buka komentar ini:
+                // 'kode_mk' => [
+                //     'required', 'string', 'max:20',
+                //     Rule::unique('mata_kuliah', 'kode_mk')->ignore($matakuliah->kode_mk, 'kode_mk'),
+                // ],
 
-                'nama_dosen' => ['nullable', 'string', 'max:150'],
+                'nama_mk'    => ['required', 'string', 'max:150'],
+                'sks'        => ['required', 'integer', 'min:1'],
+                'semester'   => ['required', 'integer', 'min:1'],
+                'nama_dosen' => ['required', 'string', 'max:150'],
+
                 'jabatan'    => ['nullable', 'string', 'max:100'],
                 'nip'        => ['nullable', 'string', 'max:50'],
                 'no_telp'    => ['nullable', 'string', 'max:50'],
             ],
             [],
             [
-                'nama_mk'   => 'Nama Mata Kuliah',
-                'sks'       => 'Jumlah SKS',
-                'semester'  => 'Semester',
-                'nama_dosen'=> 'Nama Dosen',
+                'nama_mk'    => 'Nama Mata Kuliah',
+                'sks'        => 'Jumlah SKS',
+                'semester'   => 'Semester',
+                'nama_dosen' => 'Dosen Pengampu',
             ]
         );
 
-        // Default: pertahankan dosen lama
-        $dosenId = $matakuliah->id_dosen;
-
-        // Jika nama dosen diisi, cari id dari tabel users
-        if (!empty($validated['nama_dosen'])) {
-            $userDosen = \App\Models\User::where('nama', trim($validated['nama_dosen']))
-                                        ->where('role', 'dosen')
-                                        ->first();
-            if ($userDosen) {
-                $dosenId = $userDosen->id;
-            } else {
-                $dosenId = null; // Jika tidak ketemu, set null
-            }
-        } else {
-            $dosenId = null; // Jika dikosongkan, hapus relasi
-        }
-
         $matakuliah->update([
-            // jika mengizinkan ganti kode_mk, tambahkan 'kode_mk' => $validated['kode_mk'],
-            'nama_mk'  => $validated['nama_mk'],
-            'sks'      => $validated['sks'],
-            'semester' => $validated['semester'],
-            'id_dosen' => $dosenId,
+            // kalau izinkan ubah kode_mk, tambahkan:
+            // 'kode_mk'    => $validated['kode_mk'],
+            'nama_mk'    => $validated['nama_mk'],
+            'sks'        => $validated['sks'],
+            'semester'   => $validated['semester'],
+            'nama_dosen' => $validated['nama_dosen'],
+            'jabatan'    => $validated['jabatan'] ?? null,
+            'nip'        => $validated['nip'] ?? null,
+            'no_telp'    => $validated['no_telp'] ?? null,
+            'id_dosen'   => null,
         ]);
 
         return redirect()->route('admins.matakuliah.index')
