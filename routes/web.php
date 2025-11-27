@@ -22,7 +22,7 @@ use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
-// use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController; // <<< DIHIDUPKAN
 
 // Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
@@ -126,7 +126,7 @@ Route::prefix('admins')
         Route::resource('notifikasi', AdminNotifikasiController::class);
         Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
         Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
-        // Route::resource('profile', AdminProfileController::class);
+        Route::resource('profile', AdminProfileController::class); // <<< DIHIDUPKAN
 });
 
 /*
@@ -271,5 +271,3 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::post('/store',  [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
-
-
