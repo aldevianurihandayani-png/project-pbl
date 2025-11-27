@@ -1,6 +1,11 @@
 {{-- resources/views/admins/matakuliah/edit.blade.php --}}
 @include('admins.partials.header', ['title' => 'Edit Mata Kuliah'])
 
+@php
+    /** @var \App\Models\MataKuliah $matakuliah */
+    /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Dosen[] $dosens */
+@endphp
+
 <div class="card shadow mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h6 class="m-0 font-weight-bold text-primary">Form Edit Mata Kuliah</h6>

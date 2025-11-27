@@ -228,27 +228,32 @@ Route::prefix('dosenpenguji')
         })->name('cpmk.update');
 
         // Profil Penguji
-        Route::view('/profile', 'dosenpenguji.profile')->name('profile');
-        Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
-        Route::put('/profile', function (Request $request) {
-            $user = auth()->user();
-            $validated = $request->validate([
-                'nama'     => 'nullable|string|max:255',
-                'name'     => 'nullable|string|max:255',
-                'email'    => 'required|email',
-                'password' => 'nullable|min:6',
-            ]);
-            $data = [
-                'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
-                'email' => $validated['email'],
-            ];
-            if (!empty($validated['password'])) {
-                $data['password'] = Hash::make($validated['password']);
-            }
-            $user->update($data);
-            auth()->setUser($user->fresh());
-            return redirect()->route('dosenpenguji.profile')->with('success', 'Perubahan berhasil disimpan.');
-        })->name('profile.update');
+Route::view('/profile', 'dosenpenguji.profile')->name('profile');
+Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
+Route::put('/profile', function (Request $request) {
+    // ambil user yang sedang login
+    $user = Auth::user();
+
+    $validated = $request->validate([
+        'nama'     => 'nullable|string|max:255',
+        'name'     => 'nullable|string|max:255',
+        'email'    => 'required|email',
+        'password' => 'nullable|min:6',
+    ]);
+
+    $data = [
+        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+        'email' => $validated['email'],
+    ];
+
+    if (!empty($validated['password'])) {
+        $data['password'] = Hash::make($validated['password']);
+    }
+    // tidak perlu auth()->setUser($user->fresh());
+    return redirect()
+        ->route('dosenpenguji.profile')
+        ->with('success', 'Perubahan berhasil disimpan.');
+})->name('profile.update');
 });
 
 /*
