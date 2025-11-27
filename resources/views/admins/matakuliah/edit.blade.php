@@ -106,7 +106,7 @@
           class="form-control @error('nama_dosen') is-invalid @enderror"
           id="nama_dosen"
           name="nama_dosen"
-          value="{{ old('nama_dosen', $matakuliah->dosen?->nama_dosen ?? '') }}"
+          value="{{ old('nama_dosen', $matakuliah->dosen?->nama ?? '') }}"
           list="dosen-list"
           autocomplete="off"
           placeholder="cth: M. Najamudin Ridha, S.Kom."
@@ -144,7 +144,7 @@
           class="form-control @error('nip') is-invalid @enderror"
           id="nip"
           name="nip"
-          value="{{ old('nip', $matakuliah->dosen?->nip ?? '') }}"
+          value="{{ old('nip', $matakuliah->dosen?->nidn ?? '') }}"
           placeholder="cth: 19800521 201001 1 001"
         >
         @error('nip')

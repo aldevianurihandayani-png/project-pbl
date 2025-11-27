@@ -10,70 +10,99 @@ class LoginController extends Controller
 {
     public function showLogin()
     {
-        return view('login'); 
+        return view('login');
+    }
+
+    /**
+     * Ubah berbagai alias role ke bentuk baku (canonical).
+     * Baku: admin, mahasiswa, dosen_pembimbing, dosen_penguji, jaminan_mutu, koor_pbl
+     */
+    private function normalizeRole(string $role = null): ?string
+    {
+        if ($role === null) return null;
+
+        $r = strtolower(trim($role));
+
+        $map = [
+            // admin
+            'admin'           => 'admin',
+            'admins'          => 'admin',
+
+            // koordinator PBL
+            'koor_pbl'        => 'koor_pbl',
+            'koordinator'     => 'koor_pbl',
+            'koordinator_pbl' => 'koor_pbl',
+
+            // jaminan mutu
+            'jaminanmutu'     => 'jaminan_mutu',
+            'jaminan_mutu'    => 'jaminan_mutu',
+
+            // dosen
+            'dosen_pembimbing'=> 'dosen_pembimbing',
+            'dosenpembimbing' => 'dosen_pembimbing',
+
+            'dosen_penguji'   => 'dosen_penguji',
+            'dosenpenguji'    => 'dosen_penguji',
+
+            // mahasiswa
+            'mhs'             => 'mahasiswa',
+            'mahasiswa'       => 'mahasiswa',
+        ];
+
+        return $map[$r] ?? $r;
     }
 
     public function authenticate(Request $request)
     {
-        $aliases = [
-        'admin'        => 'admins',
-        'dosenpenguji' => 'dosen_penguji',
-        'dosenpembimbing' => 'dosen_pembimbing',
-        'koor_pbl'     => 'koordinator',
-        'jaminanmutu'  => 'jaminan_mutu',
-    ];
-    $role = $request->input('role');
-    $request->merge(['role' => $aliases[$role] ?? $role]);
-    
+        // Normalisasi role dari request (jaga-jaga jika datang sebagai alias)
+        $inputRole = $this->normalizeRole($request->input('role'));
+        $request->merge(['role' => $inputRole]);
+
+        // Validasi
         $data = $request->validate([
             'email'    => ['required','email'],
             'password' => ['required'],
             'role'     => ['required', Rule::in([
-                'mahasiswa','dosen_pembimbing','dosen_penguji','koordinator','jaminan_mutu','admins'
+                'admin','mahasiswa','dosen_pembimbing','dosen_penguji','jaminan_mutu','koor_pbl'
             ])],
         ]);
 
-        // Coba login pakai email & password
-        if (!Auth::attempt(['email'=>$data['email'], 'password'=>$data['password']], true)) {
+        // Coba login
+        if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']], true)) {
             return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
-        // Cek kecocokan role
-        $user = Auth::user();
-        if ($user->role !== $data['role']) {
-            Auth::logout();
-            return back()->withErrors(['role' => 'Role tidak sesuai dengan akun.'])->withInput();
-        }
-
-        // Sukses, regenerasi session
+        // Login sukses → kunci session
         $request->session()->regenerate();
 
-        // Logika redirect berdasarkan role
-        $role = $user->role;
-        $redirectRoute = 'home'; // Default redirect
+        // Ambil role user di DB dan normalisasi agar legacy tetap cocok
+        $user = Auth::user();
+        $userRoleCanonical = $this->normalizeRole($user->role);
 
-        switch ($role) {
-            case 'admins':
-                $redirectRoute = 'admins.dashboard';
-                break;
-            case 'dosen_pembimbing':
-                $redirectRoute = 'dosen.dashboard';
-                break;
-            case 'dosen_penguji':
-                $redirectRoute = 'dosenpenguji.dashboard';
-                break;
-            case 'jaminan_mutu':
-                $redirectRoute = 'jaminanmutu.dashboard';
-                break;
-            case 'koordinator':
-                $redirectRoute = 'koordinator.dashboard';
-                break;
-            case 'mahasiswa':
-                $redirectRoute = 'mahasiswa.dashboard';
-                break;
+        // Cek kecocokan role yang dipilih di form vs role akun
+        if ($userRoleCanonical !== $data['role']) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['role' => 'Role tidak sesuai dengan akun.'])
+                ->withInput();
         }
 
-        return redirect()->route($redirectRoute)->with('success','Login berhasil');
+        // Peta role → route dashboard (pakai nama route yang saat ini ada di project-mu)
+        $routeMap = [
+            'admin'            => 'admins.dashboard',        // kamu saat ini pakai "admins.dashboard"
+            'dosen_pembimbing' => 'dosen.dashboard',
+            'dosen_penguji'    => 'dosenpenguji.dashboard',
+            'jaminan_mutu'     => 'jaminanmutu.dashboard',
+            'koor_pbl'         => 'koordinator.dashboard',   // kamu namai route "koordinator"
+            'mahasiswa'        => 'mahasiswa.dashboard',
+        ];
+
+        $redirectRoute = $routeMap[$userRoleCanonical] ?? 'home';
+
+        return redirect()->route($redirectRoute)->with('success', 'Login berhasil');
     }
 
     public function logout(Request $request)

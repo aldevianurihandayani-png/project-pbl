@@ -13,8 +13,7 @@ class Mahasiswa extends Model
     protected $table = 'mahasiswas';
 
     // ⬇ WAJIB: sesuaikan nama tabelnya
-    protected $table = 'mahasiswas';
-
+    
     // PK kamu pakai NIM (string)
 
     protected $primaryKey = 'nim';
@@ -38,10 +37,7 @@ class Mahasiswa extends Model
     }
 
     // Gunakan nama kelas model dengan PascalCase, bukan nama tabel
-    public function laporanPenilaian()
-    {
-        return $this->hasMany(LaporanPenilaian::class, 'nim', 'nim');
-    }
+    
 
     public function user()
     {

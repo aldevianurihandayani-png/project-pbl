@@ -7,12 +7,12 @@ use App\Models\Notification;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-use App\Models\Notification;
+
 use App\Models\User;
 use Carbon\Carbon;
 
 class NotificationSeeder extends Seeder
-
+{
     /**
      * Run the database seeds.
      */
@@ -20,7 +20,7 @@ class NotificationSeeder extends Seeder
     {
 
         Notification::factory()->count(30)->create();
-    }
+    
         $user = User::first(); // Get the first user, or null if none exists
 
         // General Notifications (user_id = null)
@@ -143,5 +143,5 @@ class NotificationSeeder extends Seeder
             'is_read' => true,
             'created_at' => Carbon::now()->subDays(6),
         ]);
-    }
-}
+    }}
+

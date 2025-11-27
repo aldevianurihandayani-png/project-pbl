@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dosens', function (Blueprint $table) {
+        Schema::create('dosen', function (Blueprint $table) {
             $table->bigIncrements('id_dosen');                // Primary Key
             $table->string('nama_dosen', 255);               // Nama Dosen
             $table->string('jabatan', 155);                  // Jabatan Dosen
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dosens');
+        Schema::dropIfExists('dosen');
     }
 };

@@ -17,9 +17,7 @@ class Notification extends Model
         'user_id',
         'title',
         'message',
-        'type',
         'course',
-        'link_url',
         'is_read',
     ];
 
@@ -60,7 +58,7 @@ class Notification extends Model
             ->forCurrent()
             ->latest()
             ->limit(10)
-            ->get(['id','title','type','created_at','link_url']);
+            ->get(['id','title','created_at','user_id']);
     }
 
     public function markAsRead(): bool

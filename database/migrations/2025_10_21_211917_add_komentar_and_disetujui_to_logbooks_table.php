@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('logbooks', function (Blueprint $table) {
-            $table->text('komentar')->nullable()->after('foto');
+            $table->text('komentar')->nullable();
             $table->boolean('disetujui')->default(false)->after('komentar');
         });
     }

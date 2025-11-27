@@ -42,7 +42,7 @@ class MataKuliah extends Model
     /** Relasi ke tabel dosen (many-to-one) */
     public function dosen()
     {
-        return $this->belongsTo(Dosen::class, 'id_dosen', 'id_dosen');
+        return $this->belongsTo(User::class, 'id_dosen', 'id');
     }
 
     /**

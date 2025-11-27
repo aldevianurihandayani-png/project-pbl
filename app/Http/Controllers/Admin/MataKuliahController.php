@@ -55,18 +55,15 @@ class MataKuliahController extends Controller
             ]
         );
 
-        // Buat/ambil dosen jika nama diisi
+        // Ambil id dosen dari tabel users
         $dosenId = null;
         if (!empty($validated['nama_dosen'])) {
-            $dosen = Dosen::updateOrCreate(
-                ['nama_dosen' => trim($validated['nama_dosen'])],
-                [
-                    'jabatan' => $validated['jabatan'] ?? null,
-                    'nip'     => $validated['nip'] ?? null,
-                    'no_telp' => $validated['no_telp'] ?? null,
-                ]
-            );
-            $dosenId = $dosen->id_dosen;
+            $userDosen = \App\Models\User::where('nama', trim($validated['nama_dosen']))
+                                        ->where('role', 'dosen')
+                                        ->first();
+            if ($userDosen) {
+                $dosenId = $userDosen->id;
+            }
         }
 
         MataKuliah::create([
@@ -117,17 +114,18 @@ class MataKuliahController extends Controller
         // Default: pertahankan dosen lama
         $dosenId = $matakuliah->id_dosen;
 
-        // Jika nama dosen diisi, upsert lalu ambil id barunya
+        // Jika nama dosen diisi, cari id dari tabel users
         if (!empty($validated['nama_dosen'])) {
-            $dosen = Dosen::updateOrCreate(
-                ['nama_dosen' => trim($validated['nama_dosen'])],
-                [
-                    'jabatan' => $validated['jabatan'] ?? null,
-                    'nip'     => $validated['nip'] ?? null,
-                    'no_telp' => $validated['no_telp'] ?? null,
-                ]
-            );
-            $dosenId = $dosen->id_dosen;
+            $userDosen = \App\Models\User::where('nama', trim($validated['nama_dosen']))
+                                        ->where('role', 'dosen')
+                                        ->first();
+            if ($userDosen) {
+                $dosenId = $userDosen->id;
+            } else {
+                $dosenId = null; // Jika tidak ketemu, set null
+            }
+        } else {
+            $dosenId = null; // Jika dikosongkan, hapus relasi
         }
 
         $matakuliah->update([
