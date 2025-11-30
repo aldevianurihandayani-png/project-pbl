@@ -9,43 +9,45 @@ class Mahasiswa extends Model
 {
     use HasFactory;
 
-
+    // NAMA TABEL SESUAI DB
     protected $table = 'mahasiswas';
 
-    // ⬇ WAJIB: sesuaikan nama tabelnya
-    
-    // PK kamu pakai NIM (string)
-
+    // Primary key pakai NIM (string, bukan auto increment)
     protected $primaryKey = 'nim';
     protected $keyType = 'string';
     public $incrementing = false;
 
+    // KOLOM YANG BISA DI-ISI MASS ASSIGNMENT
     protected $fillable = [
-        'nim','nama','angkatan','no_hp','id_kelompok','user_id'
+        'nim',
+        'nama',
+        'angkatan',
+        'no_hp',
+        'id_kelompok',
+        'user_id',
     ];
 
     /** RELASI **/
     public function kelompok()
     {
-     
-         return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
+        // FK: id_kelompok -> PK: id di tabel kelompok
+        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 
     public function logbook()
     {
+        // FK di tabel logbooks: nim -> nim di tabel mahasiswas
         return $this->hasMany(Logbook::class, 'nim', 'nim');
     }
 
-    // Gunakan nama kelas model dengan PascalCase, bukan nama tabel
-    
-
     public function user()
     {
-        // kalau relasi ke users via user_id: return $this->belongsTo(User::class, 'user_id', 'id');
-        // kalau relasi via nim sesuai kodenya:
-        return $this->belongsTo(User::class, 'nim', 'nim');
+        // relasi ke tabel users via user_id -> id
+        // withDefault() mencegah error ketika user_id NULL
+        return $this->belongsTo(User::class, 'user_id', 'id')->withDefault();
     }
 
+    // Route model binding pakai nim
     public function getRouteKeyName()
     {
         return 'nim';

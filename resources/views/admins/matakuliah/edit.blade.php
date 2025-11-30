@@ -1,5 +1,10 @@
 {{-- resources/views/admins/matakuliah/edit.blade.php --}}
-@include('admins.partials.header', ['title' => 'Edit Mata Kuliah'])
+
+{{-- kirim mahasiswa = null supaya partial header tidak error --}}
+@include('admins.partials.header', [
+    'title' => 'Edit Mata Kuliah',
+    'mahasiswa' => null,
+])
 
 @php
     /** @var \App\Models\MataKuliah $matakuliah */
