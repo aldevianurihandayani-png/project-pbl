@@ -179,34 +179,54 @@
         <div class="card-bd">
           <form action="{{ route('dosen.kelompok.store') }}" method="POST">
               @csrf
+
               <div class="form-group">
                   <label for="nama">Nama Kelompok</label>
-                  <input type="text" name="nama" class="form-control" id="nama" required>
+                  <input type="text" name="nama" class="form-control" id="nama" value="{{ old('nama') }}" required>
               </div>
+
+              {{-- KELAS: dropdown dari tabel kelas --}}
               <div class="form-group">
                   <label for="kelas">Kelas</label>
-                  <input type="text" name="kelas" class="form-control" id="kelas" required>
+                  <select name="kelas" id="kelas" class="form-control" required>
+                      <option value="">-- Pilih Kelas --</option>
+                      @foreach($daftarKelas as $k)
+                          @php
+                              $value    = $k->nama_kelas; // contoh: TI-3E
+                              $selected = old('kelas', $kelasTerpilih ?? '') == $value ? 'selected' : '';
+                          @endphp
+                          <option value="{{ $value }}" {{ $selected }}>
+                              {{ $k->nama_kelas }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
+
               <div class="form-group">
                   <label for="judul_proyek">Judul Proyek</label>
-                  <input type="text" name="judul_proyek" class="form-control" id="judul_proyek" required>
+                  <input type="text" name="judul_proyek" class="form-control" id="judul_proyek" value="{{ old('judul_proyek') }}" required>
               </div>
+
               <div class="form-group">
                   <label for="nama_klien">Nama Klien</label>
-                  <input type="text" name="nama_klien" class="form-control" id="nama_klien" required>
+                  <input type="text" name="nama_klien" class="form-control" id="nama_klien" value="{{ old('nama_klien') }}" required>
               </div>
+
               <div class="form-group">
                   <label for="ketua_kelompok">Ketua Kelompok (NIM)</label>
-                  <input type="text" name="ketua_kelompok" class="form-control" id="ketua_kelompok" required>
+                  <input type="text" name="ketua_kelompok" class="form-control" id="ketua_kelompok" value="{{ old('ketua_kelompok') }}" required>
               </div>
+
               <div class="form-group">
                   <label for="anggota">Anggota (pisahkan dengan koma)</label>
-                  <textarea name="anggota" class="form-control" id="anggota" rows="3" required></textarea>
+                  <textarea name="anggota" class="form-control" id="anggota" rows="3" required>{{ old('anggota') }}</textarea>
               </div>
+
               <div class="form-group">
                   <label for="dosen_pembimbing">Dosen Pembimbing</label>
-                  <input type="text" name="dosen_pembimbing" class="form-control" id="dosen_pembimbing" value="{{ auth()->user()->name ?? '' }}">
+                  <input type="text" name="dosen_pembimbing" class="form-control" id="dosen_pembimbing" value="{{ old('dosen_pembimbing', auth()->user()->name ?? '') }}">
               </div>
+
               <button type="submit" class="btn">Simpan Kelompok</button>
           </form>
         </div>

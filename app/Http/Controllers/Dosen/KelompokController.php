@@ -4,101 +4,131 @@ namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kelompok;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 
 class KelompokController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Halaman index: kartu-kartu kelas + filter + search.
      */
     public function index(Request $request)
     {
         $query = Kelompok::query();
 
+        // filter berdasarkan semester + kelas (A/B/C/D/E)
         if ($request->has('semester') && $request->semester != '') {
             $kelasFilter = 'TI-' . $request->semester;
+
             if ($request->has('kelas') && $request->kelas != '') {
-                $kelasFilter .= $request->kelas;
+                $kelasFilter .= $request->kelas; // contoh: TI-3E
             }
+
             $query->where('kelas', 'like', $kelasFilter . '%');
+        }
+
+        // pencarian nama kelompok / judul proyek
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('judul_proyek', 'like', "%{$search}%");
+            });
         }
 
         $kelompoks = $query->get();
 
         return view('dosen.kelompok', [
             'kelompoks' => $kelompoks,
-            'request' => $request
+            'request'   => $request,
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Halaman CRUD kelompok untuk satu kelas (misal: TI-3E)
      */
-    public function create()
+    public function kelas($kelas)
     {
-        return view('dosen.kelompok.create');
+        $kelompoks = Kelompok::where('kelas', $kelas)->get();
+
+        return view('dosen.kelompok.kelas', [
+            'kelompoks' => $kelompoks,
+            'kelas'     => $kelas,
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show form create.
+     */
+    public function create(Request $request)
+    {
+        $kelasTerpilih = $request->query('kelas'); // misal TI-3E
+        $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
+
+        return view('dosen.kelompok.create', [
+            'kelasTerpilih' => $kelasTerpilih,
+            'daftarKelas'   => $daftarKelas,
+        ]);
+    }
+
+    /**
+     * Store new kelompok.
      */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'nama' => 'required',
-            'judul_proyek' => 'required',
-            'nama_klien' => 'required',
-            'ketua_kelompok' => 'required',
-            'kelas' => 'required',
-            'anggota' => 'required',
+            'nama'             => 'required',
+            'judul_proyek'     => 'required',
+            'nama_klien'       => 'required',
+            'ketua_kelompok'   => 'required',
+            'kelas'            => 'required',
+            'anggota'          => 'required',
             'dosen_pembimbing' => 'nullable|string',
         ]);
 
-        // Ensure 'kelas' is prefixed with 'TI-' for consistency with filtering
         if (!str_starts_with($validatedData['kelas'], 'TI-')) {
             $validatedData['kelas'] = 'TI-' . $validatedData['kelas'];
         }
 
         $validatedData['judul'] = $validatedData['judul_proyek'];
 
-        Kelompok::create($validatedData);
+        $kelompok = Kelompok::create($validatedData);
 
-        return redirect()->route('dosen.kelompok.index')
-                        ->with('success','Kelompok created successfully.');
+        return redirect()
+            ->route('dosen.kelompok.kelas', $kelompok->kelas)
+            ->with('success', 'Kelompok created successfully.');
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Kelompok $kelompok)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Show form edit.
      */
     public function edit(Kelompok $kelompok)
     {
-        return view('dosen.kelompok.edit',compact('kelompok'));
+        $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
+        $kelasTerpilih = $kelompok->kelas;
+
+        return view('dosen.kelompok.edit', [
+            'kelompok'     => $kelompok,
+            'daftarKelas'  => $daftarKelas,
+            'kelasTerpilih'=> $kelasTerpilih,
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update kelompok.
      */
     public function update(Request $request, Kelompok $kelompok)
     {
         $validatedData = $request->validate([
-            'nama' => 'required',
-            'judul_proyek' => 'required',
-            'nama_klien' => 'required',
-            'ketua_kelompok' => 'required',
-            'kelas' => 'required',
-            'anggota' => 'required',
+            'nama'             => 'required',
+            'judul_proyek'     => 'required',
+            'nama_klien'       => 'required',
+            'ketua_kelompok'   => 'required',
+            'kelas'            => 'required',
+            'anggota'          => 'required',
             'dosen_pembimbing' => 'nullable|string',
         ]);
 
-        // Ensure 'kelas' is prefixed with 'TI-' for consistency with filtering
         if (!str_starts_with($validatedData['kelas'], 'TI-')) {
             $validatedData['kelas'] = 'TI-' . $validatedData['kelas'];
         }
@@ -107,18 +137,22 @@ class KelompokController extends Controller
 
         $kelompok->update($validatedData);
 
-        return redirect()->route('dosen.kelompok.index')
-                        ->with('success','Kelompok updated successfully');
+        return redirect()
+            ->route('dosen.kelompok.kelas', $kelompok->kelas)
+            ->with('success', 'Kelompok updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete kelompok.
      */
     public function destroy(Kelompok $kelompok)
     {
+        $kelas = $kelompok->kelas;
         $kelompok->delete();
 
-        return redirect()->route('dosen.kelompok.index')
-                        ->with('success','Kelompok deleted successfully');
+        return redirect()
+            ->route('dosen.kelompok.kelas', $kelas)
+            ->with('success', 'Kelompok deleted successfully.');
     }
 }
+

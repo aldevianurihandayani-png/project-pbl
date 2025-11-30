@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Edit Kelompok — Dosen Pembimbing</title>
+  <title>Kelompok {{ $kelas }} — Dosen Pembimbing</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
@@ -17,21 +17,17 @@
       display:grid; grid-template-columns:260px 1fr; min-height:100vh;
     }
 
-    /* ========== SIDEBAR ========== */
+    /* SIDEBAR SAMA PERSIS */
     .sidebar{
       background:var(--navy); color:#e9edf7; padding:18px 16px; display:flex; flex-direction:column;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px; margin-bottom:22px;
-    }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:22px; }
     .brand-badge{
       width:36px;height:36px; border-radius:10px; background:#1a2a6b; display:grid; place-items:center;
       font-weight:700; letter-spacing:.5px;
     }
-    .brand-title{line-height:1.1}
     .brand-title strong{font-size:18px}
     .brand-title small{display:block; font-size:12px; opacity:.85}
-
     .nav-title{font-size:12px; letter-spacing:.6px; text-transform:uppercase; opacity:.7; margin:16px 10px 6px}
     .menu a{
       display:flex; align-items:center; gap:12px; text-decoration:none;
@@ -41,12 +37,11 @@
     .menu a:hover{ background:#11245f; transform:translateX(2px) }
     .menu a.active{ background:#1c3d86 }
     .menu i{ width:18px; text-align:center }
-
     .logout{ margin-top:auto }
     .logout a{ color:#ffb2b2 }
     .logout a:hover{ background:#5c1020 }
 
-    /* ========== MAIN ========== */
+    /* MAIN */
     main{ display:flex; flex-direction:column; min-width:0 }
     header.topbar{
       background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
@@ -65,32 +60,37 @@
     }
     .card .card-hd{
       padding:14px 18px; border-bottom:1px solid #eef1f6;
-      display:flex; align-items:center; gap:10px;
-      color:var(--navy-2); font-weight:700;
+      display:flex; align-items:center; justify-content:space-between;
+      color:#0b1d54; font-weight:700;
     }
-    .card .card-bd{ padding:16px 18px; color:#233042 }
+    .card .card-bd{ padding:0; color:#233042; }
 
-    /* Form Styles */
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display:block; margin-bottom:.5rem; color:var(--navy); font-weight:600; }
-    .form-control{
-      display:block; width:100%; padding:.75rem 1rem; font-size:1rem; line-height:1.5;
-      color:#495057; background:#fff; border:1px solid #ced4da; border-radius:.5rem;
-      transition:border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    /* TABLE */
+    .table { width:100%; border-collapse:collapse; }
+    .table th, .table td{
+      padding:12px 18px; text-align:left; border-bottom:1px solid #eef1f6;
     }
-    .form-control:focus{
-      border-color:var(--navy-2); outline:0;
-      box-shadow:0 0 0 .2rem var(--ring);
+    .table th{
+      background:#0b1d54; color:#ffffff; font-size:14px; font-weight:600;
     }
+    .table tbody tr:nth-child(even){ background:#f8fafc; }
+    .table tbody tr:last-child td{ border-bottom:none; }
+
     .btn{
       display:inline-block; font-weight:600; color:#fff; text-align:center;
       background-color:var(--navy-2); border:1px solid transparent;
-      padding:.75rem 1.25rem; font-size:1rem; border-radius:.5rem;
-      cursor:pointer; transition:background-color .15s ease-in-out;
+      padding:.4rem .9rem; font-size:.8rem; border-radius:.5rem;
+      text-decoration:none; cursor:pointer;
     }
     .btn:hover{ background-color:var(--navy); }
+    .btn-warning{ background-color:#f59e0b; }
+    .btn-warning:hover{ background-color:#d97706; }
+    .btn-danger{ background-color:#ef4444; }
+    .btn-danger:hover{ background-color:#dc2626; }
 
-    @media (max-width:980px){
+    .btn-sm{ padding:.25rem .6rem; font-size:.75rem; }
+
+    @media (max-width: 980px){
       body{ grid-template-columns:1fr }
       .sidebar{ position:fixed; inset:0 auto 0 0; width:240px; transform:translateX(-102%); transition:transform .2s; z-index:10 }
       .sidebar.show{ transform:none }
@@ -140,7 +140,7 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
-        <h1>Edit Kelompok</h1>
+        <h1>Daftar Kelompok</h1>
       </div>
       <div class="userbox">
         <div class="notif">
@@ -157,69 +157,61 @@
     </header>
 
     <div class="page">
+
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-pen-to-square"></i> Form Edit Kelompok</div>
+        <div class="card-hd">
+          <div>
+            <i class="fa-solid fa-users"></i>
+            Detail Kelas: <strong>{{ $kelas }}</strong>
+          </div>
+          <a href="{{ route('dosen.kelompok.create') }}?kelas={{ $kelas }}" class="btn">
+            Tambah Kelompok
+          </a>
+        </div>
+
         <div class="card-bd">
-          <form action="{{ route('dosen.kelompok.update', $kelompok->id) }}" method="POST">
-              @csrf
-              @method('PUT')
-
-              <div class="form-group">
-                  <label for="nama">Nama Kelompok</label>
-                  <input type="text" name="nama" id="nama" class="form-control"
-                         value="{{ old('nama', $kelompok->nama) }}" required>
-              </div>
-
-              {{-- KELAS: dropdown, terisi dari data kelompok --}}
-              <div class="form-group">
-                  <label for="kelas">Kelas</label>
-                  <select name="kelas" id="kelas" class="form-control" required>
-                      <option value="">-- Pilih Kelas --</option>
-                      @foreach($daftarKelas as $k)
-                          @php
-                              $value    = $k->nama_kelas; // misal: TI-3E
-                              $selected = old('kelas', $kelasTerpilih ?? '') == $value ? 'selected' : '';
-                          @endphp
-                          <option value="{{ $value }}" {{ $selected }}>
-                              {{ $k->nama_kelas }}
-                          </option>
-                      @endforeach
-                  </select>
-              </div>
-
-              <div class="form-group">
-                  <label for="judul_proyek">Judul Proyek</label>
-                  <input type="text" name="judul_proyek" id="judul_proyek" class="form-control"
-                         value="{{ old('judul_proyek', $kelompok->judul_proyek) }}" required>
-              </div>
-
-              <div class="form-group">
-                  <label for="nama_klien">Nama Klien</label>
-                  <input type="text" name="nama_klien" id="nama_klien" class="form-control"
-                         value="{{ old('nama_klien', $kelompok->nama_klien) }}" required>
-              </div>
-
-              <div class="form-group">
-                  <label for="ketua_kelompok">Ketua Kelompok (NIM)</label>
-                  <input type="text" name="ketua_kelompok" id="ketua_kelompok" class="form-control"
-                         value="{{ old('ketua_kelompok', $kelompok->ketua_kelompok) }}" required>
-              </div>
-
-              <div class="form-group">
-                  <label for="anggota">Anggota (pisahkan dengan koma)</label>
-                  <textarea name="anggota" id="anggota" rows="3" class="form-control" required>{{ old('anggota', $kelompok->anggota) }}</textarea>
-              </div>
-
-              <div class="form-group">
-                  <label for="dosen_pembimbing">Dosen Pembimbing</label>
-                  <input type="text" name="dosen_pembimbing" id="dosen_pembimbing" class="form-control"
-                         value="{{ old('dosen_pembimbing', $kelompok->dosen_pembimbing) }}">
-              </div>
-
-              <button type="submit" class="btn">Simpan Perubahan</button>
-          </form>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nama Kelompok</th>
+                <th>Kelas</th>
+                <th>Ketua</th>
+                <th>Dosen Pembimbing</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse ($kelompoks as $kelompok)
+                <tr>
+                  <td>
+                    <strong>{{ $kelompok->nama }}</strong><br>
+                    <small>{{ $kelompok->judul_proyek }}</small><br>
+                    <small><b>Anggota:</b> {{ $kelompok->anggota }}</small>
+                  </td>
+                  <td>{{ $kelompok->kelas }}</td>
+                  <td>{{ $kelompok->ketua_kelompok }}</td>
+                  <td>{{ $kelompok->dosen_pembimbing }}</td>
+                  <td>
+                    <a href="{{ route('dosen.kelompok.edit', $kelompok->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ route('dosen.kelompok.destroy', $kelompok->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelompok ini?');">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                    </form>
+                  </td>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="5" style="text-align:center; padding: 3rem;">
+                    Belum ada kelompok di kelas ini.
+                  </td>
+                </tr>
+              @endforelse
+            </tbody>
+          </table>
         </div>
       </section>
+
     </div>
   </main>
 

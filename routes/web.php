@@ -29,6 +29,7 @@ use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\LogbookController as DosenLogbookController;
 
+
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
 use App\Http\Controllers\DosenPenguji\PenilaianController;
@@ -154,17 +155,29 @@ Route::prefix('dosen')
     ->name('dosen.')
     ->middleware(['auth','verified','role:dosen_pembimbing'])
     ->group(function () {
+
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
 
         Route::resource('kelompok', DosenKelompokController::class)->names('kelompok');
+
         Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
 
-        Route::resource('milestone', DosenMilestoneController::class)->only(['index','edit','update']);
+        Route::resource('milestone', DosenMilestoneController::class)
+            ->only(['index','edit','update']);
 
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
-        Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
+
+        Route::patch('logbook/{logbook}/toggle-status',
+            [DosenLogbookController::class,'toggleStatus'])
             ->name('logbook.toggleStatus');
+
+        // ✅ HALAMAN DETAIL KELAS (TI-3E, TI-3D, dst)
+        Route::get('kelompok/kelas/{kelas}',
+    [DosenKelompokController::class, 'kelas'])
+    ->name('kelompok.kelas');
+
 });
+
 
 /*
 |--------------------------------------------------------------------------
