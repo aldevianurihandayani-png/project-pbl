@@ -19,18 +19,21 @@ class KelompokController extends Controller
     {
         $q = trim($request->get('q', ''));
 
-        $kelompok = Kelompok::query()
-            ->with(['mahasiswa','proyek','dosen'])
+        // tabel: kelompoks (kolom: id, judul, nama, judul_proyek, nama_klien, ketua_kelompok, kelas, anggota, dosen_pembimbing, ...)
+        $kelompoks = Kelompok::query()
             ->when($q, function ($query) use ($q) {
-                $query->where('judul', 'like', "%{$q}%")
-                      ->orWhere('topik', 'like', "%{$q}%")
-                      ->orWhere('nim', 'like', "%{$q}%");
+                $query->where('nama', 'like', "%{$q}%")
+                      ->orWhere('judul', 'like', "%{$q}%")
+                      ->orWhere('judul_proyek', 'like', "%{$q}%")
+                      ->orWhere('kelas', 'like', "%{$q}%")
+                      ->orWhere('dosen_pembimbing', 'like', "%{$q}%");
             })
-            ->orderByDesc('id_kelompok')
+            ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();
 
-        return view('kelompok.index', compact('kelompok', 'q'));
+        // ← perhatikan: admins.kelompok.index dan variabel $kelompoks
+        return view('admins.kelompok.index', compact('kelompoks', 'q'));
     }
 
     /**
@@ -54,75 +57,49 @@ class KelompokController extends Controller
             'nama'          => ['required', 'string', 'max:255'],
             'kelas'         => ['required', 'string', 'max:20'],
             'judul'         => ['required', 'string', 'max:255'],
-            'nim'           => ['required', 'string', 'exists:mahasiswas,nim'],
-            'id_proyek_pbl' => ['required', 'integer', 'exists:proyek_pbls,id'],
-            'id_dosen'      => ['required', 'integer', 'exists:dosens,id'],
+            'ketua_kelompok'=> ['required', 'string', 'max:255'],
+            'dosen_pembimbing' => ['required', 'string', 'max:255'],
         ]);
 
-        DB::transaction(function () use ($data, $request) {
-            $dosen = Dosen::find($data['id_dosen']);
-            $proyek = ProyekPbl::find($data['id_proyek_pbl']);
-
-            $insertData = [
-                'nama' => $data['nama'],
-                'kelas' => $data['kelas'],
-                'judul' => $data['judul'],
-                'ketua_kelompok' => $data['nim'],
-                'dosen_pembimbing' => $dosen->nama,
-                'judul_proyek' => $proyek->nama_proyek,
-            ];
-
-            Kelompok::create($insertData);
-        });
+        Kelompok::create($data);
 
         return redirect()->route('kelompok.index')->with('success', 'Kelompok berhasil ditambahkan.');
     }
 
-    /**
-     * Detail satu kelompok (opsional).
-     */
     public function show(Kelompok $kelompok)
     {
         $kelompok->load(['mahasiswa','proyek','dosen']);
         return view('kelompok.show', compact('kelompok'));
     }
 
-    /**
-     * Form edit.
-     */
     public function edit(Kelompok $kelompok)
     {
         return view('kelompok.edit', [
-            'kelompok' => $kelompok->load(['mahasiswa','proyek','dosen']),
+            'kelompok'  => $kelompok->load(['mahasiswa','proyek','dosen']),
             'mahasiswa' => Mahasiswa::select('nim','nama')->orderBy('nama')->get(),
             'proyek'    => ProyekPbl::select('id_proyek_pbl','nama_proyek')->orderBy('nama_proyek')->get(),
             'dosen'     => Dosen::select('id_dosen','nama')->orderBy('nama')->get(),
         ]);
     }
 
-    /**
-     * Update data.
-     */
     public function update(Request $request, Kelompok $kelompok)
     {
         $data = $request->validate([
-            'judul'         => ['required','string','max:255'],
-            'topik'         => ['nullable','string','max:255'],
-            'nim'           => ['required','integer','exists:mahasiswa,nim'],
-            'id_proyek_pbl' => ['required','integer','exists:proyek_pbl,id_proyek_pbl'],
-            'id_dosen'      => ['required','integer','exists:dosen,id_dosen'],
+            'nama'             => ['required','string','max:255'],
+            'judul'            => ['required','string','max:255'],
+            'judul_proyek'     => ['nullable','string','max:255'],
+            'nama_klien'       => ['nullable','string','max:255'],
+            'ketua_kelompok'   => ['required','string','max:255'],
+            'kelas'            => ['required','string','max:20'],
+            'anggota'          => ['nullable','string'],
+            'dosen_pembimbing' => ['required','string','max:255'],
         ]);
 
-        DB::transaction(function () use ($kelompok, $data) {
-            $kelompok->update($data);
-        });
+        $kelompok->update($data);
 
         return redirect()->route('kelompok.index')->with('success', 'Kelompok berhasil diperbarui.');
     }
 
-    /**
-     * Hapus data.
-     */
     public function destroy(Kelompok $kelompok)
     {
         $kelompok->delete();
