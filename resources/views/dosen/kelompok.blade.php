@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -67,14 +66,6 @@
     }
     .card .card-hd{ padding:14px 18px; border-bottom:1px solid #eef1f6; display:flex; align-items:center; justify-content:space-between; color:var(--navy-2); font-weight:700 }
     .card .card-bd{ padding:0; color:#233042; }
-    
-    /* Table Styles */
-    .table { width: 100%; border-collapse: collapse; }
-    .table th, .table td { padding: 12px 18px; text-align: left; border-bottom: 1px solid #eef1f6; }
-    .table th { color: var(--muted); font-size: 14px; font-weight: 600; }
-    .table td { font-size: 15px; }
-    .table tbody tr:last-child td { border-bottom: none; }
-    .table tbody tr:hover { background-color: #f5f7fb; }
 
     /* Button Styles */
     .btn {
@@ -94,14 +85,9 @@
         transition: background-color .15s ease-in-out;
     }
     .btn:hover { background-color: var(--navy); }
-    .btn-warning { background-color: #f59e0b; }
-    .btn-warning:hover { background-color: #d97706; }
-    .btn-danger { background-color: #ef4444; }
-    .btn-danger:hover { background-color: #dc2626; }
-    .btn-sm { padding: .25rem .5rem; font-size: .75rem; }
 
-    .form-inline { display: flex; align-items: flex-end; gap: 1rem; }
-    .form-inline .form-group { flex-grow: 1; }
+    .form-inline { display: flex; align-items: flex-end; gap: 1rem; flex-wrap:wrap; }
+    .form-inline .form-group { flex: 1 1 200px; }
     .form-control { display: block; width: 100%; padding: .75rem 1rem; font-size: 1rem; border: 1px solid #ced4da; border-radius: .5rem; }
 
     @media (max-width: 980px){
@@ -111,6 +97,73 @@
       .topbar-btn{ display:inline-flex }
     }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
+
+    /* ====== KARTU KELAS (ganti tabel CRUD) ====== */
+    .kelas-grid{
+      padding:18px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:18px;
+    }
+    .kelas-card{
+      background:#ffffff;
+      border-radius:18px;
+      border:1px solid #e0e5f4;
+      box-shadow:0 6px 16px rgba(9,23,84,.06);
+      padding:16px 18px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      cursor:pointer;                       /* bisa diklik */
+      transition:transform .15s, box-shadow .15s;
+    }
+    .kelas-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 20px rgba(9,23,84,.10);
+    }
+    .kelas-tag{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:var(--muted);
+    }
+    .kelas-title{
+      font-weight:700;
+      font-size:15px;
+      color:#0b1d54;
+    }
+    .kelas-sub{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .kelas-meta{
+      font-size:13px;
+      color:#22314a;
+      display:flex;
+      align-items:flex-start;
+      gap:6px;
+    }
+    .kelas-meta i{
+      margin-top:2px;
+    }
+    .kelas-footer{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .btn-outline{
+      background:#eef2ff;
+      color:#1b2f80;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      text-decoration:none;
+    }
   </style>
 </head>
 <body>
@@ -172,78 +225,117 @@
 
     <div class="page">
 
+      {{-- ================= FILTER ================= --}}
       <section class="card">
         <div class="card-hd">Filter Kelompok</div>
         <div class="card-bd" style="padding: 1.25rem;">
+
+          @php
+              // pilihan kelas berdasar semester
+              $kelasOptions = ['A','B','C','D','E'];           // default sampai E (misal 3E)
+              if (in_array($request->semester, [1,2])) {
+                  $kelasOptions = ['A','B','C','D'];          // sem 1 & 2 -> A–D
+              } elseif (in_array($request->semester, [3,4,6,7])) {
+                  $kelasOptions = ['A','B','C','D','E'];      // sem 3,4,6,7 -> A–E (3E termasuk)
+              }
+          @endphp
+
           <form method="GET" action="{{ route('dosen.kelompok.index') }}" class="form-inline">
+            <div class="form-group">
+              <label for="search">Pencarian</label>
+              <input
+                type="text"
+                name="search"
+                id="search"
+                class="form-control"
+                placeholder="Cari nama kelompok / judul proyek..."
+                value="{{ $request->search ?? '' }}">
+            </div>
+
             <div class="form-group">
               <label for="semester">Semester</label>
               <select name="semester" id="semester" class="form-control">
                 <option value="">Semua</option>
-                @for ($i = 1; $i <= 6; $i++)
+                @for ($i = 1; $i <= 7; $i++)
                   <option value="{{ $i }}" {{ ($request->semester == $i) ? 'selected' : '' }}>{{ $i }}</option>
                 @endfor
               </select>
             </div>
+
             <div class="form-group">
               <label for="kelas">Kelas</label>
               <select name="kelas" id="kelas" class="form-control">
                 <option value="">Semua</option>
-                @foreach (['A', 'B', 'C', 'D', 'E'] as $kelas)
-                  <option value="{{ $kelas }}" {{ ($request->kelas == $kelas) ? 'selected' : '' }}>{{ $kelas }}</option>
+                @foreach ($kelasOptions as $kelas)
+                  <option value="{{ $kelas }}" {{ ($request->kelas == $kelas) ? 'selected' : '' }}>
+                    {{ $kelas }}
+                  </option>
                 @endforeach
               </select>
             </div>
+
             <button type="submit" class="btn">Filter</button>
           </form>
         </div>
       </section>
 
+      {{-- =============== KELAS (GANTI TABEL CRUD) =============== --}}
       <section class="card">
         <div class="card-hd">
-            <div><i class="fa-solid fa-users"></i> Daftar Kelompok Anda</div>
-            <a href="{{ route('dosen.kelompok.create') }}" class="btn">Tambah Kelompok</a>
+          <div><i class="fa-solid fa-users"></i> Kelas Bimbingan Anda</div>
+          <a href="{{ route('dosen.kelompok.create') }}" class="btn">Tambah Kelompok</a>
         </div>
+
         <div class="card-bd">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nama Kelompok</th>
-                        <th>Kelas</th>
-                        <th>Ketua</th>
-                        <th>Dosen Pembimbing</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($kelompoks as $kelompok)
-                    <tr>
-                        <td>
-                            <strong>{{ $kelompok->nama }}</strong><br>
-                            <small style="color:var(--muted)">{{ $kelompok->judul_proyek }}</small><br>
-                            <small style="color:var(--muted);"><b>Anggota:</b> {{ $kelompok->anggota }}</small>
-                        </td>
-                        <td>{{ str_replace('TI-', '', $kelompok->kelas) }}</td>
-                        <td>{{ $kelompok->ketua_kelompok }}</td>
-                        <td>{{ $kelompok->dosen_pembimbing }}</td>
-                        <td>
-                            <a href="{{ route('dosen.kelompok.edit', $kelompok->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('dosen.kelompok.destroy', $kelompok->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelompok ini?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding: 3rem;">Tidak ada data kelompok.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+          @php
+            // grupkan berdasarkan kelas (misal: TI-3E, TI-3D, dsb)
+            $kelasGrouped = $kelompoks->groupBy('kelas');
+          @endphp
+
+          <div class="kelas-grid">
+            @forelse ($kelasGrouped as $namaKelas => $items)
+              @php
+                  // label kelas rapi, contoh: "TI 3E"
+                  $labelKelas = str_replace(['TI-','TI '],'TI ', $namaKelas);
+                  $jumlahKelompok = $items->count();
+                  $contoh = $items->first();
+
+                  // URL detail: ke halaman CRUD kelas tertentu (TI-3E, dst)
+                  $detailUrl = route('dosen.kelompok.kelas', $namaKelas);
+              @endphp
+
+              <div class="kelas-card" data-href="{{ $detailUrl }}">
+                <div class="kelas-tag">Teknologi Informasi</div>
+                <div class="kelas-title">{{ $labelKelas }}</div>
+                <div class="kelas-sub">
+                  {{ $jumlahKelompok }} kelompok bimbingan
+                </div>
+
+                @if ($contoh)
+                  <div class="kelas-meta">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>Dosen pembimbing: {{ $contoh->dosen_pembimbing }}</span>
+                  </div>
+                  <div class="kelas-meta">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Contoh ketua: {{ $contoh->ketua_kelompok }}</span>
+                  </div>
+                @endif
+
+                <div class="kelas-footer">
+                  <span>{{ $jumlahKelompok }} kelompok terdata</span>
+                  <a href="{{ $detailUrl }}" class="btn-outline">Lihat detail</a>
+                </div>
+              </div>
+            @empty
+              <div style="padding:2.5rem; text-align:center; color:var(--muted); width:100%;">
+                Belum ada data kelompok untuk ditampilkan.
+              </div>
+            @endforelse
+          </div>
         </div>
       </section>
+
     </div>
   </main>
 
@@ -254,6 +346,20 @@
       if(!sb.classList.contains('show')) return;
       const btn = e.target.closest('.topbar-btn');
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
+    });
+
+    // Bikin seluruh kartu kelas bisa diklik ke halaman detail
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.kelas-card[data-href]').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          // kalau yang diklik adalah link "Lihat detail", biarkan pakai href-nya sendiri
+          if (e.target.closest('a')) return;
+          const url = this.dataset.href;
+          if (url && url !== '#') {
+            window.location = url;
+          }
+        });
+      });
     });
   </script>
 </body>

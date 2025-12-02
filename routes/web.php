@@ -11,6 +11,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogbookController; // untuk MAHASISWA (global)
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\TPK\TPKMahasiswaController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -21,12 +22,13 @@ use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
-// use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController; // <<< DIHIDUPKAN
 
 // Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\LogbookController as DosenLogbookController;
+
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -125,7 +127,7 @@ Route::prefix('admins')
         Route::resource('notifikasi', AdminNotifikasiController::class);
         Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
         Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
-        // Route::resource('profile', AdminProfileController::class);
+        Route::resource('profile', AdminProfileController::class); // <<< DIHIDUPKAN
 });
 
 /*
@@ -153,17 +155,29 @@ Route::prefix('dosen')
     ->name('dosen.')
     ->middleware(['auth','verified','role:dosen_pembimbing'])
     ->group(function () {
+
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
 
         Route::resource('kelompok', DosenKelompokController::class)->names('kelompok');
+
         Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
 
-        Route::resource('milestone', DosenMilestoneController::class)->only(['index','edit','update']);
+        Route::resource('milestone', DosenMilestoneController::class)
+            ->only(['index','edit','update']);
 
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
-        Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
+
+        Route::patch('logbook/{logbook}/toggle-status',
+            [DosenLogbookController::class,'toggleStatus'])
             ->name('logbook.toggleStatus');
+
+        // ✅ HALAMAN DETAIL KELAS (TI-3E, TI-3D, dst)
+        Route::get('kelompok/kelas/{kelas}',
+    [DosenKelompokController::class, 'kelas'])
+    ->name('kelompok.kelas');
+
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -260,6 +274,7 @@ Route::prefix('dosenpenguji')
         Route::delete('/cpmk/{cpmk}', [CpmkController::class, 'destroy'])
             ->name('cpmk.destroy');
 
+
         // =========================
         // PROFIL DOSEN PENGUJI
         // =========================
@@ -320,9 +335,52 @@ Route::prefix('jaminanmutu')
         // Tambahkan halaman lain khusus JM di sini bila perlu.
     });
 
+        // Profil Penguji
+Route::view('/profile', 'dosenpenguji.profile')->name('profile');
+Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
+Route::put('/profile', function (Request $request) {
+    // ambil user yang sedang login
+    $user = Auth::user();
+
+    $validated = $request->validate([
+        'nama'     => 'nullable|string|max:255',
+        'name'     => 'nullable|string|max:255',
+        'email'    => 'required|email',
+        'password' => 'nullable|min:6',
+    ]);
+
+    $data = [
+        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+        'email' => $validated['email'],
+    ];
+
+    if (!empty($validated['password'])) {
+        $data['password'] = Hash::make($validated['password']);
+    }
+    // tidak perlu auth()->setUser($user->fresh());
+    return redirect()
+        ->route('dosenpenguji.profile')
+        ->with('success', 'Perubahan berhasil disimpan.');
+})->name('profile.update');
+
+
 /*
 |--------------------------------------------------------------------------
 | Resource Global (jika dipakai umum)
 |--------------------------------------------------------------------------
 */
 Route::resource('logbooks', LogbookController::class);
+
+use App\Http\Controllers\DriveTestController;
+
+Route::get('/drive-test', [DriveTestController::class, 'form']);
+Route::post('/drive-test', [DriveTestController::class, 'upload'])->name('drive.test.upload');
+
+
+// ================= TPK MAHASISWA ==================
+Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
+    Route::get('/',        [TPKMahasiswaController::class, 'index'])->name('index');
+    Route::get('/create',  [TPKMahasiswaController::class, 'create'])->name('create');
+    Route::post('/store',  [TPKMahasiswaController::class, 'store'])->name('store');
+    Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
+});

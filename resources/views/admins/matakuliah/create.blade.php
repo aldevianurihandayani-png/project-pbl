@@ -95,37 +95,31 @@
         </div>
       </div>
 
-      {{-- ========== DATA DOSEN PENGAMPU (OPSIONAL) ========== --}}
+      {{-- ========== DATA DOSEN PENGAMPU ========== --}}
       <hr class="my-4">
-      <h6 class="text-primary font-weight-bold mb-3">Data Dosen Pengampu (opsional)</h6>
+      <h6 class="text-primary font-weight-bold mb-3">Data Dosen Pengampu</h6>
 
+      {{-- INPUT TEXT: NAMA DOSEN BISA DIKETIK BEBAS --}}
       <div class="form-group">
-        <label for="nama_dosen">Nama Dosen</label>
+        <label for="nama_dosen">Dosen Pengampu</label>
         <input
           type="text"
           class="form-control @error('nama_dosen') is-invalid @enderror"
           id="nama_dosen"
           name="nama_dosen"
           value="{{ old('nama_dosen') }}"
-          placeholder="cth: M. Najamudin Ridha, S.Kom."
-          autocomplete="off"
-          list="dosen-list"
+          placeholder="cth: Noorma S.Kom., M.Kom"
+          required
         >
-        {{-- Saran nama dosen dari database (controller create() mengirim $dosens) --}}
-        <datalist id="dosen-list">
-          @isset($dosens)
-            @foreach ($dosens as $d)
-              <option value="{{ $d->nama_dosen }}"></option>
-            @endforeach
-          @endisset
-        </datalist>
-
         @error('nama_dosen')
           <div class="invalid-feedback">{{ $message }}</div>
         @enderror
-        <small class="text-muted">Boleh dikosongkan. Jika diisi, sistem akan membuat/menautkan dosen dengan nama tersebut.</small>
+        <small class="text-muted">
+          Isi dengan nama lengkap dosen pengampu mata kuliah ini.
+        </small>
       </div>
 
+      {{-- Field tambahan (opsional, kalau memang kamu pakai) --}}
       <div class="form-group">
         <label for="jabatan">Jabatan</label>
         <input
