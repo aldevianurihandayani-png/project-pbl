@@ -9,47 +9,71 @@ class Mahasiswa extends Model
 {
     use HasFactory;
 
-
+    // nama tabel
     protected $table = 'mahasiswas';
 
-    // ⬇ WAJIB: sesuaikan nama tabelnya
-    protected $table = 'mahasiswas';
-
-    // PK kamu pakai NIM (string)
-
+    // primary key = nim
     protected $primaryKey = 'nim';
     protected $keyType = 'string';
     public $incrementing = false;
 
     protected $fillable = [
-        'nim','nama','angkatan','no_hp','id_kelompok','user_id'
+        'nim',
+        'nama',
+        'angkatan',
+        'no_hp',
+        'id_kelompok',
+        'user_id',
+        
+        // tambahkan jika memang ada di tabel:
+        'kelas',
+        'semester',
+        'dosen_pembimbing_id',
+        'proyek_pbl_id'
     ];
 
-    /** RELASI **/
+    /* ======================================
+        RELASI
+    ====================================== */
+
+    // Kelompok
     public function kelompok()
     {
-     
-         return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
+        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 
+    // Logbook
     public function logbook()
     {
         return $this->hasMany(Logbook::class, 'nim', 'nim');
     }
 
-    // Gunakan nama kelas model dengan PascalCase, bukan nama tabel
+    // Laporan penilaian
     public function laporanPenilaian()
     {
         return $this->hasMany(LaporanPenilaian::class, 'nim', 'nim');
     }
 
+    // Relasi ke user
     public function user()
     {
-        // kalau relasi ke users via user_id: return $this->belongsTo(User::class, 'user_id', 'id');
-        // kalau relasi via nim sesuai kodenya:
+        // jika relasi via nim:
         return $this->belongsTo(User::class, 'nim', 'nim');
     }
 
+    // Dosen Pembimbing (yang kamu minta)
+    public function dosenPembimbing()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_pembimbing_id', 'id');
+    }
+
+    // Proyek PBL (yang kamu minta)
+    public function proyekPbl()
+    {
+        return $this->belongsTo(ProyekPbl::class, 'proyek_pbl_id', 'id');
+    }
+
+    // Route model binding pakai nim
     public function getRouteKeyName()
     {
         return 'nim';
