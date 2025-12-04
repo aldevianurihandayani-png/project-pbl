@@ -10,20 +10,26 @@ use Illuminate\Support\Str;
 
 class GoogleController extends Controller
 {
+    /**
+     * Arahkan user ke halaman login Google.
+     */
     public function redirect()
     {
         return Socialite::driver('google')->redirect();
     }
 
+    /**
+     * Callback dari Google setelah user memilih akun.
+     */
     public function callback()
     {
         try {
-            // kalau masih ada masalah SSL, pastikan php.ini + cacert.pem sudah diset
+            // Ambil data user dari Google
             $googleUser = Socialite::driver('google')
-                ->stateless()
+                ->stateless()      // boleh dihapus kalau tidak perlu stateless
                 ->user();
         } catch (\Exception $e) {
-            // dd($e->getMessage()); // buat debug kalau perlu
+            // dd($e->getMessage()); // bisa dipakai debug kalau error
             return redirect('/login')->with('error', 'Gagal login dengan Google.');
         }
 
@@ -41,11 +47,11 @@ class GoogleController extends Controller
         // 3. KALAU BELUM ADA -> BUAT BARU
         if (!$user) {
             $user = User::create([
-                'name'  => $googleUser->getName(),
-                'email' => $email,
-                'password' => bcrypt(Str::random(16)), // random, karena SSO
-                'email_verified_at' => now(),           // anggap sudah terverifikasi
-                'role' => 'mahasiswa',                  // default boleh kamu ganti
+                'name'              => $googleUser->getName(),
+                'email'             => $email,
+                'password'          => bcrypt(Str::random(16)), // random, karena SSO
+                'email_verified_at' => now(),                    // anggap sudah terverifikasi
+                'role'              => 'mahasiswa',              // default boleh kamu ganti
             ]);
         } else {
             // 4. KALAU SUDAH ADA TAPI BELUM VERIFIED, ANGAP VERIFIED
@@ -58,20 +64,26 @@ class GoogleController extends Controller
         // 5. LOGIN-KAN USER
         Auth::login($user);
 
-        // 6. ARAHKAN KE DASHBOARD SESUAI ROLE (PAKAI SWITCH YANG SAMA DENGAN VERIFIKASI EMAIL)
+        // 6. ARAHKAN KE DASHBOARD SESUAI ROLE
         switch ($user->role) {
             case 'admin':
                 return redirect()->route('admins.dashboard');
+
             case 'mahasiswa':
                 return redirect()->route('mahasiswa.dashboard');
+
             case 'dosen_pembimbing':
                 return redirect()->route('dosen.dashboard');
+
             case 'dosen_penguji':
                 return redirect()->route('dosenpenguji.dashboard');
+
             case 'koordinator':
                 return redirect()->route('koordinator.dashboard');
+
             case 'jaminan_mutu':
                 return redirect()->route('jaminanmutu.dashboard');
+
             default:
                 return redirect()->route('home');
         }
