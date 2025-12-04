@@ -10,21 +10,29 @@ class Rubrik extends Model
     use HasFactory;
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
+     * Nama tabel di database.
+     * Kalau tabelmu memang bernama "rubrik" (bukan "rubriks"),
+     * ini WAJIB ada.
      */
     protected $table = 'rubrik';
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * Kolom-kolom yang boleh di-mass assign (create/update).
      */
-    protected $fillable = ['kode_mk','nama_rubrik','bobot','urutan','deskripsi'];
+    protected $fillable = [
+        'kode_mk',      // kode mata kuliah (relasi ke MK)
+        'nama_rubrik',  // nama komponen rubrik
+        'deskripsi',    // penjelasan rubrik
+        'bobot',        // bobot nilai
+        'urutan',       // urutan tampil
+    ];
 
     /**
-     * Get the mata kuliah that owns the rubrik.
+     * Relasi ke MataKuliah (optional tapi bagus kalau ada).
+     * Asumsi:
+     * - tabel mata kuliah: "mata_kuliah"
+     * - model: App\Models\MataKuliah
+     * - kunci: kode_mk di kedua tabel
      */
     public function mataKuliah()
     {

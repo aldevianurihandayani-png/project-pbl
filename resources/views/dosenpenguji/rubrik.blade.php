@@ -12,8 +12,7 @@
   .table th{color:#0e257a; font-weight:800; background:#f6f8fd}
   .right{text-align:right} .center{text-align:center}
 
-  /* modal (ringan, tanpa ubah tema) */
-  .modal-backdrop{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:50}
+  .modal-backdrop{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:50;display:none}
   .modal-card{width:720px;max-width:95vw;background:#fff;border-radius:14px;box-shadow:0 15px 60px rgba(16,24,40,.18);overflow:hidden}
   .modal-hd{padding:14px 18px;border-bottom:1px solid #eef1f6;font-weight:800;color:#0e257a}
   .modal-bd{padding:16px 18px}
@@ -23,54 +22,72 @@
   .form-control:focus{border-color:#0e257a;box-shadow:0 0 0 2px rgba(14,37,122,.15)}
 </style>
 
+@php
+  // paginator-safe collection utk perhitungan
+  $rubrikCollection = ($rubriks ?? null) instanceof \Illuminate\Pagination\AbstractPaginator
+      ? $rubriks->getCollection()
+      : collect($rubriks ?? []);
+  $totalBobot = (int) $rubrikCollection->sum('bobot');
+@endphp
+
 <div class="card">
-  <div class="card-hd">
+  <div class="card-hd d-flex justify-content-between align-items-center">
+    {{-- FILTER MK --}}
     <div class="filters">
       <div class="fw-semibold" style="min-width:92px">Mata Kuliah:</div>
-      <form method="GET" action="{{ route('dosenpenguji.rubrik.index') }}" class="filters">
-        <select name="matakuliah" class="form-control" style="min-width:220px" onchange="this.form.submit()">
+
+      <form method="GET" action="{{ route('dosenpenguji.rubrik.index') }}" class="filters" onsubmit="return false">
+        <select id="mkSelect" name="matakuliah" class="form-control" style="min-width:220px">
           <option value="">Pilih MK</option>
           @foreach(($matakuliah ?? collect()) as $mkrow)
             <option value="{{ $mkrow->kode_mk }}" @selected(($mk ?? '') === $mkrow->kode_mk)>{{ $mkrow->nama_mk }}</option>
           @endforeach
         </select>
+
         @if(!empty($mk))
-          <span class="chip"><i class="fa-solid fa-book"></i> {{ $matakuliah->firstWhere('kode_mk',$mk)->nama_mk ?? $mk }}</span>
+          <span class="chip">
+            <i class="fa-solid fa-book"></i>
+            {{ ($matakuliah ?? collect())->firstWhere('kode_mk',$mk)->nama_mk ?? $mk }}
+          </span>
         @endif
       </form>
     </div>
 
-    @php $totalBobot = ($rubriks ?? collect())->sum('bobot'); @endphp
-    <div class="chip" title="Total bobot semua komponen">
-      <i class="fa-solid fa-percent"></i> Total Bobot: {{ number_format($totalBobot,0) }}%
+    {{-- TOTAL BOBOT + TOMBOL TAMBAH --}}
+    <div class="filters">
+      <div class="chip" title="Total bobot semua komponen">
+        <i class="fa-solid fa-percent"></i> Total Bobot: {{ number_format($totalBobot,0) }}%
+      </div>
+
+      @if(!empty($mk))
+        <button type="button" id="btnOpenCreate" class="btn btn-primary">
+          + Tambah Rubrik
+        </button>
+      @endif
     </div>
   </div>
 
   <div class="card-bd">
-    @if(isset($rubriks) && $rubriks->count())
+    @if($rubrikCollection->count())
       <div class="table-responsive">
         <table class="table align-middle" style="width:100%">
           <thead>
             <tr>
-              <th style="width:50%">Nama Komponen</th>
+              <th style="width:22%">Nama Komponen</th>
+              <th style="width:33%">Deskripsi</th>
               <th class="center" style="width:15%">Bobot (%)</th>
               <th class="center" style="width:15%">Urutan</th>
-              <th class="right"  style="width:20%">Aksi</th>
+              <th class="right"  style="width:15%">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            @foreach ($rubriks as $r)
+            @foreach ($rubriks as $r) {{-- gunakan paginator utk otomatis links() --}}
               @php
-                // ambil id yang tersedia (id / rubric_id / id_rubrik)
                 $rid = $r->id ?? $r->rubric_id ?? $r->id_rubrik;
               @endphp
               <tr>
-                <td>
-                  <strong>{{ $r->nama_rubrik }}</strong>
-                  @if(!empty($r->deskripsi))
-                    <div style="color:#6b7280; font-size:13px">{{ $r->deskripsi }}</div>
-                  @endif
-                </td>
+                <td><strong>{{ $r->nama_rubrik }}</strong></td>
+                <td>{{ $r->deskripsi }}</td>
                 <td class="center">{{ $r->bobot }}</td>
                 <td class="center">{{ $r->urutan }}</td>
                 <td class="right">
@@ -97,6 +114,19 @@
                     data-urutan="{{ $r->urutan }}">
                     <i class="fa-solid fa-eye"></i> Detail
                   </button>
+
+                  {{-- HAPUS --}}
+                  <form
+                    action="{{ route('dosenpenguji.rubrik.destroy', $r) }}"
+                    method="POST"
+                    style="display:inline-block; margin-left:6px;"
+                    onsubmit="return confirm('Yakin ingin menghapus komponen rubrik ini?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                      <i class="fa-solid fa-trash"></i> Hapus
+                    </button>
+                  </form>
                 </td>
               </tr>
             @endforeach
@@ -105,17 +135,59 @@
       </div>
 
       @if (method_exists($rubriks, 'hasPages') && $rubriks->hasPages())
-        <div class="mt-2">{{ $rubriks->links() }}</div>
+        <div class="mt-2">{{ $rubriks->appends(request()->only('matakuliah'))->links() }}</div>
       @endif
     @else
       <div class="empty">
         <i class="fa-solid fa-circle-info"></i>
         <div>
           <div class="fw-bold">Belum ada data rubrik</div>
-          <div style="font-size:13px">Pilih Mata Kuliah terlebih dahulu untuk menampilkan komponen penilaian.</div>
+          @if(!empty($mk))
+            <div style="font-size:13px">Klik tombol <b>Tambah Rubrik</b> untuk membuat komponen penilaian.</div>
+          @else
+            <div style="font-size:13px">Pilih Mata Kuliah terlebih dahulu untuk menampilkan komponen penilaian.</div>
+          @endif
         </div>
       </div>
     @endif
+  </div>
+</div>
+
+{{-- ===== MODAL TAMBAH RUBRIK ===== --}}
+<div id="createModal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-hd">Tambah Komponen Rubrik</div>
+    <form id="createForm" method="POST" action="{{ route('dosenpenguji.rubrik.store') }}">
+      @csrf
+      <div class="modal-bd">
+        {{-- Kode MK dikirim dari pilihan atas (filter) --}}
+        <input type="hidden" name="kode_mk" value="{{ $mk }}">
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nama Rubrik</label>
+            <input name="nama_rubrik" type="text" class="form-control" placeholder="Misal: Presentasi" required>
+          </div>
+          <div class="form-group">
+            <label>Bobot (%)</label>
+            <input name="bobot" type="number" min="0" max="100" class="form-control" value="0" required>
+          </div>
+          <div class="form-group">
+            <label>Urutan</label>
+            <input name="urutan" type="number" min="1" class="form-control" value="1" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:12px">
+          <label>Deskripsi</label>
+          <textarea name="deskripsi" class="form-control" rows="3" placeholder="Deskripsi kriteria penilaian (opsional)"></textarea>
+        </div>
+      </div>
+      <div class="modal-ft">
+        <button type="button" class="btn btn-secondary" id="btnCancelCreate">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -188,12 +260,36 @@
 
 <script>
 (function(){
+  // === Ganti MK: update query & reload
+  const mkSelect = document.getElementById('mkSelect');
+  if (mkSelect) {
+    mkSelect.addEventListener('change', function(){
+      const url = new URL(window.location.href);
+      const kode = this.value || '';
+      if (kode) { url.searchParams.set('matakuliah', kode); }
+      else { url.searchParams.delete('matakuliah'); }
+      url.searchParams.delete('page'); // reset pagination
+      window.location.href = url.toString();
+    });
+  }
+
+  const mCreate = document.getElementById('createModal');
+  const btnOpenCreate = document.getElementById('btnOpenCreate');
+  const btnCancelCreate = document.getElementById('btnCancelCreate');
+
   const mEdit   = document.getElementById('editModal');
   const mDetail = document.getElementById('detailModal');
   const fEdit   = document.getElementById('editForm');
 
-  const open   = m => m.style.display = 'flex';
-  const close  = m => m.style.display = 'none';
+  const open   = m => m && (m.style.display = 'flex');
+  const close  = m => m && (m.style.display = 'none');
+
+  // === Create
+  if (btnOpenCreate) {
+    btnOpenCreate.addEventListener('click', ()=>open(mCreate));
+  }
+  btnCancelCreate?.addEventListener('click', ()=>close(mCreate));
+  mCreate?.addEventListener('click', e=>{ if(e.target===mCreate) close(mCreate); });
 
   // === Edit
   document.querySelectorAll('.js-edit').forEach(btn=>{
@@ -206,6 +302,7 @@
       const urut = btn.dataset.urutan || '';
 
       fEdit.action = `/dosenpenguji/rubrik/${encodeURIComponent(id)}`; // route PUT
+
       document.getElementById('er_id').value        = id;
       document.getElementById('er_mk').value        = mk;
       document.getElementById('er_nama').value      = nama;
@@ -216,8 +313,8 @@
       open(mEdit);
     });
   });
-  document.getElementById('btnCancelEdit').addEventListener('click', ()=>close(mEdit));
-  mEdit.addEventListener('click', e=>{ if(e.target===mEdit) close(mEdit); });
+  document.getElementById('btnCancelEdit')?.addEventListener('click', ()=>close(mEdit));
+  mEdit?.addEventListener('click', e=>{ if(e.target===mEdit) close(mEdit); });
 
   // === Detail
   document.querySelectorAll('.js-detail').forEach(btn=>{
@@ -229,8 +326,8 @@
       open(mDetail);
     });
   });
-  document.getElementById('btnCloseDetail').addEventListener('click', ()=>close(mDetail));
-  mDetail.addEventListener('click', e=>{ if(e.target===mDetail) close(mDetail); });
+  document.getElementById('btnCloseDetail')?.addEventListener('click', ()=>close(mDetail));
+  mDetail?.addEventListener('click', e=>{ if(e.target===mDetail) close(mDetail); });
 })();
 </script>
 @endsection

@@ -38,7 +38,7 @@ use App\Http\Controllers\DosenPenguji\PenilaianController;
 use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
-use App\Http\Controllers\DosenPenguji\CPMKController;
+use App\Http\Controllers\CpmkController;
 use App\Http\Controllers\DosenPenguji\PenilaianItemController;
 
 // MODEL quick-edit
@@ -191,57 +191,152 @@ Route::prefix('dosenpenguji')
     ->name('dosenpenguji.')
     ->middleware(['auth','verified','role:dosen_penguji'])
     ->group(function () {
+
+        // Dashboard
         Route::redirect('/', '/dosenpenguji/dashboard');
         Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
 
+        // MAHASISWA
         Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
+        
+        Route::get('/mahasiswa/kelas/{kelas}', [DPMahasiswaController::class, 'showByKelas'])
+            ->name('mahasiswa.kelas');
 
-        // PENILAIAN
-        Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
-        Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])->name('penilaian.bulkSave');
-        Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])->name('penilaian.deleteGrade');
-        Route::get('/penilaian/export', [PenilaianController::class, 'export'])->name('penilaian.export');
-        Route::post('/penilaian/import', [PenilaianController::class, 'import'])->name('penilaian.import');
+        // =========================
+        // PENILAIAN (GRADEBOOK + Excel/PDF)
+        // =========================
 
-        // RUBRIK
+        // Halaman utama penilaian (gradebook rubrik × mahasiswa)
+        Route::get('/penilaian', [PenilaianController::class,'index'])
+            ->name('penilaian');
+
+        // Simpan semua nilai (tombol "Simpan Semua")
+        Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])
+            ->name('penilaian.bulkSave');
+
+        // Hapus satu nilai (nim × rubrik) via AJAX
+        Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])
+            ->name('penilaian.deleteGrade');
+
+        // =========================
+        // PENILAIAN (CRUD baru)
+        // =========================
+        Route::get('/penilaian', [PenilaianController::class,'index'])->name('penilaian');
+        Route::post('/penilaian', [PenilaianController::class,'store'])->name('penilaian.store');
+        Route::put('/penilaian/{penilaian}', [PenilaianController::class,'update'])->name('penilaian.update');
+        Route::delete('/penilaian/{penilaian}', [PenilaianController::class,'destroy'])->name('penilaian.destroy');
+
+        // ===== Export / Import – HANYA Excel & PDF =====
+        // (pakai method ...Baru di PenilaianController)
+
+        Route::get('/penilaian/export/excel', [PenilaianController::class,'exportExcelBaru'])
+            ->name('penilaian.export.excel');
+
+        Route::get('/penilaian/export/pdf', [PenilaianController::class,'exportPdfBaru'])
+            ->name('penilaian.export.pdf');
+
+        Route::get('/penilaian/template', [PenilaianController::class,'downloadTemplateBaru'])
+            ->name('penilaian.template');
+
+        Route::post('/penilaian/import', [PenilaianController::class,'importExcelBaru'])
+            ->name('penilaian.import');
+
+        // Alias lama: route('dosenpenguji.penilaian.export') → export Excel juga
+        Route::get('/penilaian/export', [PenilaianController::class, 'exportExcelBaru'])
+            ->name('penilaian.export');
+
+
+        // =========================
+        // RUBRIK – CRUD LENGKAP
+        // =========================
         Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
-        Route::put('/rubrik/{id}', function (Request $request, $id) {
-            $data = $request->validate([
-                'nama_rubrik' => ['required','string','max:255'],
-                'deskripsi'   => ['nullable','string'],
-                'bobot'       => ['required','numeric','min:0','max:100'],
-                'urutan'      => ['required','integer','min:1'],
-            ]);
-            $updated = Rubrik::query()->whereKey($id)->update($data);
-            return back()->with($updated ? 'success' : 'error',
-                $updated ? 'Komponen rubrik berhasil diperbarui.' : 'Rubrik tidak ditemukan / gagal diperbarui.');
-        })->name('rubrik.update');
+        Route::post('/rubrik', [RubrikController::class, 'store'])->name('rubrik.store');
+        Route::put('/rubrik/{rubrik}', [RubrikController::class, 'update'])->name('rubrik.update');
+        Route::delete('/rubrik/{rubrik}', [RubrikController::class, 'destroy'])->name('rubrik.destroy');
 
         // CRUD Item Penilaian
         Route::prefix('penilaian-item')->name('penilaian.item.')->group(function () {
-            Route::get('/create', [PenilaianItemController::class, 'create'])->name('create');
-            Route::post('/', [PenilaianItemController::class, 'store'])->name('store');
-            Route::get('/{item}/edit', [PenilaianItemController::class, 'edit'])->name('edit');
-            Route::put('/{item}', [PenilaianItemController::class, 'update'])->name('update');
-            Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
-        });
+        Route::get('/create', [PenilaianItemController::class, 'create'])->name('create');
+        Route::post('/', [PenilaianItemController::class, 'store'])->name('store');
+        Route::get('/{item}/edit', [PenilaianItemController::class, 'edit'])->name('edit');
+        Route::put('/{item}', [PenilaianItemController::class, 'update'])->name('update');
+        Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
+});
 
         // Master data
         Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
         Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
-        Route::get('/cpmk', [CPMKController::class, 'index'])->name('cpmk.index');
 
-        // Quick-Edit CPMK (by kode_mk + kode)
-        Route::put('/cpmk/{kode_mk}/{kode}', function (Request $request, $kode_mk, $kode) {
-            $data = $request->validate([
-                'deskripsi' => ['required','string'],
-                'bobot'     => ['required','numeric','min:0','max:100'],
-                'urutan'    => ['required','integer','min:1'],
+        // =========================
+        // CPMK
+        // =========================
+        Route::get('/cpmk',  [CpmkController::class, 'index'])->name('cpmk.index');
+        Route::post('/cpmk', [CpmkController::class, 'store'])->name('cpmk.store');
+        Route::put('/cpmk/{kode_mk}/{kode}', [CpmkController::class, 'quickUpdate'])
+            ->name('cpmk.quickUpdate');
+        Route::delete('/cpmk/{cpmk}', [CpmkController::class, 'destroy'])
+            ->name('cpmk.destroy');
+
+
+        // =========================
+        // PROFIL DOSEN PENGUJI
+        // =========================
+        Route::view('/profile', 'dosenpenguji.profile')->name('profile');
+        Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
+
+        Route::put('/profile', function (Request $request) {
+            $user = auth()->user();
+
+            $validated = $request->validate([
+                'nama'     => 'nullable|string|max:255',
+                'name'     => 'nullable|string|max:255',
+                'email'    => 'required|email',
+                'password' => 'nullable|min:6',
             ]);
-            $updated = Cpmk::where('kode_mk', $kode_mk)->where('kode', $kode)->update($data);
-            return back()->with($updated ? 'success' : 'error',
-                $updated ? 'CPMK berhasil diperbarui.' : 'CPMK tidak ditemukan / gagal diperbarui.');
-        })->name('cpmk.update');
+
+            $data = [
+                'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+                'email' => $validated['email'],
+            ];
+
+            if (!empty($validated['password'])) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($data);
+            auth()->setUser($user->fresh());
+
+            return redirect()
+                ->route('dosenpenguji.profile')
+                ->with('success', 'Perubahan berhasil disimpan.');
+        })->name('profile.update');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Koordinator PBL (role: koordinator)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('koordinator')
+    ->name('koordinator.')
+    ->middleware(['auth','verified','role:koordinator'])
+    ->group(function () {
+        Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
+        // Tambahkan halaman lain khusus koordinator di sini bila perlu.
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Jaminan Mutu (role: jaminan_mutu)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('jaminanmutu')
+    ->name('jaminanmutu.')
+    ->middleware(['auth','verified','role:jaminan_mutu'])
+    ->group(function () {
+        Route::view('/dashboard', 'jaminanmutu.dashboard')->name('dashboard');
+        // Tambahkan halaman lain khusus JM di sini bila perlu.
+    });
 
         // Profil Penguji
 Route::view('/profile', 'dosenpenguji.profile')->name('profile');
@@ -270,7 +365,7 @@ Route::put('/profile', function (Request $request) {
         ->route('dosenpenguji.profile')
         ->with('success', 'Perubahan berhasil disimpan.');
 })->name('profile.update');
-});
+
 
 /*
 |--------------------------------------------------------------------------
