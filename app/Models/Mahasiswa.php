@@ -9,58 +9,48 @@ class Mahasiswa extends Model
 {
     use HasFactory;
 
-    // nama tabel
-    protected $table = 'mahasiswas';
-
-    // primary key = nim
-
     // NAMA TABEL SESUAI DB
     protected $table = 'mahasiswas';
 
     // Primary key pakai NIM (string, bukan auto increment)
-
     protected $primaryKey = 'nim';
-    protected $keyType = 'string';
-    public $incrementing = false;
+    protected $keyType    = 'string';
+    public $incrementing  = false;
 
     // KOLOM YANG BISA DI-ISI MASS ASSIGNMENT
     protected $fillable = [
         'nim',
         'nama',
+        'email',       // kolom di DB
+        'no_telp',     // di DB namanya no_telp, bukan no_hp
         'angkatan',
-        'no_hp',
-        'id_kelompok',
-        'user_id',
-
-        
-        // tambahkan jika memang ada di tabel:
         'kelas',
+        'id_dosen',
+        'kelompok_id',
+
+        // kalau nanti kolom2 ini benar-benar kamu tambah di DB,
+        // fillable-nya sudah siap:
+        'user_id',
         'semester',
         'dosen_pembimbing_id',
-        'proyek_pbl_id'
-
+        'proyek_pbl_id',
     ];
 
     /* ======================================
         RELASI
     ====================================== */
 
-    // Kelompok
+    // Kelompok (FK: kelompok_id -> id di tabel kelompok)
     public function kelompok()
     {
-
-        // FK: id_kelompok -> PK: id di tabel kelompok
-
-        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
+        return $this->belongsTo(Kelompok::class, 'kelompok_id', 'id');
     }
 
-    // Logbook
+    // Logbook (FK di tabel logbooks: nim)
     public function logbook()
     {
-        // FK di tabel logbooks: nim -> nim di tabel mahasiswas
         return $this->hasMany(Logbook::class, 'nim', 'nim');
     }
-
 
     // Laporan penilaian
     public function laporanPenilaian()
@@ -68,33 +58,24 @@ class Mahasiswa extends Model
         return $this->hasMany(LaporanPenilaian::class, 'nim', 'nim');
     }
 
-    // Relasi ke user
+    // Relasi ke user — CUKUP SATU KALI, TIDAK BOLEH DOBEL
     public function user()
     {
-        // jika relasi via nim:
-        return $this->belongsTo(User::class, 'nim', 'nim');
+        // kalau relasinya via nim (kolom nim juga ada di tabel users)
+        return $this->belongsTo(User::class, 'nim', 'nim')->withDefault();
     }
 
-    // Dosen Pembimbing (yang kamu minta)
+    // Dosen Pembimbing (kalau nanti kolomnya sudah ada)
     public function dosenPembimbing()
     {
         return $this->belongsTo(Dosen::class, 'dosen_pembimbing_id', 'id');
     }
 
-    // Proyek PBL (yang kamu minta)
+    // Proyek PBL (kalau nanti kolomnya sudah ada)
     public function proyekPbl()
     {
         return $this->belongsTo(ProyekPbl::class, 'proyek_pbl_id', 'id');
     }
-
-
-    public function user()
-    {
-        // relasi ke tabel users via user_id -> id
-        // withDefault() mencegah error ketika user_id NULL
-        return $this->belongsTo(User::class, 'user_id', 'id')->withDefault();
-    }
-
 
     // Route model binding pakai nim
     public function getRouteKeyName()
