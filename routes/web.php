@@ -12,6 +12,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogbookController; // untuk MAHASISWA (global)
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\TPK\TPKMahasiswaController;
+use App\Http\Controllers\Auth\GoogleController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -66,6 +67,13 @@ Route::post('/register', [RegisterController::class, 'store']);
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// LOGIN GOOGLE (SSO POLITALA)
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])
+    ->name('google.redirect');
+
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
+    ->name('google.callback');
 
 /*
 |--------------------------------------------------------------------------
