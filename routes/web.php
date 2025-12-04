@@ -27,8 +27,10 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController; // <
 
 // Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
-use App\Http\Controllers\Dosen\MilestoneController as DosenMilestoneController;
-use App\Http\Controllers\Dosen\LogbookController as DosenLogbookController;
+use App\Http\Controllers\Dosen\DosenMilestoneController as DosenMilestoneController;
+use App\Http\Controllers\Dosen\DosenLogbookController;
+
+
 
 
 // Dosen Penguji
@@ -178,6 +180,7 @@ Route::prefix('dosen')
         Route::patch('logbook/{logbook}/toggle-status',
             [DosenLogbookController::class,'toggleStatus'])
             ->name('logbook.toggleStatus');
+
 
         // ✅ HALAMAN DETAIL KELAS (TI-3E, TI-3D, dst)
         Route::get('kelompok/kelas/{kelas}',
