@@ -1,3 +1,6 @@
+{{-- beri tahu editor bahwa $matakuliah adalah model, supaya warning hilang --}}
+<?php /** @var \App\Models\Matakuliah $matakuliah */ ?>
+
 @extends('layouts.admin')
 
 @section('content')
@@ -96,7 +99,7 @@
             transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
         }
 
-        /* Batal – sama gaya dengan Tambah Mata Kuliah */
+        /* Batal */
         .btn-outline-secondary.mk-btn {
             border: 1px solid #cbd5e1;
             background: #f8fafc;
@@ -108,7 +111,7 @@
             color: #1e293b;
         }
 
-        /* Simpan Perubahan – biru SIMAP, sama seperti tombol Simpan */
+        /* Simpan Perubahan */
         .btn-primary.mk-btn {
             border: 1px solid #2563eb;
             background: #2563eb;
@@ -147,7 +150,6 @@
         {{-- HEADER: KEMBALI + JUDUL --}}
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
-                {{-- kembali ke daftar mata kuliah per kelas --}}
                 <a href="{{ route('admins.matakuliah.index', ['kelas' => $matakuliah->kelas]) }}"
                    class="mk-back-link">
                     <span class="mk-back-icon">←</span>
