@@ -43,7 +43,7 @@
     main{ display:flex; flex-direction:column; min-width:0 }
     header.topbar{
       background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:5000; box-shadow:var(--shadow); /* z-index tinggi agar dropdown di atas konten */
+      position:sticky; top:0; z-index:5000; box-shadow:var(--shadow);
     }
     .welcome h1{ margin:0; font-size:18px; letter-spacing:.2px }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
@@ -110,7 +110,6 @@
     .notif-empty{ padding:16px; color:#6c7a8a; text-align:center }
     .notif-ft{ padding:10px 12px; border-top:1px solid #f0f2f7; text-align:center; background:#fafcff }
     .notif-ft a{ color:#0e257a; text-decoration:none; font-weight:700 }
-
     .userbox{ position:relative; }
     .userbtn{
       display:flex; align-items:center; gap:10px; cursor:pointer; background:transparent; border:0; color:#fff; font-weight:700;
@@ -144,7 +143,7 @@
 </head>
 <body>
 
-  {{-- Notifikasi dummy (bisa diganti dari controller nanti) --}}
+  {{-- Notifikasi dummy --}}
   @php
     $notifications = $notifications ?? [
       ['icon'=>'fa-bell', 'title'=>'Milestone baru dibuka', 'meta'=>'2 jam lalu'],
@@ -187,7 +186,6 @@
 
       {{-- ====== Actions: Lonceng + User Menu ====== --}}
       <div id="topActions">
-        {{-- Bell --}}
         <div class="bell" id="bellBtn" aria-label="Notifikasi">
           <i class="fa-solid fa-bell"></i>
           @if($notifCount>0)
@@ -195,7 +193,6 @@
           @endif
         </div>
 
-        {{-- Dropdown Notifikasi --}}
         <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
           <div class="notif-hd">
             <span>Notifikasi</span>
@@ -221,7 +218,6 @@
           <div class="notif-ft"><a href="#">Lihat semua pemberitahuan</a></div>
         </div>
 
-        {{-- User Menu --}}
         <div class="userbox">
           @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'AL',0,2)); @endphp
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
@@ -267,33 +263,59 @@
             <option value="">Pilih MK</option>
             @isset($matakuliah)
               @foreach($matakuliah as $mk)
-              <option value="{{ $mk->kode_mk }}" @selected(request('matakuliah') == $mk->kode_mk)>{{ $mk->nama_mk }}</option>
+                <option value="{{ $mk->kode_mk }}" @selected(request('matakuliah') == $mk->kode_mk)>{{ $mk->nama_mk }}</option>
               @endforeach
             @endisset
           </select>
           <label for="filter-kelas">Kelas:</label>
           <select id="filter-kelas" name="kelas" onchange="this.form.submit()">
             <option value="">Semua Kelas</option>
-            @foreach (['A', 'B', 'C', 'D', 'E'] as $kelas)
-            <option value="{{ $kelas }}" @selected(request('kelas') == $kelas)>Kelas {{ $kelas }}</option>
+            @foreach (['A','B','C','D','E'] as $kelas)
+              <option value="{{ $kelas }}" @selected(request('kelas') == $kelas)>Kelas {{ $kelas }}</option>
             @endforeach
           </select>
         </form>
-        <div class="actions">
-          <button type="button" class="btn btn-secondary" onclick="document.getElementById('import-form').click()"><i class="fa-solid fa-upload"></i> Import</button>
-          <a href="{{ route('dosenpenguji.penilaian.export', request()->query()) }}" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export</a>
 
-          {{-- >>> Tambah Nilai (baru ditambahkan) --}}
+        {{-- ====== BLOK ACTIONS (Import/Export/Tambah/Simpan) ====== --}}
+        <div style="display:flex; gap:10px;">
+          {{-- Export Excel --}}
+          <a class="btn btn-secondary"
+             href="{{ route('dosenpenguji.penilaian.export.excel', request()->only('matakuliah','kelas')) }}">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+          </a>
+
+          {{-- Export PDF --}}
+          <a class="btn btn-secondary"
+             href="{{ route('dosenpenguji.penilaian.export.pdf', request()->only('matakuliah','kelas')) }}">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+          </a>
+
+          {{-- Import Excel --}}
+          <form id="importForm"
+                action="{{ route('dosenpenguji.penilaian.import', request()->only('matakuliah','kelas')) }}"
+                method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="file" name="file" id="importFile"
+                   accept=".xlsx,.xls"
+                   style="display:none"
+                   onchange="document.getElementById('importForm').submit()">
+            <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('importFile').click()">
+              <i class="fa-solid fa-upload"></i> Import Excel
+            </button>
+          </form>
+
+          {{-- Tambah Nilai --}}
           <a href="{{ route('dosenpenguji.penilaian.item.create', request()->query()) }}" class="btn btn-warning">
             <i class="fa-solid fa-plus"></i> Tambah Nilai
           </a>
 
-          <button type="submit" form="grade-form" class="btn btn-success"><i class="fa-solid fa-save"></i> Simpan Semua</button>
+          {{-- Simpan Semua --}}
+          <button type="submit" form="grade-form" class="btn btn-success">
+            <i class="fa-solid fa-save"></i> Simpan Semua
+          </button>
         </div>
-        <form id="import-form" action="{{ route('dosenpenguji.penilaian.import') }}" method="POST" enctype="multipart/form-data" style="display:none;">
-            @csrf
-            <input type="file" name="file" onchange="this.form.submit()">
-        </form>
+        {{-- ====== /BLOK ACTIONS ====== --}}
       </div>
 
       <form id="grade-form" action="{{ route('dosenpenguji.penilaian.bulkSave') }}" method="POST">
@@ -330,7 +352,11 @@
                   @forelse (($rubrics ?? collect()) as $rubric)
                   <td>
                     <div class="grade-cell">
-                      <input type="number" class="grade-input" name="nilai[{{ $m->nim }}][{{ $rubric->id }}]" value="{{ $m->penilaian->firstWhere('rubric_id', $rubric->id)->nilai ?? '' }}" min="0" max="100" data-nim="{{ $m->nim }}" data-rubric-id="{{ $rubric->id }}">
+                      <input type="number" class="grade-input"
+                             name="nilai[{{ $m->nim }}][{{ $rubric->id }}]"
+                             value="{{ $m->penilaian->firstWhere('rubric_id', $rubric->id)->nilai ?? '' }}"
+                             min="0" max="100"
+                             data-nim="{{ $m->nim }}" data-rubric-id="{{ $rubric->id }}">
                       <button type="button" class="btn-delete-grade">&times;</button>
                     </div>
                   </td>
@@ -351,10 +377,10 @@
           </div>
           <div class="card-ft">
             <div class="toolbar">
-                <div id="total-bobot-container">Total Bobot: <strong id="total-bobot">{{ $totalBobot }}</strong>%</div>
-                @if (isset($mahasiswa) && method_exists($mahasiswa, 'hasPages') && $mahasiswa->hasPages())
-                    {{ $mahasiswa->links() }}
-                @endif
+              <div id="total-bobot-container">Total Bobot: <strong id="total-bobot">{{ $totalBobot }}</strong>%</div>
+              @if (isset($mahasiswa) && method_exists($mahasiswa, 'hasPages') && $mahasiswa->hasPages())
+                {{ $mahasiswa->links() }}
+              @endif
             </div>
           </div>
         </div>
@@ -369,7 +395,7 @@
 
         const csrfToken = '{{ csrf_token() }}';
 
-        // Inisialisasi semua baris saat halaman dimuat
+        // init
         document.querySelectorAll('.student-row').forEach(row => {
             calculateFinalGrade(row);
             row.querySelectorAll('.grade-input').forEach(input => {
@@ -378,7 +404,6 @@
         });
         updateTotalBobot();
 
-        // Event listener utama pada form
         gradeForm.addEventListener('input', function (e) {
             if (e.target.classList.contains('grade-input')) {
                 const input = e.target;
@@ -392,7 +417,6 @@
             }
         });
 
-        // Event listener untuk tombol hapus
         gradeForm.addEventListener('click', function(e) {
             if (e.target.classList.contains('btn-delete-grade')) {
                 handleDeleteGrade(e.target);
@@ -421,7 +445,7 @@
                 }
                 return response.json();
             })
-            .then(data => {
+            .then(() => {
                 input.value = '';
                 input.classList.remove('dirty');
                 updateDeleteButtonVisibility(input);

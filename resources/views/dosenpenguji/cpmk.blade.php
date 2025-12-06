@@ -15,28 +15,44 @@
 
 <div class="card">
   <div class="card-hd">
-    <div class="filters">
-      <div class="fw-semibold" style="min-width:92px">Mata Kuliah:</div>
-      <form method="GET" action="{{ url('/dosenpenguji/cpmk') }}" class="filters">
-        <select name="matakuliah" class="form-control" style="min-width:220px" onchange="this.form.submit()">
-          <option value="">Pilih MK</option>
-          @foreach(($matakuliah ?? collect()) as $mkrow)
-            <option value="{{ $mkrow->kode_mk }}" @selected(($mk ?? '') === $mkrow->kode_mk)">
-              {{ $mkrow->nama_mk }}
-            </option>
-          @endforeach
-        </select>
-        @if(!empty($mk))
-          <span class="chip"><i class="fa-solid fa-book"></i> {{ $matakuliah->firstWhere('kode_mk',$mk)->nama_mk ?? $mk }}</span>
-        @endif
-      </form>
-    </div>
+    <div class="filters" style="justify-content:space-between; width:100%">
+      <div class="filters">
+        <div class="fw-semibold" style="min-width:92px">Mata Kuliah:</div>
 
-    @php
-      $totalBobot = ($cpmk ?? collect())->sum('bobot');
-    @endphp
-    <div class="chip" title="Total bobot semua CPMK">
-      <i class="fa-solid fa-percent"></i> Total Bobot: {{ number_format($totalBobot,0) }}%
+        {{-- filter MK --}}
+        <form method="GET" action="{{ url('/dosenpenguji/cpmk') }}" class="filters">
+          <select name="matakuliah" class="form-control" style="min-width:220px" onchange="this.form.submit()">
+            <option value="">Pilih MK</option>
+            @foreach(($matakuliah ?? collect()) as $mkrow)
+              <option value="{{ $mkrow->kode_mk }}" @selected(($mk ?? '') === $mkrow->kode_mk)>
+                {{ $mkrow->nama_mk }}
+              </option>
+            @endforeach
+          </select>
+          @if(!empty($mk))
+            <span class="chip">
+              <i class="fa-solid fa-book"></i>
+              {{ $matakuliah->firstWhere('kode_mk',$mk)->nama_mk ?? $mk }}
+            </span>
+          @endif
+        </form>
+      </div>
+
+      {{-- total bobot + tombol tambah --}}
+      <div class="filters">
+        @php
+          $totalBobot = ($cpmk ?? collect())->sum('bobot');
+        @endphp
+        <div class="chip" title="Total bobot semua CPMK">
+          <i class="fa-solid fa-percent"></i> Total Bobot: {{ number_format($totalBobot,0) }}%
+        </div>
+
+        @if(!empty($mk))
+          <button type="button" id="btnOpenCreate" class="btn btn-primary">
+            + Tambah CPMK
+          </button>
+        @endif
+      </div>
     </div>
   </div>
 
@@ -53,48 +69,67 @@
               <th class="right" style="width:20%">Aksi</th>
             </tr>
           </thead>
-<tbody>
-@foreach ($cpmk as $c)
-  <tr>
-    <td><strong>{{ $c->kode }}</strong></td>
-    <td>{{ $c->deskripsi }}</td>
-    <td class="center">{{ $c->bobot }}</td>
-    <td class="center">{{ $c->urutan }}</td>
-    <td class="right">
-      {{-- Tombol EDIT: buka modal & isi data --}}
-      <button
-        type="button"
-        class="btn btn-secondary js-edit"
-        data-kode="{{ $c->kode }}"
-        data-mk="{{ $mk }}"
-        data-deskripsi='@json($c->deskripsi)'
-        data-bobot="{{ $c->bobot }}"
-        data-urutan="{{ $c->urutan }}">
-        <i class="fa-solid fa-pen"></i> Edit
-      </button>
+          <tbody>
+          @foreach ($cpmk as $c)
+            <tr>
+              <td><strong>{{ $c->kode }}</strong></td>
+              <td>{{ $c->deskripsi }}</td>
+              <td class="center">{{ $c->bobot }}</td>
+              <td class="center">{{ $c->urutan }}</td>
+              <td class="right">
+                {{-- Tombol EDIT: buka modal & isi data --}}
+                <button
+                  type="button"
+                  class="btn btn-secondary js-edit"
+                  data-kode="{{ $c->kode }}"
+                  data-mk="{{ $mk }}"
+                  data-deskripsi='@json($c->deskripsi)'
+                  data-bobot="{{ $c->bobot }}"
+                  data-urutan="{{ $c->urutan }}">
+                  <i class="fa-solid fa-pen"></i> Edit
+                </button>
 
-      {{-- DETAIL: modal readonly (tambahan) --}}
-      <button
-        type="button"
-        class="btn btn-primary js-detail"
-        data-kode="{{ $c->kode }}"
-        data-deskripsi='@json($c->deskripsi)'
-        data-bobot="{{ $c->bobot }}"
-        data-urutan="{{ $c->urutan }}">
-        <i class="fa-solid fa-eye"></i> Detail
-      </button>
-    </td>
-  </tr>
-@endforeach
-</tbody>
+                {{-- DETAIL: modal readonly --}}
+                <button
+                  type="button"
+                  class="btn btn-primary js-detail"
+                  data-kode="{{ $c->kode }}"
+                  data-deskripsi='@json($c->deskripsi)'
+                  data-bobot="{{ $c->bobot }}"
+                  data-urutan="{{ $c->urutan }}">
+                  <i class="fa-solid fa-eye"></i> Detail
+                </button>
+
+                {{-- HAPUS CPMK --}}
+                <form
+                  action="{{ url('/dosenpenguji/cpmk/'.$c->id) }}"
+                  method="POST"
+                  style="display:inline-block; margin-left:6px;"
+                  onsubmit="return confirm('Yakin ingin menghapus CPMK {{ $c->kode }} ?');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-danger">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                  </button>
+                </form>
+              </td>
+            </tr>
+          @endforeach
+          </tbody>
 
         </table>
       </div>
-
-      @if (method_exists($cpmk, 'hasPages') && $cpmk->hasPages())
-        <div class="mt-2">{{ $cpmk->links() }}</div>
-      @endif
+    @elseif(!empty($mk))
+      {{-- MK sudah dipilih tapi CPMK masih kosong --}}
+      <div class="empty">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>
+          <div class="fw-bold">Belum ada data CPMK untuk mata kuliah ini.</div>
+          <div style="font-size:13px">Klik tombol <b>Tambah CPMK</b> untuk menambahkan.</div>
+        </div>
+      </div>
     @else
+      {{-- MK belum dipilih --}}
       <div class="empty">
         <i class="fa-solid fa-circle-info"></i>
         <div>
@@ -116,7 +151,42 @@
   .form-row label{font-size:13px;color:#475569;margin-bottom:6px;display:block}
 </style>
 
-{{-- ===== MODAL EDIT (sudah ada) ===== --}}
+{{-- ===== MODAL TAMBAH (CREATE) ===== --}}
+<div id="createModal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-hd">Tambah CPMK</div>
+    <form id="createForm" method="POST" action="{{ url('/dosenpenguji/cpmk') }}">
+      @csrf
+      <div class="modal-bd">
+        <input type="hidden" name="kode_mk" value="{{ $mk }}">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kode CPMK</label>
+            <input name="kode" type="text" class="form-control" placeholder="Misal: CPMK1" required>
+          </div>
+          <div class="form-group">
+            <label>Bobot (%)</label>
+            <input name="bobot" type="number" min="0" max="100" class="form-control" value="0" required>
+          </div>
+          <div class="form-group">
+            <label>Urutan</label>
+            <input name="urutan" type="number" min="1" class="form-control" value="1" required>
+          </div>
+        </div>
+        <div class="form-group mt-3">
+          <label>Deskripsi CPMK</label>
+          <textarea name="deskripsi" class="form-control" rows="4" required></textarea>
+        </div>
+      </div>
+      <div class="modal-ft">
+        <button type="button" class="btn btn-secondary" id="btnCancelCreate">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{{-- ===== MODAL EDIT ===== --}}
 <div id="editModal" class="modal-backdrop">
   <div class="modal-card">
     <div class="modal-hd">Edit CPMK</div>
@@ -153,7 +223,7 @@
   </div>
 </div>
 
-{{-- ===== MODAL DETAIL (baru ditambahkan) ===== --}}
+{{-- ===== MODAL DETAIL ===== --}}
 <div id="detailModal" class="modal-backdrop">
   <div class="modal-card">
     <div class="modal-hd">Detail CPMK</div>
@@ -185,6 +255,25 @@
 
 <script>
   (function(){
+    // ====== MODAL CREATE ======
+    const createModal  = document.getElementById('createModal');
+    const btnOpenCreate = document.getElementById('btnOpenCreate');
+    const btnCancelCreate = document.getElementById('btnCancelCreate');
+
+    function openCreate(){ createModal.style.display='flex'; }
+    function closeCreate(){ createModal.style.display='none'; }
+
+    if (btnOpenCreate) {
+      btnOpenCreate.addEventListener('click', openCreate);
+    }
+    if (btnCancelCreate) {
+      btnCancelCreate.addEventListener('click', closeCreate);
+    }
+    if (createModal) {
+      createModal.addEventListener('click', (e)=>{ if(e.target===createModal) closeCreate(); });
+    }
+
+    // ====== MODAL EDIT ======
     const modal  = document.getElementById('editModal');
     const form   = document.getElementById('editForm');
 
@@ -199,7 +288,7 @@
         const bobot  = btn.dataset.bobot || '';
         const urutan = btn.dataset.urutan || '';
 
-        // set action ke route update (lihat web.php di bawah)
+        // set action ke route quickUpdate: PUT /dosenpenguji/cpmk/{mk}/{kode}
         form.action = `/dosenpenguji/cpmk/${encodeURIComponent(mk)}/${encodeURIComponent(kode)}`;
 
         // isi field

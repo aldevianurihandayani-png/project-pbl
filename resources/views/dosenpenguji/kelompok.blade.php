@@ -71,14 +71,131 @@
     .btn:hover{ background:#142f85 }
 
     .sheet{ background:var(--card); border:1px solid var(--ring); border-radius:12px; box-shadow:var(--shadow); overflow:hidden }
-    .sheet-head{ background:var(--head); font-weight:700; color:#283a5a }
-    .row{ display:grid; grid-template-columns:100px 140px 1fr 120px 90px 140px; padding:10px 12px }
-    .row > div{ padding:4px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-    .rows{ position:relative }
-    .rows::before{
-      content:""; position:absolute; inset:0;
-      background:repeating-linear-gradient(to bottom, transparent 0 42px, var(--line) 42px 43px);
-      pointer-events:none;
+
+    /* ====== FIX daftar kelompok (layout grid lama – sekarang tidak dipakai) ====== */
+    .rows::before{ content:none !important; background:none !important; }
+    .row{
+      align-items:center;
+      min-height:48px;
+      border-bottom:1px solid var(--line);
+    }
+    .row > div{
+      padding:8px 10px;
+      line-height:1.4;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .row > div[data-label="Nama"]{ white-space:normal; }
+    .row > div:nth-child(4),
+    .row > div:nth-child(5),
+    .sheet-head > div:nth-child(4),
+    .sheet-head > div:nth-child(5){
+      text-align:center;
+    }
+    .sheet-head{ align-items:center; }
+
+    /* ====== KARTU KELOMPOK (BARU) ====== */
+    .group-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:16px;
+    }
+    .group-card{
+      background:var(--card);
+      border:1px solid var(--ring);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:14px 16px 12px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .group-card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      margin-bottom:8px;
+      gap:10px;
+    }
+    .gc-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+    .gc-title{
+      font-weight:700;
+      color:#0b1d54;
+      font-size:15px;
+      max-width:210px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .gc-badge{
+      padding:4px 8px;
+      border-radius:999px;
+      background:#eef3ff;
+      color:#1f3b95;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .group-card-body{
+      display:grid;
+      gap:6px;
+      margin-top:4px;
+      font-size:13px;
+      color:#233042;
+    }
+    .gc-row{
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+    }
+    .gc-row i{
+      width:16px;
+      margin-top:2px;
+      color:#4e65c6;
+    }
+    .gc-row-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      color:var(--muted);
+      margin-bottom:1px;
+    }
+    .gc-row-value{
+      word-break:break-word;
+    }
+    .group-card-footer{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .card-footer-btn{
+      margin-top:10px;
+    }
+    .card-footer-btn .btn-detail{
+      display:block;
+      width:100%;
+      text-align:center;
+      border-radius:999px;
+      padding:7px 10px;
+      border:1px solid #c7d2f3;
+      background:#f4f6ff;
+      color:#21409a;
+      font-size:13px;
+      font-weight:700;
+      text-decoration:none;
+    }
+    .card-footer-btn .btn-detail:hover{
+      background:#e6ebff;
     }
 
     /* ===== Notifikasi + User Menu (dropdown) ===== */
@@ -292,37 +409,71 @@
         </form>
       </div>
 
-      {{-- ===== DATA DARI CONTROLLER ===== --}}
+      {{-- ===== DATA DARI CONTROLLER (KARTU GRID) ===== --}}
       @isset($kelompok)
-      <div class="sheet" id="sheet">
-        <div class="row sheet-head">
-          <div>Kelompok</div>
-          <div>NIM</div>
-          <div>Nama</div>
-          <div>Angkatan</div>
-          <div>Kelas</div>
-          <div>Klien</div>
-        </div>
+        @if($kelompok->count())
+          <div class="group-grid">
+            @foreach($kelompok as $k)
+              <div class="group-card">
+                <div class="group-card-header">
+                  <div>
+                    <div class="gc-label">Kelompok</div>
+                    <div class="gc-title">{{ $k->nama_kelompok ?? '-' }}</div>
+                  </div>
+                  <div class="gc-badge">{{ $k->kelas ?? '-' }}</div>
+                </div>
 
-        <div class="rows" id="rows">
-          @forelse ($kelompok as $k)
-            <div class="row" data-kelas="{{ $k->kelas }}" data-semester="{{ $k->semester ?? '-' }}">
-              <div data-label="Kelompok">{{ $k->nama_kelompok }}</div>
-              <div data-label="Nim">{{ $k->nims }}</div>
-              <div data-label="Nama">{{ $k->anggota }}</div>
-              <div data-label="Angkatan">{{ $k->angkatan }}</div>
-              <div data-label="Kelas">{{ $k->kelas }}</div>
-              <div data-label="Klien">{{ $k->klien }}</div>
-            </div>
-          @empty
+                <div class="group-card-body">
+                  <div class="gc-row">
+                    <i class="fa-solid fa-id-card"></i>
+                    <div>
+                      <div class="gc-row-label">NIM</div>
+                      <div class="gc-row-value">{{ $k->nims ?? '-' }}</div>
+                    </div>
+                  </div>
+
+                  <div class="gc-row">
+                    <i class="fa-solid fa-users"></i>
+                    <div>
+                      <div class="gc-row-label">Anggota</div>
+                      <div class="gc-row-value">{{ $k->anggota ?? '-' }}</div>
+                    </div>
+                  </div>
+
+                  <div class="gc-row">
+                    <i class="fa-solid fa-calendar"></i>
+                    <div>
+                      <div class="gc-row-label">Angkatan</div>
+                      <div class="gc-row-value">{{ $k->angkatan ?? '-' }}</div>
+                    </div>
+                  </div>
+
+                  <div class="gc-row">
+                    <i class="fa-solid fa-building"></i>
+                    <div>
+                      <div class="gc-row-label">Klien</div>
+                      <div class="gc-row-value">{{ $k->klien ?? '-' }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-footer-btn">
+                  <span class="btn-detail" style="opacity:.7;pointer-events:none;">
+                    Lihat detail
+                  </span>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @else
+          <div class="sheet" id="sheet">
             <div style="padding:14px; text-align:center; color:#6b7a93;">Tidak ada data kelompok.</div>
-          @endforelse
-        </div>
-      </div>
+          </div>
+        @endif
 
-      <div style="margin-top:16px;">
-        {{ $kelompok->links() }}
-      </div>
+        <div style="margin-top:16px;">
+          {{ $kelompok->links() }}
+        </div>
       @endisset
     </div>
   </main>

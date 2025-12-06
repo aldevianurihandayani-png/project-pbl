@@ -65,8 +65,10 @@
         <select name="mahasiswa_nim" class="form-control" required>
           <option value="">Pilih Mahasiswa</option>
           @foreach($mhs as $m)
+            @php $kelasSafe = property_exists($m, 'kelas') ? $m->kelas : null; @endphp
             <option value="{{ $m->nim }}" @selected(old('mahasiswa_nim',$item->mahasiswa_nim ?? '')==$m->nim)>
-              {{ $m->nim }} — {{ $m->nama }} @if($m->kelas) ({{ $m->kelas }}) @endif
+              {{ $m->nim }} — {{ $m->nama }}
+              @if(!empty($kelasSafe)) ({{ $kelasSafe }}) @endif
             </option>
           @endforeach
         </select>
@@ -95,21 +97,25 @@
           <i class="fa-solid fa-floppy-disk"></i> {{ $mode==='create'?'Simpan':'Update' }}
         </button>
         <a href="{{ route('dosenpenguji.penilaian', request()->only('matakuliah','kelas')) }}" class="btn btn-secondary">Batal</a>
-        @if($mode==='edit')
-          <form action="{{ route('dosenpenguji.penilaian.item.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus nilai ini?')" style="margin-left:auto">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Hapus</button>
-          </form>
-        @endif
       </div>
     </form>
+
+    @if($mode==='edit')
+      <form action="{{ route('dosenpenguji.penilaian.item.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus nilai ini?')" style="margin-top:10px">
+        @csrf @method('DELETE')
+        <button type="submit" class="btn btn-danger">
+          <i class="fa-solid fa-trash"></i> Hapus
+        </button>
+      </form>
+    @endif
   </div>
 </div>
 
 <script>
   function syncRubrikByMk(kode) {
     const url = new URL(window.location.href);
-    if (kode) url.searchParams.set('matakuliah', kode); else url.searchParams.delete('matakuliah');
+    if (kode) url.searchParams.set('matakuliah', kode);
+    else url.searchParams.delete('matakuliah');
     window.location.href = url.toString();
   }
 </script>

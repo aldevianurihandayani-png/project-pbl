@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\DosenPenguji;
 
 use App\Http\Controllers\Controller;
-use App\Models\Penilaian;
-use App\Models\Mahasiswa;
+// use App\Models\Penilaian;  // TIDAK dipakai untuk gradebook per-rubrik
 use App\Models\MataKuliah;
 use App\Models\Rubrik;
 use Illuminate\Http\Request;
@@ -13,21 +12,49 @@ use Illuminate\Support\Facades\Schema;
 
 class PenilaianItemController extends Controller
 {
-    /** =========================
-     *  UTIL: ambil list mahasiswa by MK & kelas
-     *  - tahan banting nama kolom di tabel kelompoks
-     *  =========================*/
+    /** Nama tabel mahasiswa yang tersedia (mahasiswas | mahasiswa) */
+    private function studentTable(): string
+    {
+        if (Schema::hasTable('mahasiswas')) return 'mahasiswas';
+        if (Schema::hasTable('mahasiswa'))  return 'mahasiswa';
+        // fallback nama paling umum
+        return 'mahasiswas';
+    }
+
+    /** Ambil list mahasiswa by MK & kelas (tahan banting nama kolom) */
     private function getMahasiswaByMkKelas(?string $mk, ?string $kelas)
     {
-        // Jika ada struktur kelompok
-        if ($mk && Schema::hasTable('kelompoks') && Schema::hasTable('kelompok_anggota')) {
-            $kTable = 'kelompoks';
+        $mTable   = $this->studentTable();
+        $hasKelas = Schema::hasColumn($mTable, 'kelas');
+
+        // deteksi tabel anggota kelompok
+        $gmTable = null;
+        if (Schema::hasTable('kelompok_anggota'))  $gmTable = 'kelompok_anggota';
+        elseif (Schema::hasTable('kelompok_anggotas')) $gmTable = 'kelompok_anggotas';
+
+        // Jika ada struktur kelompok LENGKAP
+        if ($mk && Schema::hasTable('kelompoks') && $gmTable) {
+            $kTable  = 'kelompoks';
+
+            // cari nama kolom nim di tabel anggota (nim | mahasiswa_nim)
+            $nimCol = null;
+            if (Schema::hasColumn($gmTable, 'nim')) {
+                $nimCol = 'nim';
+            } elseif (Schema::hasColumn($gmTable, 'mahasiswa_nim')) {
+                $nimCol = 'mahasiswa_nim';
+            }
 
             $q = DB::table("$kTable as k")
-                ->join('kelompok_anggota as ka', 'ka.kelompok_id', '=', 'k.id')
-                ->join('mahasiswa as m', 'm.nim', '=', 'ka.nim');
+                ->join("$gmTable as ka", 'ka.kelompok_id', '=', 'k.id');
 
-            // Coba beberapa kemungkinan nama kolom penghubung MK di kelompoks
+            if ($nimCol) {
+                $q->join("$mTable as m", "m.nim", '=', "ka.$nimCol");
+            } else {
+                // fallback darurat, kalau struktur tidak jelas
+                $q->join("$mTable as m", 'm.nim', '=', 'ka.nim');
+            }
+
+            // Kemungkinan kolom penghubung MK pada kelompoks
             if (Schema::hasColumn($kTable, 'kode_mk')) {
                 $q->where('k.kode_mk', $mk);
             } elseif (Schema::hasColumn($kTable, 'mata_kuliah_kode')) {
@@ -35,31 +62,33 @@ class PenilaianItemController extends Controller
             } elseif (Schema::hasColumn($kTable, 'kode_matakuliah')) {
                 $q->where('k.kode_matakuliah', $mk);
             } elseif (Schema::hasColumn($kTable, 'mata_kuliah_id') && Schema::hasTable('mata_kuliah')) {
-                // Jika menyimpan ID MK, join ke tabel mata_kuliah lalu filter by kode_mk
                 $q->join('mata_kuliah as mkTbl', 'mkTbl.id', '=', 'k.mata_kuliah_id')
                   ->where('mkTbl.kode_mk', $mk);
             }
-            // kalau tak ada satupun kolom di atas, biarkan tanpa filter MK (form tetap tampil)
 
-            if (!empty($kelas) && Schema::hasColumn('mahasiswa', 'kelas')) {
+            if (!empty($kelas) && $hasKelas) {
                 $q->where('m.kelas', $kelas);
             }
 
+            $select = ['m.nim as nim','m.nama as nama'];
+            if ($hasKelas) $select[] = 'm.kelas as kelas';
+
             return $q->distinct()
                 ->orderBy('m.nama')
-                ->get(['m.nim','m.nama','m.kelas']);
+                ->get($select);
         }
 
-        // Fallback: tanpa struktur kelompok
-        return Mahasiswa::when($kelas, fn($qq) => $qq->where('kelas', $kelas))
-            ->orderBy('nama')
-            ->limit(50)
-            ->get(['nim','nama','kelas']);
+        // Fallback: tanpa struktur kelompok → pakai query builder biar netral
+        $q = DB::table($mTable);
+        if (!empty($kelas) && $hasKelas) $q->where('kelas', $kelas);
+
+        $select = ['nim','nama'];
+        if ($hasKelas) $select[] = 'kelas';
+
+        return $q->orderBy('nama')->limit(50)->get($select);
     }
 
-    /** =========================
-     *  FORM TAMBAH
-     *  =========================*/
+    /** FORM TAMBAH */
     public function create(Request $request)
     {
         $mk    = $request->query('matakuliah');
@@ -68,7 +97,6 @@ class PenilaianItemController extends Controller
         $matakuliah = MataKuliah::orderBy('nama_mk')->get(['kode_mk','nama_mk']);
         $mhs        = $this->getMahasiswaByMkKelas($mk, $kelas);
 
-        // Rubrik (filter by MK jika ada)
         $rubrikQ = Rubrik::query()->orderBy('urutan')->orderBy('id');
         if ($mk) {
             $rubrikTable = (new Rubrik)->getTable();
@@ -82,7 +110,7 @@ class PenilaianItemController extends Controller
 
         return view('dosenpenguji.penilaian-item-form', [
             'mode'       => 'create',
-            'item'       => new Penilaian(),
+            'item'       => (object) ['id' => null, 'mahasiswa_nim' => null, 'rubrik_id' => null, 'nilai' => null],
             'matakuliah' => $matakuliah,
             'mk'         => $mk,
             'kelas'      => $kelas,
@@ -91,21 +119,23 @@ class PenilaianItemController extends Controller
         ]);
     }
 
-    /** =========================
-     *  SIMPAN BARU
-     *  =========================*/
+    /** SIMPAN BARU */
     public function store(Request $request)
     {
+        $mTable = $this->studentTable();
+
         $data = $request->validate([
-            'mahasiswa_nim' => ['required','string','exists:mahasiswa,nim'],
-            'rubrik_id'     => ['required','integer','exists:rubrik,id'],
+            'mahasiswa_nim' => ['required','string','exists:'.$mTable.',nim'],
+            // nama tabel rubrik di Laravel biasanya "rubriks"
+            'rubrik_id'     => ['required','integer','exists:rubriks,id'],
             'nilai'         => ['nullable','numeric','min:0','max:100'],
         ]);
 
-        // Unik (nim + rubrik)
-        $existId = Penilaian::where('mahasiswa_nim',$data['mahasiswa_nim'])
-                    ->where('rubrik_id',$data['rubrik_id'])
-                    ->value('id');
+        // gunakan tabel gradebook LAMA: "penilaian" (tanpa s)
+        $existId = DB::table('penilaian')
+            ->where('mahasiswa_nim', $data['mahasiswa_nim'])
+            ->where('rubrik_id', $data['rubrik_id'])
+            ->value('id');
 
         if ($existId) {
             return back()->withErrors([
@@ -113,17 +143,21 @@ class PenilaianItemController extends Controller
             ])->withInput();
         }
 
-        Penilaian::create($data);
+        DB::table('penilaian')->insert([
+            'mahasiswa_nim' => $data['mahasiswa_nim'],
+            'rubrik_id'     => $data['rubrik_id'],
+            'nilai'         => $data['nilai'],
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
 
         return redirect()
             ->route('dosenpenguji.penilaian', $request->only('matakuliah','kelas'))
             ->with('success','Nilai berhasil ditambahkan.');
     }
 
-    /** =========================
-     *  FORM EDIT
-     *  =========================*/
-    public function edit(Penilaian $item, Request $request)
+    /** FORM EDIT */
+    public function edit($id, Request $request)
     {
         $mk    = $request->query('matakuliah');
         $kelas = $request->query('kelas');
@@ -142,6 +176,12 @@ class PenilaianItemController extends Controller
         }
         $rubriks = $rubrikQ->get(['id','nama_rubrik','bobot']);
 
+        // ambil baris dari tabel penilaian
+        $item = DB::table('penilaian')->where('id', $id)->first();
+        if (!$item) {
+            abort(404);
+        }
+
         return view('dosenpenguji.penilaian-item-form', [
             'mode'       => 'edit',
             'item'       => $item,
@@ -153,21 +193,23 @@ class PenilaianItemController extends Controller
         ]);
     }
 
-    /** =========================
-     *  UPDATE
-     *  =========================*/
-    public function update(Request $request, Penilaian $item)
+    /** UPDATE */
+    public function update(Request $request, $id)
     {
+        $mTable = $this->studentTable();
+
         $data = $request->validate([
-            'mahasiswa_nim' => ['required','string','exists:mahasiswa,nim'],
-            'rubrik_id'     => ['required','integer','exists:rubrik,id'],
+            'mahasiswa_nim' => ['required','string','exists:'.$mTable.',nim'],
+            'rubrik_id'     => ['required','integer','exists:rubriks,id'],
             'nilai'         => ['nullable','numeric','min:0','max:100'],
         ]);
 
-        $dupe = Penilaian::where('mahasiswa_nim',$data['mahasiswa_nim'])
-                    ->where('rubrik_id',$data['rubrik_id'])
-                    ->where('id','<>',$item->id)
-                    ->exists();
+        // cek duplikasi nim + rubrik kecuali baris ini sendiri
+        $dupe = DB::table('penilaian')
+            ->where('mahasiswa_nim', $data['mahasiswa_nim'])
+            ->where('rubrik_id', $data['rubrik_id'])
+            ->where('id', '<>', $id)
+            ->exists();
 
         if ($dupe) {
             return back()->withErrors([
@@ -175,19 +217,24 @@ class PenilaianItemController extends Controller
             ])->withInput();
         }
 
-        $item->update($data);
+        DB::table('penilaian')
+            ->where('id', $id)
+            ->update([
+                'mahasiswa_nim' => $data['mahasiswa_nim'],
+                'rubrik_id'     => $data['rubrik_id'],
+                'nilai'         => $data['nilai'],
+                'updated_at'    => now(),
+            ]);
 
         return redirect()
             ->route('dosenpenguji.penilaian', $request->only('matakuliah','kelas'))
             ->with('success','Nilai berhasil diperbarui.');
     }
 
-    /** =========================
-     *  HAPUS
-     *  =========================*/
-    public function destroy(Penilaian $item)
+    /** HAPUS */
+    public function destroy($id)
     {
-        $item->delete();
+        DB::table('penilaian')->where('id', $id)->delete();
 
         return redirect()
             ->route('dosenpenguji.penilaian', request()->only('matakuliah','kelas'))

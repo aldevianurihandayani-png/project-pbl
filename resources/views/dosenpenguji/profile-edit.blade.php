@@ -45,21 +45,35 @@
       <div>
         <div style="text-align:center">
           <div style="width:160px;height:160px;border-radius:50%;overflow:hidden;border:3px solid #e3e9ff;margin:0 auto 12px;display:grid;place-items:center;background:#eef2ff">
-            @if ($u->avatar_url)
-              <img id="preview" src="{{ $u->avatar_url }}" alt="Foto Profil" style="width:100%;height:100%;object-fit:cover">
+            @if ($u->foto)
+              {{-- kalau sudah punya foto di DB --}}
+              <img id="preview"
+                   src="{{ asset('storage/'.$u->foto) }}"
+                   alt="Foto Profil"
+                   style="width:100%;height:100%;object-fit:cover">
             @else
-              <span id="preview-initial" style="font-size:56px;color:#31408a;font-weight:700">{{ strtoupper(substr($u->name ?? 'AL', 0, 2)) }}</span>
-              <img id="preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
+              {{-- belum ada foto, pakai inisial --}}
+              <span id="preview-initial"
+                    style="font-size:56px;color:#31408a;font-weight:700">
+                {{ strtoupper(substr($u->nama ?? $u->name ?? 'AL', 0, 2)) }}
+              </span>
+              <img id="preview"
+                   src=""
+                   alt=""
+                   style="display:none;width:100%;height:100%;object-fit:cover">
             @endif
           </div>
 
           <label class="btn btn-secondary" style="cursor:pointer">
             <i class="fa-solid fa-image"></i> Ubah Foto (opsional)
-            <input type="file" name="photo" id="photo" accept="image/*" hidden>
+            {{-- name dan id disamakan dengan controller: "foto" --}}
+            <input type="file" name="foto" id="foto" accept="image/*" hidden>
           </label>
 
-          @if($u->profile_photo_path)
-            <div style="margin-top:8px;font-size:12px;color:#6c7a8a">Saat ini: {{ basename($u->profile_photo_path) }}</div>
+          @if($u->foto)
+            <div style="margin-top:8px;font-size:12px;color:#6c7a8a">
+              Saat ini: {{ basename($u->foto) }}
+            </div>
           @endif
         </div>
       </div>
@@ -68,42 +82,56 @@
       <div>
         <div class="form-group">
           <label>Nama Lengkap</label>
-          <input type="text" name="nama" class="form-control" value="{{ old('nama', $u->nama ?? $u->name) }}" placeholder="Nama lengkap">
+          <input type="text" name="nama" class="form-control"
+                 value="{{ old('nama', $u->nama ?? $u->name) }}"
+                 placeholder="Nama lengkap">
         </div>
 
         <div class="form-group">
           <label>Email <span style="color:#e00">*</span></label>
-          <input type="email" name="email" class="form-control" value="{{ old('email', $u->email) }}" required>
+          <input type="email" name="email" class="form-control"
+                 value="{{ old('email', $u->email) }}" required>
         </div>
 
         <div class="form-group">
           <label>Role</label>
-          <input type="text" class="form-control" value="{{ $u->role ?? 'dosen_penguji' }}" disabled>
+          <input type="text" class="form-control"
+                 value="{{ $u->role ?? 'dosen_penguji' }}" disabled>
         </div>
 
         <div class="form-group">
           <label>Nomor Induk Dosen (NIDN)</label>
-          <input type="text" name="nidn" class="form-control" value="{{ old('nidn', $u->nidn) }}" placeholder="Opsional">
+          <input type="text" name="nidn" class="form-control"
+                 value="{{ old('nidn', $u->nidn) }}" placeholder="Opsional">
         </div>
 
         <div class="form-group">
           <label>Program Studi</label>
-          <input type="text" name="prodi" class="form-control" value="{{ old('prodi', $u->prodi ?? 'Teknologi Informasi') }}" placeholder="Opsional">
+          <input type="text" name="prodi" class="form-control"
+                 value="{{ old('prodi', $u->prodi ?? 'Teknologi Informasi') }}"
+                 placeholder="Opsional">
         </div>
 
         <div class="form-group">
           <label>Password (opsional)</label>
-          <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ganti">
+          <input type="password" name="password" class="form-control"
+                 placeholder="Kosongkan jika tidak ganti">
         </div>
 
         <div class="form-group">
           <label>Tanggal Bergabung</label>
-          <input type="text" class="form-control" value="{{ optional($u->created_at)->format('d M Y') ?? '-' }}" disabled>
+          <input type="text" class="form-control"
+                 value="{{ optional($u->created_at)->format('d M Y') ?? '-' }}"
+                 disabled>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:8px">
-          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
-          <a href="{{ route('dosenpenguji.profile') }}" class="btn btn-secondary">Batal</a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan
+          </button>
+          <a href="{{ route('dosenpenguji.profile') }}" class="btn btn-secondary">
+            Batal
+          </a>
         </div>
       </div>
     </form>
@@ -112,7 +140,7 @@
 
 {{-- Preview foto client-side --}}
 <script>
-document.getElementById('photo')?.addEventListener('change', function(e){
+document.getElementById('foto')?.addEventListener('change', function(e){
   const file = e.target.files?.[0];
   const img  = document.getElementById('preview');
   const ini  = document.getElementById('preview-initial');

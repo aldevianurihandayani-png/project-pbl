@@ -9,10 +9,11 @@ class ProyekPbl extends Model
 {
     use HasFactory;
 
-    protected $table = 'proyek_pbl';
+    protected $table = 'proyek_pbl'; // ✅ sesuai tabel baru di DB
     protected $primaryKey = 'id_proyek_pbl';
     public $incrementing = true;
     protected $keyType = 'int';
+    public $timestamps = false; // kalau tabel tidak punya created_at/updated_at
 
     protected $fillable = [
         'judul',
@@ -34,7 +35,6 @@ class ProyekPbl extends Model
 
     public function kelompok()
     {
-        
         return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 }

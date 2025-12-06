@@ -1,17 +1,17 @@
-{{-- resources/views/dosenpenguji/mahasiswa/index.blade.php --}}
+{{-- resources/views/dosenpenguji/mahasiswa_detail.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mahasiswa — Dosen Penguji</title>
+  <title>Detail Mahasiswa Kelas {{ $kelas }} — Dosen Penguji</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
       --navy:#0b1d54; --navy-2:#0e257a; --bg:#f5f7fb; --card:#ffffff;
       --muted:#6c7a8a; --ring:rgba(13,23,84,.10); --shadow:0 6px 20px rgba(13,23,84,.08);
-      --radius:16px; --blue:#2f73ff; --yellow:#ffcc00; --red:#e80000;
+      --radius:16px; --blue:#2f73ff;
     }
     *{box-sizing:border-box}
     body{
@@ -19,7 +19,7 @@
       display:grid; grid-template-columns:260px 1fr; min-height:100vh; color:#233042;
     }
 
-    /* ===== SIDEBAR ===== */
+    /* SIDEBAR (copy dari mahasiswa.blade) */
     .sidebar{ background:var(--navy); color:#e9edf7; padding:18px 16px; display:flex; flex-direction:column }
     .brand{ display:flex; align-items:center; gap:10px; margin-bottom:22px }
     .brand-badge{ width:36px;height:36px; border-radius:10px; background:#1a2a6b; display:grid; place-items:center; font-weight:700; color:#fff }
@@ -44,7 +44,7 @@
     }
     .logout button:hover{ background:#5c1020; color:#fff }
 
-    /* ===== MAIN / TOPBAR ===== */
+    /* MAIN / TOPBAR */
     main{ display:flex; flex-direction:column; min-width:0 }
     header.topbar{
       background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
@@ -53,82 +53,57 @@
     .welcome h1{ margin:0; font-size:18px; letter-spacing:.2px }
     .topbar-btn{ display:none; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer }
 
-    .page{ padding:26px; display:grid; gap:18px }
+    .page{ padding:26px; display:grid; gap:16px }
+    h2.page-title{ color:var(--navy); font-size:14px; margin:0 0 4px 0; letter-spacing:.3px }
 
-    /* ===== PAGE CONTENT ===== */
-    h2.page-title{ color:var(--navy); font-size:14px; margin:0 0 8px 0; letter-spacing:.3px }
+    .header-row{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+    }
+    .kelas-title-main{ font-size:20px; font-weight:800; color:var(--navy); }
+    .kelas-sub{ font-size:13px; color:var(--muted); }
 
-    .toolbar{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; margin-bottom:8px }
-    .toolbar form{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px }
+    .btn-back{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 12px; border-radius:999px; border:1px solid #d0d7ea;
+      background:#fff; color:#233042; font-size:13px; text-decoration:none;
+    }
+    .btn-back i{ font-size:12px; }
 
-    .filter-group{ display:flex; flex-direction:column; gap:4px; }
-    .filter-group label{ font-size:12px; color:var(--navy); font-weight:700; }
-    .filter-group select,
-    .filter-group input{
-      padding:6px 10px; border:1px solid #d8dfeb; border-radius:8px; background:#fff;
-      font-size:13px; min-width:130px;
+    .toolbar{
+      display:flex; justify-content:flex-end; align-items:flex-end; flex-wrap:wrap; gap:10px;
+    }
+    .search-group{ display:flex; flex-direction:column; gap:4px; min-width:220px; }
+    .search-group label{ font-size:12px; font-weight:700; color:var(--navy); }
+    .search-group input{
+      padding:6px 10px; border-radius:8px; border:1px solid #d8dfeb; font-size:13px;
     }
     .toolbar button{
       padding:7px 14px; border-radius:10px; border:0; background:var(--blue); color:#fff;
       font-size:13px; font-weight:700; cursor:pointer;
     }
-    .toolbar button:hover{ filter:brightness(.95) }
 
-    /* ===== CARD GRID PER KELAS ===== */
-    .kelas-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-      gap:18px;
+    .card{
+      background:var(--card); border-radius:var(--radius);
+      border:1px solid var(--ring); box-shadow:var(--shadow);
     }
-    .kelas-card{
-      background:var(--card);
-      border-radius:var(--radius);
-      border:1px solid var(--ring);
-      box-shadow:var(--shadow);
-      padding:16px 16px 14px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .kelas-card-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:8px;
-    }
-    .kelas-label{ font-size:11px; text-transform:uppercase; color:var(--muted); letter-spacing:.5px; margin-bottom:3px; }
-    .kelas-title{ font-size:18px; font-weight:800; color:var(--navy); }
-    .kelas-badge{
-      padding:4px 10px; border-radius:999px; background:#e3ebff; color:#2341a8;
-      font-size:11px; font-weight:700;
-    }
-    .kelas-meta{ font-size:12px; color:var(--muted); }
-    .kelas-count{ font-size:20px; font-weight:800; color:var(--navy-2); }
-    .kelas-footer{ margin-top:auto; }
-    .btn-detail{
-      display:inline-flex; justify-content:center; align-items:center; gap:6px;
-      width:100%; padding:8px 10px; border-radius:999px; border:1px solid #c5d3f4;
-      background:#f5f7ff; color:#2341a8; font-size:13px; font-weight:700; text-decoration:none;
-      transition:background .16s, box-shadow .16s, transform .12s;
-    }
-    .btn-detail i{ font-size:12px; }
-    .btn-detail:hover{
-      background:#e1e8ff;
-      box-shadow:0 6px 16px rgba(15,37,104,.18);
-      transform:translateY(-1px);
+    .card-body{ padding:0; }
+    .table-responsive{ border-radius:var(--radius); overflow:auto; }
+    table{ width:100%; border-collapse:collapse; min-width:880px; }
+    th,td{ padding:10px 12px; font-size:13px; border-bottom:1px solid #eef1f6; }
+    thead th{ background:#eef3fa; text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
+    tbody tr:hover td{ background:#f9fbff; }
+
+    .card-footer{ padding:10px 14px; }
+
+    .empty-row td{
+      padding:24px 16px; text-align:center; color:var(--muted);
     }
 
-    .empty-state{
-      padding:32px 18px;
-      border-radius:var(--radius);
-      border:1px dashed #cbd4e6;
-      background:#ffffff;
-      text-align:center;
-      color:var(--muted);
-    }
-    .empty-state-title{ font-weight:800; color:var(--navy); margin-bottom:4px; }
-
-    /* ===== Notifikasi + User Menu ===== */
+    /* Notifikasi + User Menu (copy dari mahasiswa.blade) */
     #topActions{ display:flex; align-items:center; gap:14px; }
     .bell{ position:relative; cursor:pointer; } .bell i{ font-size:18px }
     .bell .dot{
@@ -175,31 +150,25 @@
     .user-dd .item i{ width:18px; text-align:center; color:#0e257a }
     .user-dd .logout{ color:#b42318 }
 
-    /* ===== Mobile ===== */
+    /* Mobile */
     @media (max-width:980px){
       body{ grid-template-columns:1fr }
       .sidebar{ position:fixed; inset:0 auto 0 0; width:240px; transform:translateX(-102%); transition:transform .2s; z-index:10 }
       .sidebar.show{ transform:none }
       .topbar-btn{ display:inline-flex }
-      .toolbar{ flex-direction:column; align-items:stretch }
-      .toolbar form{ width:100%; }
-      .filter-group{ flex:1; }
+      .page{ padding:18px; }
+      .header-row{ align-items:flex-start; }
     }
   </style>
 </head>
 <body>
 
-  {{-- Notifikasi dummy --}}
   @php
-    $notifications = $notifications ?? [
-      ['icon'=>'fa-bell', 'title'=>'Milestone baru dibuka', 'meta'=>'2 jam lalu'],
-      ['icon'=>'fa-clipboard-check', 'title'=>'Logbook Minggu 3 disetujui', 'meta'=>'Kemarin'],
-      ['icon'=>'fa-star', 'title'=>'Nilai Pemweb Lanjut dirilis', 'meta'=>'3 hari lalu'],
-    ];
-    $notifCount = count($notifications ?? []);
+    $notifications = $notifications ?? [];
+    $notifCount = count($notifications);
   @endphp
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="brand-badge">SI</div>
@@ -227,17 +196,16 @@
     </div>
   </aside>
 
-  <!-- ===== MAIN ===== -->
+  <!-- MAIN -->
   <main>
     <header class="topbar">
       <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
         <i class="fa-solid fa-bars"></i>
       </button>
 
-      <div class="welcome"><h1>Mahasiswa — Dosen Penguji</h1></div>
+      <div class="welcome"><h1>Detail Mahasiswa — Kelas {{ $kelas }}</h1></div>
 
       <div id="topActions">
-        {{-- Bell --}}
         <div class="bell" id="bellBtn" aria-label="Notifikasi">
           <i class="fa-solid fa-bell"></i>
           @if($notifCount>0)
@@ -245,7 +213,6 @@
           @endif
         </div>
 
-        {{-- User dropdown --}}
         @php $u = auth()->user(); $initial = strtoupper(substr($u->name ?? 'AL',0,2)); @endphp
         <div class="userbox">
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
@@ -266,15 +233,8 @@
                 </div>
               </div>
             </div>
-
-            {{-- DI SINI DIGANTI: pakai url() supaya tidak butuh nama route --}}
-            <a class="item" href="{{ url('/dosenpenguji/profile') }}">
-              <i class="fa-solid fa-id-badge"></i> Lihat Profil
-            </a>
-            <a class="item" href="{{ url('/dosenpenguji/profile/edit') }}">
-              <i class="fa-solid fa-user-gear"></i> Edit Profil
-            </a>
-
+            <a class="item" href="{{ route('dosenpenguji.profile') }}"><i class="fa-solid fa-id-badge"></i> Lihat Profil</a>
+            <a class="item" href="{{ route('dosenpenguji.profile.edit') }}"><i class="fa-solid fa-user-gear"></i> Edit Profil</a>
             <a class="item" href="#"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
             <form method="POST" action="{{ route('logout') }}">
               @csrf
@@ -286,7 +246,6 @@
         </div>
       </div>
 
-      {{-- Dropdown notifikasi --}}
       <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
         <div class="notif-hd">
           <span>Notifikasi</span>
@@ -312,89 +271,76 @@
     </header>
 
     <div class="page">
-      <h2 class="page-title">DATA MAHASISWA PER KELAS</h2>
+      <div class="header-row">
+        <div>
+          <div class="kelas-title-main">Kelas {{ $kelas }}</div>
+          <div class="kelas-sub">Total: {{ $mahasiswa->total() }} mahasiswa</div>
+        </div>
+        <a href="{{ url('/dosenpenguji/mahasiswa') }}" class="btn-back">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke daftar kelas
+        </a>
+      </div>
 
-      {{-- FILTER (server-side, sama konsepnya dengan halaman Kelompok) --}}
+      {{-- Search dalam 1 kelas --}}
       <div class="toolbar">
-        <form action="{{ route('dosenpenguji.mahasiswa') }}" method="GET">
-          <div class="filter-group">
-            <label for="kelas">Kelas</label>
-            <select name="kelas" id="kelas">
-              <option value="Semua" {{ ($filterKelas ?? '') === 'Semua' ? 'selected' : '' }}>Semua</option>
-              <option value="A" {{ ($filterKelas ?? '') === 'A' ? 'selected' : '' }}>A</option>
-              <option value="B" {{ ($filterKelas ?? '') === 'B' ? 'selected' : '' }}>B</option>
-              <option value="C" {{ ($filterKelas ?? '') === 'C' ? 'selected' : '' }}>C</option>
-              <option value="D" {{ ($filterKelas ?? '') === 'D' ? 'selected' : '' }}>D</option>
-              <option value="E" {{ ($filterKelas ?? '') === 'E' ? 'selected' : '' }}>E</option>
-            </select>
+        <form action="{{ url()->current() }}" method="GET" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+          <input type="hidden" name="kelas" value="{{ $kelas }}">
+          <div class="search-group">
+            <label for="q">Cari di kelas ini</label>
+            <input type="text" id="q" name="q" value="{{ $search ?? '' }}" placeholder="Cari nama / NIM">
           </div>
-
-          <div class="filter-group">
-            <label for="semester">Semester</label>
-            <select name="semester" id="semester">
-              <option value="">Semua</option>
-              @for($i = 1; $i <= 8; $i++)
-                <option value="{{ $i }}" {{ ($filterSmtr ?? '') == $i ? 'selected' : '' }}>
-                  {{ $i }}
-                </option>
-              @endfor
-            </select>
-          </div>
-
-          <div class="filter-group" style="min-width:200px;">
-            <label for="q">Cari</label>
-            <input type="text"
-                   name="q"
-                   id="q"
-                   placeholder="Cari nama / NIM"
-                   value="{{ $keyword ?? '' }}">
-          </div>
-
           <button type="submit">
             <i class="fa-solid fa-magnifying-glass"></i>&nbsp; Cari
           </button>
         </form>
       </div>
 
-      {{-- GRID KARTU PER KELAS --}}
-      @if($kelasSummary->count())
-        <div class="kelas-grid">
-          @foreach($kelasSummary as $row)
-            <div class="kelas-card">
-              <div class="kelas-card-header">
-                <div>
-                  <div class="kelas-label">KELAS</div>
-                  <div class="kelas-title">Kelas {{ $row->kelas }}</div>
-                </div>
-                <span class="kelas-badge">{{ $row->kelas }}</span>
-              </div>
-
-              <div>
-                <div class="kelas-meta">Jumlah mahasiswa</div>
-                <div class="kelas-count">{{ $row->total_mahasiswa }} orang</div>
-              </div>
-
-              <div class="kelas-footer">
-                <a href="{{ route('dosenpenguji.mahasiswa.kelas', $row->kelas) }}"
-                   class="btn-detail">
-                  <span>Lihat detail</span>
-                  <i class="fa-solid fa-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-          @endforeach
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">No</th>
+                  <th style="width:120px;">NIM</th>
+                  <th>Nama</th>
+                  <th style="width:220px;">Email</th>
+                  <th style="width:190px;">Dosen Pembimbing</th>
+                  <th>Proyek PBL</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse ($mahasiswa as $index => $mhs)
+                  <tr>
+                    <td>{{ ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + $loop->iteration }}</td>
+                    <td>{{ $mhs->nim }}</td>
+                    <td>{{ $mhs->nama }}</td>
+                    {{-- email biasa: ambil dari relasi user, ganti ke $mhs->email kalau kolomnya ada --}}
+                    <td>{{ $mhs->user->email ?? '-' }}</td>
+                    <td>{{ optional($mhs->dosenPembimbing)->nama ?? '-' }}</td>
+                    <td>{{ optional($mhs->proyekPbl)->judul ?? optional($mhs->proyekPbl)->nama_proyek ?? '-' }}</td>
+                  </tr>
+                @empty
+                  <tr class="empty-row">
+                    <td colspan="6">Belum ada data mahasiswa di kelas ini.</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
-      @else
-        <div class="empty-state">
-          <div class="empty-state-title">Belum ada data mahasiswa.</div>
-          <div>Tambahkan data terlebih dahulu atau ubah filter kelas/semester.</div>
-        </div>
-      @endif
+
+        @if($mahasiswa->hasPages())
+          <div class="card-footer">
+            {{ $mahasiswa->links() }}
+          </div>
+        @endif
+      </div>
     </div>
   </main>
 
   <script>
-    // Toggling sidebar (mobile) — tutup ketika klik di luar
+    // Sidebar mobile
     document.addEventListener('click', (e)=>{
       const sb = document.getElementById('sidebar');
       if(!sb.classList.contains('show')) return;
@@ -402,7 +348,7 @@
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
     });
 
-    // Dropdown notifikasi
+    // Notifikasi
     document.addEventListener('DOMContentLoaded', function(){
       const bell = document.getElementById('bellBtn');
       const dd   = document.getElementById('notifDd');
@@ -418,7 +364,7 @@
       }
     });
 
-    // Dropdown user
+    // User dropdown
     document.addEventListener('DOMContentLoaded', function(){
       const btn = document.getElementById('userMenuBtn');
       const dd  = document.getElementById('userMenuDd');

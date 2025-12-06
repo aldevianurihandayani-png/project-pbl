@@ -19,6 +19,10 @@ return new class extends Migration
             $table->unsignedTinyInteger('bobot')->default(0);
             $table->unsignedSmallInteger('urutan')->default(1);
             $table->timestamps();
+            $table->foreign('kode_mk')
+            ->references('kode_mk')->on('mata_kuliah')
+            ->onDelete('cascade');
+
         });
     }
 

@@ -122,6 +122,7 @@
     .userbtn .ava{
       width:32px;height:32px;border-radius:50%; display:grid; place-items:center;
       background:#e3e9ff; color:#31408a; font-weight:700; font-size:12px;
+      overflow:hidden;
     }
     .userbtn i{ opacity:.85; transition:transform .15s }
     .userbtn[aria-expanded="true"] i{ transform:rotate(180deg) }
@@ -136,6 +137,7 @@
     }
     .user-dd .bigava{
       width:40px;height:40px;border-radius:50%; background:#e3e9ff; color:#31408a; display:grid; place-items:center; font-weight:800;
+      overflow:hidden;
     }
     .user-dd .item{
       display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:10px;
@@ -182,18 +184,18 @@
     </div>
 
     {{-- Tombol Logout (pakai POST biar sesuai route Laravel) --}}
-<div class="logout">
-  <form action="{{ route('logout') }}" method="POST" style="margin:0">
-    @csrf
-    <button type="submit" style="
-      width:100%;background:none;border:0;cursor:pointer;
-      color:#ffb2b2; display:flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:12px; text-align:left;
-    ">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
-  </form>
-</div>
+    <div class="logout">
+      <form action="{{ route('logout') }}" method="POST" style="margin:0">
+        @csrf
+        <button type="submit" style="
+          width:100%;background:none;border:0;cursor:pointer;
+          color:#ffb2b2; display:flex; align-items:center; gap:8px;
+          padding:10px 12px; border-radius:12px; text-align:left;
+        ">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </form>
+    </div>
 
   </aside>
 
@@ -246,20 +248,35 @@
         {{-- User Menu --}}
         <div class="userbox">
           @php
-            // Tampilkan nama khusus sesuai permintaan
-            $displayName = 'Aldevianuri handayani';
             $u = auth()->user();
-            $initial = strtoupper(substr($displayName,0,2));
+            $displayName = $u->nama ?? $u->name ?? 'Nama Dosen';
+            $initial = strtoupper(substr($displayName,0,1) . (preg_replace('/.*\s/','',$displayName)[0] ?? ''));
           @endphp
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
-            <span class="ava">{{ $initial }}</span>
+            <span class="ava">
+              @if($u && $u->foto)
+                <img src="{{ asset('storage/'.$u->foto) }}"
+                     alt="Avatar"
+                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+              @else
+                {{ $initial }}
+              @endif
+            </span>
             <span>{{ $displayName }}</span>
             <i class="fa-solid fa-chevron-down"></i>
           </button>
 
           <div id="userMenuDd" class="user-dd" role="menu" aria-labelledby="userMenuBtn">
             <div class="hd">
-              <div class="bigava">{{ $initial }}</div>
+              <div class="bigava">
+                @if($u && $u->foto)
+                  <img src="{{ asset('storage/'.$u->foto) }}"
+                       alt="Avatar"
+                       style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                @else
+                  {{ $initial }}
+                @endif
+              </div>
               <div style="min-width:0">
                 <div style="font-weight:800;color:#0e257a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                   {{ $displayName }}

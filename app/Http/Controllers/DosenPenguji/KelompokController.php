@@ -10,44 +10,84 @@ use App\Models\Kelompok;
 use App\Models\ProyekPbl;
 use App\Models\Mahasiswa;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class KelompokController extends Controller
 {
     /**
-     * Menampilkan data untuk dashboard dosen penguji dengan query yang dioptimalkan.
+     * Dashboard dosen penguji.
      */
     public function dashboard()
     {
-        // OPTIMASI: Menggunakan eager loading (with) untuk mengambil relasi proyek, anggota, dan mahasiswa
-        // dalam satu query utama untuk menghindari N+1 problem.
-        $kelompoks = Kelompok::with(['proyekPbl', 'anggota', 'mahasiswa'])
-            ->paginate(10); // OPTIMASI: Menggunakan paginasi untuk data yang besar.
+        $kelompoks = Kelompok::with(['proyekPbl', 'anggota', 'mahasiswas'])
+            ->paginate(10);
 
-        $totalProyek = ProyekPbl::count();
-        $totalMahasiswa = Mahasiswa::count();
-        $totalKelompok = Kelompok::count();
+        $totalProyek     = ProyekPbl::count();
+        $totalMahasiswa  = Mahasiswa::count();
+        $totalKelompok   = Kelompok::count();
 
-        return view('dosenpenguji.dashboard', compact('kelompoks', 'totalProyek', 'totalMahasiswa', 'totalKelompok'));
+        return view('dosenpenguji.dashboard', compact(
+            'kelompoks',
+            'totalProyek',
+            'totalMahasiswa',
+            'totalKelompok'
+        ));
     }
 
     /**
-     * Menampilkan daftar kelompok dengan fungsionalitas pencarian yang dioptimalkan.
+     * List kelompok + search untuk dosen penguji.
      */
     public function index(Request $request)
     {
         $search = $request->query('q');
 
-        // OPTIMASI: Eager loading untuk relasi 'proyek' dan 'anggota.mahasiswa'
-        // untuk menghindari N+1 problem saat menampilkan data di view.
-        $kelompok = Kelompok::with(['proyekPbl', 'anggota.mahasiswa'])
-            ->when($search, function($q) use ($search) {
-                $q->where('nama_kelompok', 'like', "%{$search}%")
-                  ->orWhereHas('proyekPbl', fn($qp) => $qp->where('judul', 'like', "%{$search}%"));
+        // fallback nama kolom untuk order
+        $nameCol = Schema::hasColumn('kelompoks', 'nama_kelompok')
+            ? 'nama_kelompok'
+            : (Schema::hasColumn('kelompoks', 'nama') ? 'nama' : 'id');
+
+        $kelompok = Kelompok::query()
+            ->with([
+                'proyekPbl:id_proyek_pbl,id_kelompok,judul',
+                'ketua:nim,nama,angkatan',
+                'anggota.mahasiswa:nim,nama,angkatan',
+            ])
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('nama_klien', 'like', "%{$search}%")
+                  ->orWhere('kelas', 'like', "%{$search}%")
+                  ->orWhereHas('proyekPbl', fn($qp) =>
+                        $qp->where('judul', 'like', "%{$search}%")
+                  )
+                  ->orWhereHas('anggota.mahasiswa', fn($qm) =>
+                        $qm->where('nama', 'like', "%{$search}%")
+                           ->orWhere('nim', 'like', "%{$search}%")
+                  );
             })
-            ->orderBy('nama_kelompok')
+            ->orderBy('kelas')
+            ->orderBy($nameCol)
             ->paginate(10)
             ->withQueryString();
 
+        // view index penguji: resources/views/dosenpenguji/kelompok.blade.php
         return view('dosenpenguji.kelompok', compact('kelompok'));
+    }
+
+    /**
+     * DETAIL SATU KELOMPOK untuk dosen penguji.
+     * Dipakai oleh route: dosenpenguji.kelompok.show
+     */
+    public function show($id)
+    {
+        // sekalian eager load relasi biar nggak N+1
+        $kelompok = Kelompok::with([
+                'proyekPbl',
+                'ketua',
+                'anggota.mahasiswa',
+            ])
+            ->findOrFail($id);
+
+        // bikin view: resources/views/dosenpenguji/kelompok-show.blade.php
+        return view('dosenpenguji.kelompok-show', compact('kelompok'));
     }
 }
