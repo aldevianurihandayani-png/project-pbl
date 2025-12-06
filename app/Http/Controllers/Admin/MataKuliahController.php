@@ -4,27 +4,49 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MataKuliah;
-use App\Models\Dosen; // <-- TAMBAHKAN INI
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class MataKuliahController extends Controller
 {
-    /** ==================== LIST ==================== **/
-    public function index()
+    /** ==================== LIST PER KELAS ==================== **/
+    public function index(Request $request)
     {
-        $matakuliah = MataKuliah::orderBy('kode_mk')
-            ->paginate(10)
-            ->withQueryString();
+        $kelasFilter = $request->query('kelas'); // ?kelas=A
 
-        return view('admins.matakuliah.index', compact('matakuliah'));
+        // kalau sedang lihat detail satu kelas
+        $matakuliahs = collect();
+        if ($kelasFilter) {
+            $matakuliahs = MataKuliah::where('kelas', $kelasFilter)
+                ->orderBy('semester')
+                ->orderBy('kode_mk')
+                ->paginate(10)
+                ->withQueryString();
+        }
+
+        // statistik jumlah MK per kelas
+        $kelasStats = MataKuliah::select(
+                'kelas',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('MIN(semester) as min_semester'),
+                DB::raw('MAX(semester) as max_semester')
+            )
+            ->groupBy('kelas')
+            ->orderBy('kelas')
+            ->get()
+            ->keyBy('kelas'); // akses cepat: $kelasStats['A']
+
+        return view('admins.matakuliah.index', compact('matakuliahs', 'kelasStats', 'kelasFilter'));
     }
 
     /** ==================== FORM CREATE ==================== **/
-    public function create()
+    public function create(Request $request)
     {
-        // View create sekarang cuma butuh form, tidak perlu daftar dosen
-        return view('admins.matakuliah.create');
+        // ambil kelas dari query kalau ada (?kelas=A)
+        $kelasDefault = $request->query('kelas');
+
+        return view('admins.matakuliah.create', compact('kelasDefault'));
     }
 
     /** ==================== SIMPAN BARU ==================== **/
@@ -36,11 +58,9 @@ class MataKuliahController extends Controller
                 'nama_mk'    => ['required', 'string', 'max:150'],
                 'sks'        => ['required', 'integer', 'min:1'],
                 'semester'   => ['required', 'integer', 'min:1'],
+                'kelas'      => ['required', 'string', Rule::in(['A','B','C','D','E'])],
 
-                // ambil nama dosen dari input teks
-                'nama_dosen' => ['required', 'string', 'max:150'],
-
-                // field tambahan
+                'nama_dosen' => ['nullable', 'string', 'max:150'],
                 'jabatan'    => ['nullable', 'string', 'max:100'],
                 'nip'        => ['nullable', 'string', 'max:50'],
                 'no_telp'    => ['nullable', 'string', 'max:50'],
@@ -51,34 +71,32 @@ class MataKuliahController extends Controller
                 'nama_mk'    => 'Nama Mata Kuliah',
                 'sks'        => 'Jumlah SKS',
                 'semester'   => 'Semester',
+                'kelas'      => 'Kelas',
                 'nama_dosen' => 'Dosen Pengampu',
             ]
         );
 
         MataKuliah::create([
-            'kode_mk'    => $validated['kode_mk'],
+            'kode_mk'    => strtoupper($validated['kode_mk']),
             'nama_mk'    => $validated['nama_mk'],
             'sks'        => $validated['sks'],
             'semester'   => $validated['semester'],
-            'nama_dosen' => $validated['nama_dosen'],
+            'kelas'      => $validated['kelas'],
+            'nama_dosen' => $validated['nama_dosen'] ?? null,
             'jabatan'    => $validated['jabatan'] ?? null,
             'nip'        => $validated['nip'] ?? null,
             'no_telp'    => $validated['no_telp'] ?? null,
-            // kalau masih ada kolom id_dosen di tabel dan tidak dipakai lagi:
             'id_dosen'   => null,
         ]);
 
-        return redirect()->route('admins.matakuliah.index')
-            ->with('success', 'Mata kuliah berhasil ditambahkan.');
+        return redirect()->route('admins.matakuliah.index', ['kelas' => $validated['kelas']])
+            ->with('success', 'Mata kuliah per kelas berhasil ditambahkan.');
     }
 
     /** ==================== FORM EDIT ==================== **/
     public function edit(MataKuliah $matakuliah)
     {
-        // ambil daftar dosen untuk datalist di form edit
-        $dosens = Dosen::orderBy('nama_dosen')->get();
-
-        return view('admins.matakuliah.edit', compact('matakuliah', 'dosens'));
+        return view('admins.matakuliah.edit', compact('matakuliah'));
     }
 
     /** ==================== UPDATE DATA ==================== **/
@@ -86,17 +104,12 @@ class MataKuliahController extends Controller
     {
         $validated = $request->validate(
             [
-                // kalau mau izinkan ubah kode_mk, buka komentar ini:
-                // 'kode_mk' => [
-                //     'required', 'string', 'max:20',
-                //     Rule::unique('mata_kuliah', 'kode_mk')->ignore($matakuliah->kode_mk, 'kode_mk'),
-                // ],
-
                 'nama_mk'    => ['required', 'string', 'max:150'],
                 'sks'        => ['required', 'integer', 'min:1'],
                 'semester'   => ['required', 'integer', 'min:1'],
-                'nama_dosen' => ['required', 'string', 'max:150'],
+                'kelas'      => ['required', 'string', Rule::in(['A','B','C','D','E'])],
 
+                'nama_dosen' => ['nullable', 'string', 'max:150'],
                 'jabatan'    => ['nullable', 'string', 'max:100'],
                 'nip'        => ['nullable', 'string', 'max:50'],
                 'no_telp'    => ['nullable', 'string', 'max:50'],
@@ -106,33 +119,33 @@ class MataKuliahController extends Controller
                 'nama_mk'    => 'Nama Mata Kuliah',
                 'sks'        => 'Jumlah SKS',
                 'semester'   => 'Semester',
+                'kelas'      => 'Kelas',
                 'nama_dosen' => 'Dosen Pengampu',
             ]
         );
 
         $matakuliah->update([
-            // kalau izinkan ubah kode_mk, tambahkan:
-            // 'kode_mk'    => $validated['kode_mk'],
             'nama_mk'    => $validated['nama_mk'],
             'sks'        => $validated['sks'],
             'semester'   => $validated['semester'],
-            'nama_dosen' => $validated['nama_dosen'],
+            'kelas'      => $validated['kelas'],
+            'nama_dosen' => $validated['nama_dosen'] ?? null,
             'jabatan'    => $validated['jabatan'] ?? null,
             'nip'        => $validated['nip'] ?? null,
             'no_telp'    => $validated['no_telp'] ?? null,
-            'id_dosen'   => null,
         ]);
 
-        return redirect()->route('admins.matakuliah.index')
-            ->with('success', 'Data mata kuliah berhasil diperbarui.');
+        return redirect()->route('admins.matakuliah.index', ['kelas' => $validated['kelas']])
+            ->with('success', 'Data mata kuliah per kelas berhasil diperbarui.');
     }
 
     /** ==================== HAPUS ==================== **/
     public function destroy(MataKuliah $matakuliah)
     {
+        $kelas = $matakuliah->kelas;
         $matakuliah->delete();
 
-        return redirect()->route('admins.matakuliah.index')
-            ->with('success', 'Mata kuliah berhasil dihapus.');
+        return redirect()->route('admins.matakuliah.index', ['kelas' => $kelas])
+            ->with('success', 'Mata kuliah per kelas berhasil dihapus.');
     }
 }
