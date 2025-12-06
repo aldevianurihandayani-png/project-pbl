@@ -278,7 +278,7 @@
             </div>
 
             <a href="{{ route('admins.matakuliah.create') }}" class="mk-add-btn">
-                <span>➕</span>
+                <span></span>
                 <span>Tambah Mata Kuliah</span>
             </a>
         </div>
@@ -309,7 +309,6 @@
                         <div class="kelas-card-inner">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <div class="kelas-title-small">KELAS</div>
                                     <div class="kelas-name">Kelas {{ $kls }}</div>
                                 </div>
                             </div>
@@ -333,9 +332,7 @@
                             <div class="kelas-footer">
                                 <span>
                                     @if ($total > 0)
-                                        Tekan untuk melihat daftar mata kuliah
                                     @else
-                                        Tekan untuk menambah mata kuliah
                                     @endif
                                 </span>
                                 <span class="kelas-link">Lihat detail</span>
