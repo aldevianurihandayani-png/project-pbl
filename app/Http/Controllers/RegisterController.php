@@ -20,7 +20,7 @@ class RegisterController extends Controller
             'name'     => ['required','string','max:255'],
             'email'    => ['required','email','unique:users,email'],
             'password' => ['required','confirmed','min:8'],
-            'role'     => ['required', Rule::in(['mahasiswa','dosen_pembimbing','dosen_penguji','koordinator_pbl','jaminan_mutu','admin'])],
+            'role'     => ['required', Rule::in(['mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','jaminan_mutu','admin'])],
             'nim'      => ['nullable','string','max:30'],
             'prodi'    => ['nullable','string','max:100'],
         ]);

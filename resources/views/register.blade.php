@@ -103,13 +103,17 @@
           <label for="role">Role</label>
           <select id="role" name="role" required>
             <option value="">-- Pilih Role --</option>
-            <option value="mahasiswa"        {{ old('role')=='mahasiswa'?'selected':'' }}>Mahasiswa</option>
-            <option value="dosen_pembimbing" {{ old('role')=='dosen_pembimbing'?'selected':'' }}>Dosen Pembimbing</option>
-            <option value="dosen_penguji"    {{ old('role')=='dosen_penguji'?'selected':'' }}>Dosen Penguji</option>
-            <option value="koordinator"      {{ old('role')=='koordinator'?'selected':'' }}>Koordinator PBL</option>
-            <option value="jaminan_mutu"     {{ old('role')=='jaminan_mutu'?'selected':'' }}>Jaminan Mutu</option>
-            <option value="admin"            {{ old('role')=='admins'?'selected':'' }}>Admin</option>
+            <option value="mahasiswa"        {{ old('role')=='mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+            <option value="dosen_pembimbing" {{ old('role')=='dosen_pembimbing' ? 'selected' : '' }}>Dosen Pembimbing</option>
+            <option value="dosen_penguji"    {{ old('role')=='dosen_penguji' ? 'selected' : '' }}>Dosen Penguji</option>
 
+            {{-- ✔ Koordinator PBL pakai value koor_pbl --}}
+            <option value="koor_pbl"         {{ old('role')=='koor_pbl' ? 'selected' : '' }}>Koordinator PBL</option>
+
+            <option value="jaminan_mutu"     {{ old('role')=='jaminan_mutu' ? 'selected' : '' }}>Jaminan Mutu</option>
+
+            {{-- ✔ Admin juga disamakan dengan canonical role "admin" --}}
+            <option value="admin"            {{ old('role')=='admin' ? 'selected' : '' }}>Admin</option>
           </select>
           @error('role') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
