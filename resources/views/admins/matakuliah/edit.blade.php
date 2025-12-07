@@ -2,6 +2,8 @@
 <?php /** @var \App\Models\Matakuliah $matakuliah */ ?>
 
 @extends('layouts.admin')
+{{-- judul di bar biru atas --}}
+@section('page_title', 'Manajemen Mata Kuliah')
 
 @section('content')
 <div class="container-fluid">

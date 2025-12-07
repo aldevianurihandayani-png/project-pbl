@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class MahasiswaController extends Controller
 {
@@ -63,6 +64,7 @@ class MahasiswaController extends Controller
 
     public function edit(Mahasiswa $mahasiswa)
     {
+        // Route model binding sekarang pakai nim (sesuai primaryKey di model)
         return view('admins.mahasiswa.edit', [
             'mahasiswa' => $mahasiswa,
         ]);
@@ -71,7 +73,14 @@ class MahasiswaController extends Controller
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
         $data = $request->validate([
-            'nim'      => 'required|string|max:50|unique:mahasiswas,nim,' . $mahasiswa->id,
+            // PENTING: abaikan nim yang sedang diedit berdasarkan kolom nim,
+            // bukan berdasarkan kolom id (karena tabel tidak punya id).
+            'nim'      => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('mahasiswas', 'nim')->ignore($mahasiswa->nim, 'nim'),
+            ],
             'nama'     => 'required|string|max:255',
             'email'    => 'nullable|email|max:255',
             'angkatan' => 'nullable|digits:4',
