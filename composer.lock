@@ -6,9 +6,6 @@
     ],
 
     "content-hash": "98fc8e2b5aaa737df35592ddc92f85b0",
-
-    "content-hash": "d451c801106dfc99953c3ad6276310f6",
-
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
