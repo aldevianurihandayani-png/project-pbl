@@ -241,9 +241,17 @@ Route::prefix('dosenpenguji')
             Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
         });
 
-        // Master data
-        Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
-        Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
+        /// Master data – Kelompok (dosen penguji)
+Route::get('/kelompok', [DPKelompokController::class, 'index'])
+    ->name('kelompok');
+
+// detail satu kelompok (pakai controller::show yang sudah kamu buat)
+Route::get('/kelompok/{id}', [DPKelompokController::class, 'show'])
+    ->name('kelompok.show');
+
+Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
+    ->name('matakuliah');
+
 
         // CPMK
         Route::get('/cpmk', [CpmkController::class, 'index'])->name('cpmk.index');
