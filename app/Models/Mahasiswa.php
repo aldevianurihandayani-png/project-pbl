@@ -18,18 +18,13 @@ class Mahasiswa extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // KOLOM YANG BISA DI-ISI MASS ASSIGNME
-    protected $table = 'mahasiswas';
-
+ 
     /**
      * Karena tabel kamu TIDAK punya kolom `id`
      * dan PRIMARY KEY = `nim` (varchar)
      * maka WAJIB ditambahkan properti berikut.
      */
-    protected $primaryKey = 'nim';   // Primary key adalah nim
-    public $incrementing = false;    // nim bukan auto-increment
-    protected $keyType = 'string';   // tipe nim adalah varchar
-
+   
     protected $fillable = [
         'nim',
         'nama',
