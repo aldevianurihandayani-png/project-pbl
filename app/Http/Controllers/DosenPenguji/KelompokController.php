@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/DosenPenguji/KelompokController.php
-
 namespace App\Http\Controllers\DosenPenguji;
 
 use App\Http\Controllers\Controller;
@@ -16,12 +14,20 @@ class KelompokController extends Controller
 {
     /**
      * Dashboard dosen penguji.
+     * (MASIH pakai filter penguji – bisa kita ubah nanti kalau perlu)
      */
     public function dashboard()
     {
+        $penguji = Auth::user();
+
+        // Hanya ambil kelompok yang memang di-assign ke penguji ini
         $kelompoks = Kelompok::with(['proyekPbl', 'anggota', 'mahasiswas'])
+            ->whereHas('penguji', function ($query) use ($penguji) {
+                $query->where('penguji_id', $penguji->id);
+            })
             ->paginate(10);
 
+        // Total masih pakai count() global
         $totalProyek     = ProyekPbl::count();
         $totalMahasiswa  = Mahasiswa::count();
         $totalKelompok   = Kelompok::count();
@@ -35,35 +41,65 @@ class KelompokController extends Controller
     }
 
     /**
-     * List kelompok + search untuk dosen penguji.
+     * LIST KELOMPOK + SEARCH + FILTER KELAS & SEMESTER (untuk dosen penguji).
+     * UNTUK TES: TANPA FILTER penguji dulu, jadi semua kelompok kelihatan.
      */
     public function index(Request $request)
     {
-        $search = $request->query('q');
+        $search   = $request->query('q');            // teks pencarian
+        $kelasKey = $request->query('kelas', 'all'); // A / B / C / D / E / all
+        $semester = $request->query('semester', 'all');
 
         // fallback nama kolom untuk order
         $nameCol = Schema::hasColumn('kelompoks', 'nama_kelompok')
             ? 'nama_kelompok'
             : (Schema::hasColumn('kelompoks', 'nama') ? 'nama' : 'id');
 
-        $kelompok = Kelompok::query()
+        $query = Kelompok::query()
             ->with([
                 'proyekPbl:id_proyek_pbl,id_kelompok,judul',
                 'ketua:nim,nama,angkatan',
                 'anggota.mahasiswa:nim,nama,angkatan',
-            ])
-            ->when($search, function ($q) use ($search) {
+            ]);
+            // ⛔️ sementara TANPA whereHas('penguji') supaya data kelihatan semua
+
+        // ========== FILTER PENCARIAN ==========
+        if ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('nama_klien', 'like', "%{$search}%")
+                  ->orWhere('anggota', 'like', "%{$search}%")
                   ->orWhere('kelas', 'like', "%{$search}%")
-                  ->orWhereHas('proyekPbl', fn($qp) =>
-                        $qp->where('judul', 'like', "%{$search}%")
-                  )
-                  ->orWhereHas('anggota.mahasiswa', fn($qm) =>
-                        $qm->where('nama', 'like', "%{$search}%")
-                           ->orWhere('nim', 'like', "%{$search}%")
-                  );
-            })
+                  ->orWhere('nama_klien', 'like', "%{$search}%")
+                  // cari di ketua
+                  ->orWhereHas('ketua', function ($qq) use ($search) {
+                      $qq->where('nama', 'like', "%{$search}%")
+                         ->orWhere('nim', 'like', "%{$search}%");
+                  })
+                  // cari di anggota
+                  ->orWhereHas('anggota.mahasiswa', function ($qm) use ($search) {
+                      $qm->where('nama', 'like', "%{$search}%")
+                         ->orWhere('nim', 'like', "%{$search}%");
+                  })
+                  // cari di judul proyek
+                  ->orWhereHas('proyekPbl', function ($qp) use ($search) {
+                      $qp->where('judul', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // ========== FILTER KELAS (A–E) ==========
+        if ($kelasKey !== 'all') {
+            // contoh: kelasKey = 'B' → semua kelas yang berakhiran "B" (TI-3B, TI-2B, dst)
+            $query->where('kelas', 'like', "%{$kelasKey}");
+        }
+
+        // ========== FILTER SEMESTER (1–6) ==========
+        if ($semester !== 'all' && Schema::hasColumn('kelompoks', 'semester')) {
+            $query->where('semester', $semester);
+        }
+
+        // Urutkan dan paginate
+        $kelompok = $query
             ->orderBy('kelas')
             ->orderBy($nameCol)
             ->paginate(10)
@@ -74,20 +110,36 @@ class KelompokController extends Controller
     }
 
     /**
+     * DAFTAR KELOMPOK DALAM SATU KELAS (TI-3A, TI-3B, dst) untuk dosen penguji.
+     * UNTUK TES: TANPA FILTER penguji dulu.
+     */
+    public function kelas($kelas)
+    {
+        $kelompoks = Kelompok::where('kelas', $kelas)->get();
+        // kalau nanti mau dibatasi per penguji, baru tambah whereHas('penguji', ...) di sini
+
+        return view('dosenpenguji.kelompok-kelas', [
+            'kelas'     => $kelas,
+            'kelompoks' => $kelompoks,
+        ]);
+    }
+
+    /**
      * DETAIL SATU KELOMPOK untuk dosen penguji.
-     * Dipakai oleh route: dosenpenguji.kelompok.show
+     * UNTUK TES: TANPA FILTER penguji dulu.
      */
     public function show($id)
     {
-        // sekalian eager load relasi biar nggak N+1
         $kelompok = Kelompok::with([
                 'proyekPbl',
                 'ketua',
-                'anggota.mahasiswa',
+                'mahasiswas',       // dipakai di tabel anggota di kelompok-show
+                'penguji',          // kalau mau ditampilkan daftar penguji
+                'anggota.mahasiswa' // kalau masih ada logika lama yang pakai ini
             ])
             ->findOrFail($id);
+        // kalau nanti mau dibatasi per penguji, baru tambahkan whereHas('penguji', ...) di sini
 
-        // bikin view: resources/views/dosenpenguji/kelompok-show.blade.php
         return view('dosenpenguji.kelompok-show', compact('kelompok'));
     }
 }
