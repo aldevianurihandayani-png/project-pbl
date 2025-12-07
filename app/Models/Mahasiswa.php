@@ -9,11 +9,6 @@ class Mahasiswa extends Model
 {
     use HasFactory;
 
-    // nama tabel
-    protected $table = 'mahasiswas';
-
-    // primary key = nim
-
     // NAMA TABEL SESUAI DB
     protected $table = 'mahasiswas';
 
@@ -85,14 +80,6 @@ class Mahasiswa extends Model
     public function proyekPbl()
     {
         return $this->belongsTo(ProyekPbl::class, 'proyek_pbl_id', 'id');
-    }
-
-
-    public function user()
-    {
-        // relasi ke tabel users via user_id -> id
-        // withDefault() mencegah error ketika user_id NULL
-        return $this->belongsTo(User::class, 'user_id', 'id')->withDefault();
     }
 
 

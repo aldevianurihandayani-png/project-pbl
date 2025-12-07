@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Kelompok;
 use App\Models\Kelas;
+use App\Models\User; // <-- tambah ini (atau ganti dengan model dosenmu)
 use Illuminate\Http\Request;
 
 class KelompokController extends Controller
@@ -65,9 +66,13 @@ class KelompokController extends Controller
         $kelasTerpilih = $request->query('kelas'); // misal TI-3E
         $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
 
+        // ambil semua dosen pembimbing untuk dropdown
+        $dosenPembimbings = User::where('role', 'pembimbing')->orderBy('name')->get();
+
         return view('dosen.kelompok.create', [
-            'kelasTerpilih' => $kelasTerpilih,
-            'daftarKelas'   => $daftarKelas,
+            'kelasTerpilih'    => $kelasTerpilih,
+            'daftarKelas'      => $daftarKelas,
+            'dosenPembimbings' => $dosenPembimbings,
         ]);
     }
 
@@ -77,13 +82,13 @@ class KelompokController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'nama'             => 'required',
-            'judul_proyek'     => 'required',
-            'nama_klien'       => 'required',
-            'ketua_kelompok'   => 'required',
-            'kelas'            => 'required',
-            'anggota'          => 'required',
-            'dosen_pembimbing' => 'nullable|string',
+            'nama'                => 'required',
+            'judul_proyek'        => 'required',
+            'nama_klien'          => 'required',
+            'ketua_kelompok'      => 'required',
+            'kelas'               => 'required',
+            'anggota'             => 'required',
+            'dosen_pembimbing_id' => 'required|exists:users,id', // relasi ke tabel users
         ]);
 
         if (!str_starts_with($validatedData['kelas'], 'TI-')) {
@@ -107,10 +112,14 @@ class KelompokController extends Controller
         $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
         $kelasTerpilih = $kelompok->kelas;
 
+        // dropdown dosen pembimbing juga di halaman edit
+        $dosenPembimbings = User::where('role', 'pembimbing')->orderBy('name')->get();
+
         return view('dosen.kelompok.edit', [
-            'kelompok'     => $kelompok,
-            'daftarKelas'  => $daftarKelas,
-            'kelasTerpilih'=> $kelasTerpilih,
+            'kelompok'          => $kelompok,
+            'daftarKelas'       => $daftarKelas,
+            'kelasTerpilih'     => $kelasTerpilih,
+            'dosenPembimbings'  => $dosenPembimbings,
         ]);
     }
 
@@ -120,13 +129,13 @@ class KelompokController extends Controller
     public function update(Request $request, Kelompok $kelompok)
     {
         $validatedData = $request->validate([
-            'nama'             => 'required',
-            'judul_proyek'     => 'required',
-            'nama_klien'       => 'required',
-            'ketua_kelompok'   => 'required',
-            'kelas'            => 'required',
-            'anggota'          => 'required',
-            'dosen_pembimbing' => 'nullable|string',
+            'nama'                => 'required',
+            'judul_proyek'        => 'required',
+            'nama_klien'          => 'required',
+            'ketua_kelompok'      => 'required',
+            'kelas'               => 'required',
+            'anggota'             => 'required',
+            'dosen_pembimbing_id' => 'required|exists:users,id',
         ]);
 
         if (!str_starts_with($validatedData['kelas'], 'TI-')) {
@@ -155,4 +164,3 @@ class KelompokController extends Controller
             ->with('success', 'Kelompok deleted successfully.');
     }
 }
-
