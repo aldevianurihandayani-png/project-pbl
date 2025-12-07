@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -12,7 +13,9 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
+
+        // sesuaikan dengan view yang kamu pakai
         return view('profile.index', compact('user'));
     }
 
@@ -27,13 +30,17 @@ class ProfileController extends Controller
         $request->validate([
             'nama'     => 'required|string|max:255',
             'email'    => 'required|email',
+            'nidn'     => 'nullable|string|max:50',
+            'prodi'    => 'nullable|string|max:255',
             'foto'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'password' => 'nullable|min:6|confirmed',
         ]);
 
-        // ✅ Update nama & email
+        // ✅ Update data dasar
         $user->nama  = $request->nama;
         $user->email = $request->email;
+        $user->nidn  = $request->nidn;
+        $user->prodi = $request->prodi;
 
         // ✅ Upload & ganti foto bila ada
         if ($request->hasFile('foto')) {

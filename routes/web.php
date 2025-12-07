@@ -12,6 +12,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogbookController; // untuk MAHASISWA (global)
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\TPK\TPKMahasiswaController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\DriveTestController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -22,15 +24,12 @@ use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController; // <<< DIHIDUPKAN
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 // Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\DosenMilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\DosenLogbookController;
-
-
-
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -38,10 +37,10 @@ use App\Http\Controllers\DosenPenguji\PenilaianController;
 use App\Http\Controllers\DosenPenguji\RubrikController;
 use App\Http\Controllers\DosenPenguji\KelompokController as DPKelompokController;
 use App\Http\Controllers\DosenPenguji\MatakuliahController as DPMatakuliahController;
-use App\Http\Controllers\CpmkController;
 use App\Http\Controllers\DosenPenguji\PenilaianItemController;
 
 // MODEL quick-edit
+use App\Http\Controllers\CpmkController;
 use App\Models\Cpmk;
 use App\Models\Rubrik;
 
@@ -60,7 +59,7 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
 | Autentikasi
 |--------------------------------------------------------------------------
 */
-// REGISTER (pakai controller, jangan duplikasi dengan Route::view)
+// REGISTER
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
 Route::post('/register', [RegisterController::class, 'store']);
 
@@ -68,6 +67,10 @@ Route::post('/register', [RegisterController::class, 'store']);
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// LOGIN GOOGLE (SSO POLITALA)
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
 /*
 |--------------------------------------------------------------------------
@@ -95,18 +98,17 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
             return redirect()->route('dosenpenguji.dashboard')->with('verified', true);
         case 'koordinator':
         case 'jaminan_mutu':
-            // ganti ke dashboard khusus jika sudah ada
             return redirect()->route('admins.dashboard')->with('verified', true);
         default:
             return redirect()->route('home')->with('verified', true);
     }
-})->middleware(['auth','signed'])->name('verification.verify');
+})->middleware(['auth', 'signed'])->name('verification.verify');
 
 // Kirim ulang link verifikasi
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
-})->middleware(['auth','throttle:6,1'])->name('verification.send');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 /*
 |--------------------------------------------------------------------------
@@ -115,22 +117,23 @@ Route::post('/email/verification-notification', function (Request $request) {
 */
 Route::prefix('admins')
     ->name('admins.')
-    ->middleware(['auth','verified','role:admin'])
+    ->middleware(['auth', 'verified', 'role:admin'])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('matakuliah', AdminMataKuliahController::class);
         Route::resource('mahasiswa', AdminMahasiswaController::class);
-        Route::resource('kelompok', AdminKelompokController::class)->only(['index','show']);
+        Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
         Route::resource('logbook', AdminLogbookController::class)->only(['index']);
         Route::resource('feedback', AdminFeedbackController::class);
 
         Route::resource('notifikasi', AdminNotifikasiController::class);
         Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
         Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
-        Route::resource('profile', AdminProfileController::class); // <<< DIHIDUPKAN
-});
+
+        Route::resource('profile', AdminProfileController::class);
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -139,14 +142,19 @@ Route::prefix('admins')
 */
 Route::prefix('mahasiswa')
     ->name('mahasiswa.')
-    ->middleware(['auth','verified','role:mahasiswa'])
+    ->middleware(['auth', 'verified', 'role:mahasiswa'])
     ->group(function () {
         Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
         Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
         Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
-        Route::resource('milestone', \App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController::class)->except(['show']);
+
+        Route::resource(
+            'milestone',
+            \App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController::class
+        )->except(['show']);
+
         Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
-});
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -155,7 +163,7 @@ Route::prefix('mahasiswa')
 */
 Route::prefix('dosen')
     ->name('dosen.')
-    ->middleware(['auth','verified','role:dosen_pembimbing'])
+    ->middleware(['auth', 'verified', 'role:dosen_pembimbing'])
     ->group(function () {
 
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
@@ -165,22 +173,17 @@ Route::prefix('dosen')
         Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
 
         Route::resource('milestone', DosenMilestoneController::class)
-            ->only(['index','edit','update']);
+            ->only(['index', 'edit', 'update']);
 
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
-        Route::patch('logbook/{logbook}/toggle-status',
-            [DosenLogbookController::class,'toggleStatus'])
+        Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
             ->name('logbook.toggleStatus');
 
-
-        // ✅ HALAMAN DETAIL KELAS (TI-3E, TI-3D, dst)
-        Route::get('kelompok/kelas/{kelas}',
-    [DosenKelompokController::class, 'kelas'])
-    ->name('kelompok.kelas');
-
-});
-
+        // Halaman detail kelas (TI-3E, TI-3D, dst)
+        Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
+            ->name('kelompok.kelas');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -189,7 +192,7 @@ Route::prefix('dosen')
 */
 Route::prefix('dosenpenguji')
     ->name('dosenpenguji.')
-    ->middleware(['auth','verified','role:dosen_penguji'])
+    ->middleware(['auth', 'verified', 'role:dosen_penguji'])
     ->group(function () {
 
         // Dashboard
@@ -198,151 +201,131 @@ Route::prefix('dosenpenguji')
 
         // MAHASISWA
         Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
-        
         Route::get('/mahasiswa/kelas/{kelas}', [DPMahasiswaController::class, 'showByKelas'])
             ->name('mahasiswa.kelas');
 
-        // =========================
-        // PENILAIAN (GRADEBOOK + Excel/PDF)
-        // =========================
+        // PENILAIAN (Gradebook + CRUD + Import/Export)
+        Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
+        Route::post('/penilaian', [PenilaianController::class, 'store'])->name('penilaian.store');
+        Route::put('/penilaian/{penilaian}', [PenilaianController::class, 'update'])->name('penilaian.update');
+        Route::delete('/penilaian/{penilaian}', [PenilaianController::class, 'destroy'])->name('penilaian.destroy');
 
-        // Halaman utama penilaian (gradebook rubrik × mahasiswa)
-        Route::get('/penilaian', [PenilaianController::class,'index'])
-            ->name('penilaian');
-
-        // Simpan semua nilai (tombol "Simpan Semua")
-        Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])
-            ->name('penilaian.bulkSave');
-
-        // Hapus satu nilai (nim × rubrik) via AJAX
+        Route::post('/penilaian/save', [PenilaianController::class, 'bulkSave'])->name('penilaian.bulkSave');
         Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])
             ->name('penilaian.deleteGrade');
 
-        // =========================
-        // PENILAIAN (CRUD baru)
-        // =========================
-        Route::get('/penilaian', [PenilaianController::class,'index'])->name('penilaian');
-        Route::post('/penilaian', [PenilaianController::class,'store'])->name('penilaian.store');
-        Route::put('/penilaian/{penilaian}', [PenilaianController::class,'update'])->name('penilaian.update');
-        Route::delete('/penilaian/{penilaian}', [PenilaianController::class,'destroy'])->name('penilaian.destroy');
-
-        // ===== Export / Import – HANYA Excel & PDF =====
-        // (pakai method ...Baru di PenilaianController)
-
-        Route::get('/penilaian/export/excel', [PenilaianController::class,'exportExcelBaru'])
+        // Export / Import
+        Route::get('/penilaian/export/excel', [PenilaianController::class, 'exportExcelBaru'])
             ->name('penilaian.export.excel');
-
-        Route::get('/penilaian/export/pdf', [PenilaianController::class,'exportPdfBaru'])
+        Route::get('/penilaian/export/pdf', [PenilaianController::class, 'exportPdfBaru'])
             ->name('penilaian.export.pdf');
-
-        Route::get('/penilaian/template', [PenilaianController::class,'downloadTemplateBaru'])
+        Route::get('/penilaian/template', [PenilaianController::class, 'downloadTemplateBaru'])
             ->name('penilaian.template');
-
-        Route::post('/penilaian/import', [PenilaianController::class,'importExcelBaru'])
+        Route::post('/penilaian/import', [PenilaianController::class, 'importExcelBaru'])
             ->name('penilaian.import');
-
-        // Alias lama: route('dosenpenguji.penilaian.export') → export Excel juga
         Route::get('/penilaian/export', [PenilaianController::class, 'exportExcelBaru'])
             ->name('penilaian.export');
 
-
-        // =========================
-        // RUBRIK – CRUD LENGKAP
-        // =========================
+        // RUBRIK
         Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
         Route::post('/rubrik', [RubrikController::class, 'store'])->name('rubrik.store');
         Route::put('/rubrik/{rubrik}', [RubrikController::class, 'update'])->name('rubrik.update');
         Route::delete('/rubrik/{rubrik}', [RubrikController::class, 'destroy'])->name('rubrik.destroy');
 
-        // CRUD Item Penilaian
+        // Item Penilaian
         Route::prefix('penilaian-item')->name('penilaian.item.')->group(function () {
-        Route::get('/create', [PenilaianItemController::class, 'create'])->name('create');
-        Route::post('/', [PenilaianItemController::class, 'store'])->name('store');
-        Route::get('/{item}/edit', [PenilaianItemController::class, 'edit'])->name('edit');
-        Route::put('/{item}', [PenilaianItemController::class, 'update'])->name('update');
-        Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
-});
+            Route::get('/create', [PenilaianItemController::class, 'create'])->name('create');
+            Route::post('/', [PenilaianItemController::class, 'store'])->name('store');
+            Route::get('/{item}/edit', [PenilaianItemController::class, 'edit'])->name('edit');
+            Route::put('/{item}', [PenilaianItemController::class, 'update'])->name('update');
+            Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
+        });
 
-        // Master data
-        Route::get('/kelompok', [DPKelompokController::class, 'index'])->name('kelompok');
-        Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])->name('matakuliah');
+        /// Master data – Kelompok (dosen penguji)
+Route::get('/kelompok', [DPKelompokController::class, 'index'])
+    ->name('kelompok');
 
-        // =========================
+// detail satu kelompok (pakai controller::show yang sudah kamu buat)
+Route::get('/kelompok/{id}', [DPKelompokController::class, 'show'])
+    ->name('kelompok.show');
+
+Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
+    ->name('matakuliah');
+
+
         // CPMK
-        // =========================
-        Route::get('/cpmk',  [CpmkController::class, 'index'])->name('cpmk.index');
+        Route::get('/cpmk', [CpmkController::class, 'index'])->name('cpmk.index');
         Route::post('/cpmk', [CpmkController::class, 'store'])->name('cpmk.store');
         Route::put('/cpmk/{kode_mk}/{kode}', [CpmkController::class, 'quickUpdate'])
             ->name('cpmk.quickUpdate');
         Route::delete('/cpmk/{cpmk}', [CpmkController::class, 'destroy'])
             ->name('cpmk.destroy');
 
+       // PROFIL DOSEN PENGUJI (prefix /dosenpenguji)
+Route::view('/profile', 'dosenpenguji.profile')->name('profile');
+Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
 
-        // =========================
-        // PROFIL DOSEN PENGUJI
-        // =========================
-        Route::view('/profile', 'dosenpenguji.profile')->name('profile');
-        Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
+Route::put('/profile', function (Request $request) {
 
-        Route::put('/profile', function (Request $request) {
-            $user = auth()->user();
+    $user = auth()->user();  
 
-            $validated = $request->validate([
-                'nama'     => 'nullable|string|max:255',
-                'name'     => 'nullable|string|max:255',
-                'email'    => 'required|email',
-                'password' => 'nullable|min:6',
-            ]);
+    $validated = $request->validate([
+        'nama'     => 'nullable|string|max:255',
+        'name'     => 'nullable|string|max:255',
+        'email'    => 'required|email',
+        'password' => 'nullable|min:6',
+    ]);
 
-            $data = [
-                'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
-                'email' => $validated['email'],
-            ];
+    $data = [
+        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+        'email' => $validated['email'],
+    ];
 
-            if (!empty($validated['password'])) {
-                $data['password'] = Hash::make($validated['password']);
-            }
+    if (!empty($validated['password'])) {
+        $data['password'] = Hash::make($validated['password']);
+    }
 
-            $user->update($data);
-            auth()->setUser($user->fresh());
+    $user->update($data);
 
-            return redirect()
-                ->route('dosenpenguji.profile')
-                ->with('success', 'Perubahan berhasil disimpan.');
-        })->name('profile.update');
-    });
+    return redirect()
+        ->route('dosenpenguji.profile')
+        ->with('success', 'Perubahan berhasil disimpan.');
+})->name('profile.update');
+
+
 
 /*
 |--------------------------------------------------------------------------
-| Koordinator PBL (role: koordinator)
+| Koordinator PBL
 |--------------------------------------------------------------------------
 */
 Route::prefix('koordinator')
     ->name('koordinator.')
-    ->middleware(['auth','verified','role:koordinator'])
+    ->middleware(['auth', 'verified', 'role:koordinator'])
     ->group(function () {
         Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
-        // Tambahkan halaman lain khusus koordinator di sini bila perlu.
     });
-
+    
 /*
 |--------------------------------------------------------------------------
-| Jaminan Mutu (role: jaminan_mutu)
+| Jaminan Mutu
 |--------------------------------------------------------------------------
 */
 Route::prefix('jaminanmutu')
     ->name('jaminanmutu.')
-    ->middleware(['auth','verified','role:jaminan_mutu'])
+    ->middleware(['auth', 'verified', 'role:jaminan_mutu'])
     ->group(function () {
         Route::view('/dashboard', 'jaminanmutu.dashboard')->name('dashboard');
-        // Tambahkan halaman lain khusus JM di sini bila perlu.
     });
 
-        // Profil Penguji
+/*
+|--------------------------------------------------------------------------
+| Profil Penguji Global (optional)
+|--------------------------------------------------------------------------
+*/
 Route::view('/profile', 'dosenpenguji.profile')->name('profile');
 Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
 Route::put('/profile', function (Request $request) {
-    // ambil user yang sedang login
     $user = Auth::user();
 
     $validated = $request->validate([
@@ -360,30 +343,40 @@ Route::put('/profile', function (Request $request) {
     if (!empty($validated['password'])) {
         $data['password'] = Hash::make($validated['password']);
     }
-    // tidak perlu auth()->setUser($user->fresh());
+
+    // NOTE: di sini kamu belum memanggil $user->update($data);
+    // kalau memang mau update user global, tambahkan:
+    // $user->update($data);
+
     return redirect()
         ->route('dosenpenguji.profile')
         ->with('success', 'Perubahan berhasil disimpan.');
 })->name('profile.update');
 
-
 /*
 |--------------------------------------------------------------------------
-| Resource Global (jika dipakai umum)
+| Resource Global
 |--------------------------------------------------------------------------
 */
 Route::resource('logbooks', LogbookController::class);
 
-use App\Http\Controllers\DriveTestController;
-
+/*
+|--------------------------------------------------------------------------
+| Drive Test
+|--------------------------------------------------------------------------
+*/
 Route::get('/drive-test', [DriveTestController::class, 'form']);
 Route::post('/drive-test', [DriveTestController::class, 'upload'])->name('drive.test.upload');
 
-
-// ================= TPK MAHASISWA ==================
+/*
+|--------------------------------------------------------------------------
+| TPK MAHASISWA
+|--------------------------------------------------------------------------
+*/
 Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
-    Route::get('/',        [TPKMahasiswaController::class, 'index'])->name('index');
-    Route::get('/create',  [TPKMahasiswaController::class, 'create'])->name('create');
-    Route::post('/store',  [TPKMahasiswaController::class, 'store'])->name('store');
+    Route::get('/', [TPKMahasiswaController::class, 'index'])->name('index');
+    Route::get('/create', [TPKMahasiswaController::class, 'create'])->name('create');
+    Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
+});
 });

@@ -18,23 +18,18 @@ class Mahasiswa extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // KOLOM YANG BISA DI-ISI MASS ASSIGNMENT
+    // KOLOM YANG BISA DI-ISI MASS ASSIGNME
+    protected $table = 'mahasiswas';
+
     protected $fillable = [
         'nim',
         'nama',
+        'email',
         'angkatan',
         'no_hp',
-        'id_kelompok',
-        'user_id',
-
-        
-        // tambahkan jika memang ada di tabel:
         'kelas',
-        'semester',
-        'dosen_pembimbing_id',
-        'proyek_pbl_id'
-
     ];
+
 
     /* ======================================
         RELASI

@@ -85,41 +85,72 @@ class PenilaianController extends Controller
             $hasKelas = $mTable ? Schema::hasColumn($mTable, 'kelas') : false;
 
             if ($mTable && $gTable && $gmTable) {
-                // via tabel kelompok -> anggota -> mahasiswa
-                $mhsQ = DB::table("$gTable as k")
-                    ->join("$gmTable as ka", 'ka.kelompok_id', '=', 'k.id')
-                    ->join("$mTable as m", 'm.nim', '=', 'ka.nim');
 
-                // Filter MK: coba beberapa kemungkinan nama kolom di tabel kelompok
-                if (Schema::hasColumn($gTable, 'kode_mk')) {
-                    $mhsQ->where('k.kode_mk', $kodeMk);
-                } elseif (Schema::hasColumn($gTable, 'mata_kuliah_kode')) {
-                    $mhsQ->where('k.mata_kuliah_kode', $kodeMk);
-                } elseif (Schema::hasColumn($gTable, 'kode_matakuliah')) {
-                    $mhsQ->where('k.kode_matakuliah', $kodeMk);
-                } elseif (Schema::hasColumn($gTable, 'mata_kuliah_id') && Schema::hasTable('mata_kuliah')) {
-                    // Join ke tabel mata_kuliah bila menyimpan FK id
-                    $mhsQ->join('mata_kuliah as mkTbl', 'mkTbl.id', '=', 'k.mata_kuliah_id')
-                         ->where('mkTbl.kode_mk', $kodeMk);
-                }
+                // ====== CARI NAMA KOLOM NIM DI TABEL ANGGOTA KELOMPOK (gmTable) ======
+                // kemungkinan: nim / mahasiswa_nim / kolom lain yang mengandung "nim"
+                $gmNimCol = null;
 
-                // Filter kelas jika kolom ada dan parameter diisi
-                if ($hasKelas && filled($kelas)) {
-                    $mhsQ->where('m.kelas', $kelas);
-                }
-
-                // Select aman: selalu kirim 'kelas' (NULL jika tidak ada)
-                $select = ['m.nim as nim', 'm.nama as nama'];
-                if ($hasKelas) {
-                    $select[] = 'm.kelas as kelas';
+                if (Schema::hasColumn($gmTable, 'nim')) {
+                    $gmNimCol = 'nim';
+                } elseif (Schema::hasColumn($gmTable, 'mahasiswa_nim')) {
+                    $gmNimCol = 'mahasiswa_nim';
                 } else {
-                    $select[] = DB::raw('NULL as kelas');
+                    $gmNimCol = collect(Schema::getColumnListing($gmTable))
+                        ->first(fn($c) => stripos($c, 'nim') !== false);
                 }
 
-                $mahasiswa = $mhsQ->distinct()
-                    ->orderBy('m.nama')
-                    ->paginate(15, $select)
-                    ->withQueryString();
+                if ($gmNimCol) {
+                    // via tabel kelompok -> anggota -> mahasiswa
+                    $mhsQ = DB::table("$gTable as k")
+                        ->join("$gmTable as ka", 'ka.kelompok_id', '=', 'k.id')
+                        ->join("$mTable as m", 'm.nim', '=', "ka.$gmNimCol");
+
+                    // Filter MK: coba beberapa kemungkinan nama kolom di tabel kelompok
+                    if (Schema::hasColumn($gTable, 'kode_mk')) {
+                        $mhsQ->where('k.kode_mk', $kodeMk);
+                    } elseif (Schema::hasColumn($gTable, 'mata_kuliah_kode')) {
+                        $mhsQ->where('k.mata_kuliah_kode', $kodeMk);
+                    } elseif (Schema::hasColumn($gTable, 'kode_matakuliah')) {
+                        $mhsQ->where('k.kode_matakuliah', $kodeMk);
+                    } elseif (Schema::hasColumn($gTable, 'mata_kuliah_id') && Schema::hasTable('mata_kuliah')) {
+                        // Join ke tabel mata_kuliah bila menyimpan FK id
+                        $mhsQ->join('mata_kuliah as mkTbl', 'mkTbl.id', '=', 'k.mata_kuliah_id')
+                             ->where('mkTbl.kode_mk', $kodeMk);
+                    }
+
+                    // Filter kelas jika kolom ada dan parameter diisi
+                    if ($hasKelas && filled($kelas)) {
+                        $mhsQ->where('m.kelas', $kelas);
+                    }
+
+                    // Select aman: selalu kirim 'kelas' (NULL jika tidak ada)
+                    $select = ['m.nim as nim', 'm.nama as nama'];
+                    if ($hasKelas) {
+                        $select[] = 'm.kelas as kelas';
+                    } else {
+                        $select[] = DB::raw('NULL as kelas');
+                    }
+
+                    $mahasiswa = $mhsQ->distinct()
+                        ->orderBy('m.nama')
+                        ->paginate(15, $select)
+                        ->withQueryString();
+                } else {
+                    // kalau TIDAK ketemu kolom nim pada gmTable -> fallback pakai tabel mahasiswa langsung
+                    $mTable = $this->studentTable() ?? 'mahasiswas';
+                    $hasKelas = Schema::hasColumn($mTable, 'kelas');
+
+                    $q = DB::table($mTable)->select('nim', 'nama');
+                    if ($hasKelas) {
+                        $q->addSelect('kelas');
+                        if (filled($kelas)) $q->where('kelas', $kelas);
+                    } else {
+                        $q->addSelect(DB::raw('NULL as kelas'));
+                    }
+
+                    $mahasiswa = $q->orderBy('nama')->paginate(15)->withQueryString();
+                }
+
             } else {
                 // Fallback awal: ambil dari tabel mahasiswa langsung
                 $mTable = $mTable ?? 'mahasiswas'; // fallback nama

@@ -122,6 +122,7 @@
     .userbtn .ava{
       width:32px;height:32px;border-radius:50%; display:grid; place-items:center;
       background:#e3e9ff; color:#31408a; font-weight:700; font-size:12px;
+      overflow:hidden;
     }
     .userbtn i{ opacity:.85; transition:transform .15s }
     .userbtn[aria-expanded="true"] i{ transform:rotate(180deg) }
@@ -136,6 +137,7 @@
     }
     .user-dd .bigava{
       width:40px;height:40px;border-radius:50%; background:#e3e9ff; color:#31408a; display:grid; place-items:center; font-weight:800;
+      overflow:hidden;
     }
     .user-dd .item{
       display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:10px;
@@ -182,18 +184,18 @@
     </div>
 
     {{-- Tombol Logout (pakai POST biar sesuai route Laravel) --}}
-<div class="logout">
-  <form action="{{ route('logout') }}" method="POST" style="margin:0">
-    @csrf
-    <button type="submit" style="
-      width:100%;background:none;border:0;cursor:pointer;
-      color:#ffb2b2; display:flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:12px; text-align:left;
-    ">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
-  </form>
-</div>
+    <div class="logout">
+      <form action="{{ route('logout') }}" method="POST" style="margin:0">
+        @csrf
+        <button type="submit" style="
+          width:100%;background:none;border:0;cursor:pointer;
+          color:#ffb2b2; display:flex; align-items:center; gap:8px;
+          padding:10px 12px; border-radius:12px; text-align:left;
+        ">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </form>
+    </div>
 
   </aside>
 
@@ -246,20 +248,35 @@
         {{-- User Menu --}}
         <div class="userbox">
           @php
-            // Tampilkan nama khusus sesuai permintaan
-            $displayName = 'Aldevianuri handayani';
             $u = auth()->user();
-            $initial = strtoupper(substr($displayName,0,2));
+            $displayName = $u->nama ?? $u->name ?? 'Nama Dosen';
+            $initial = strtoupper(substr($displayName,0,1) . (preg_replace('/.*\s/','',$displayName)[0] ?? ''));
           @endphp
           <button id="userMenuBtn" class="userbtn" type="button" aria-expanded="false" aria-controls="userMenuDd">
-            <span class="ava">{{ $initial }}</span>
+            <span class="ava">
+              @if($u && $u->foto)
+                <img src="{{ asset('storage/'.$u->foto) }}"
+                     alt="Avatar"
+                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+              @else
+                {{ $initial }}
+              @endif
+            </span>
             <span>{{ $displayName }}</span>
             <i class="fa-solid fa-chevron-down"></i>
           </button>
 
           <div id="userMenuDd" class="user-dd" role="menu" aria-labelledby="userMenuBtn">
             <div class="hd">
-              <div class="bigava">{{ $initial }}</div>
+              <div class="bigava">
+                @if($u && $u->foto)
+                  <img src="{{ asset('storage/'.$u->foto) }}"
+                       alt="Avatar"
+                       style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                @else
+                  {{ $initial }}
+                @endif
+              </div>
               <div style="min-width:0">
                 <div style="font-weight:800;color:#0e257a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                   {{ $displayName }}
@@ -286,57 +303,223 @@
       {{-- ====== /Actions ====== --}}
     </header>
 
+    {{-- ====== ISI DASHBOARD (SUDAH DISIAPKAN UNTUK ROLE DOSEN PENGUJI PBL) ====== --}}
     <div class="page">
       <!-- KPI -->
       <section class="kpi">
         <div class="card">
           <div class="icon"><i class="fa-solid fa-users"></i></div>
-          <div class="meta"><small>Jumlah Kelompok</small><br><b>{{ $jumlahKelompok ?? 4 }}</b></div>
+          <div class="meta">
+            <small>Jumlah Kelompok</small><br>
+            <b>{{ $jumlahKelompok ?? 4 }}</b>
+          </div>
         </div>
         <div class="card">
           <div class="icon"><i class="fa-solid fa-book"></i></div>
-          <div class="meta"><small>Jumlah Kelas</small><br><b>{{ $jumlahKelas ?? 5 }}</b></div>
+          <div class="meta">
+            <small>Jumlah Kelas</small><br>
+            <b>{{ $jumlahKelas ?? 5 }}</b>
+          </div>
         </div>
         <div class="card">
           <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
-          <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 140 }}</b></div>
+          <div class="meta">
+            <small>Mahasiswa yang diuji</small><br>
+            <b>{{ $jumlahMahasiswa ?? 140 }}</b>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ringkasan Kelompok PBL -->
+      <section class="card">
+        <div class="card-hd">
+          <i class="fa-solid fa-users-rectangle"></i>
+          Ringkasan Kelompok PBL
+        </div>
+        <div class="card-bd">
+          <p class="muted">
+            Daftar contoh kelompok proyek yang berada dalam lingkup pengujian Anda
+            pada mata kuliah berbasis proyek (PBL):
+          </p>
+          <ul class="clean">
+            <li>Kelompok 1 – Sistem Informasi Akademik</li>
+            <li>Kelompok 2 – Aplikasi Monitoring Absensi</li>
+            <li>Kelompok 3 – Smart Parking</li>
+            <li>Kelompok 4 – E-Commerce UMKM</li>
+          </ul>
         </div>
       </section>
 
       <!-- Status Logbook -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-clipboard-check"></i> Status Logbook</div>
+        <div class="card-hd">
+          <i class="fa-solid fa-clipboard-check"></i>
+          Status Logbook Mahasiswa
+        </div>
         <div class="card-bd">
-          Beri nilai mahasiswa <strong>Disetujui</strong>.<br>
-          <span class="muted">Terakhir diperbarui: 2 Oktober 2025</span>
+          <p>
+            Sebagai <strong>Dosen Penguji</strong>, Anda memantau progres logbook yang
+            telah diverifikasi oleh dosen pembimbing sebelum dilakukan pengujian.
+          </p>
+          <ul class="clean">
+            <li><strong>132</strong> logbook telah diverifikasi pembimbing.</li>
+            <li><strong>8</strong> logbook belum diajukan untuk pengujian.</li>
+          </ul>
+          <p class="muted" style="margin-top:8px;">
+            Terakhir diperbarui: <strong>2 Oktober 2025</strong>.
+          </p>
+          <p class="muted" style="margin-top:6px;">
+            Catatan evaluasi:
+            <em>"Sebagian besar kelompok telah mencapai progres sesuai timeline.
+            Kelompok 3 perlu peningkatan dokumentasi teknis."</em>
+          </p>
         </div>
       </section>
 
-      <!-- Milestone -->
+      <!-- Milestone Pengujian -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-flag"></i> Milestone</div>
+        <div class="card-hd">
+          <i class="fa-solid fa-flag"></i>
+          Milestone Pengujian
+        </div>
         <div class="card-bd">
-          Deadline milestone berikutnya: <strong>10 Oktober 2025</strong>.
+          <p>
+            <strong>Milestone berikutnya:</strong> Ujian Progress
+            (<strong>10 Oktober 2025</strong>).
+          </p>
+          <p class="muted">Status kesiapan kelompok:</p>
+          <ul class="clean">
+            <li>3 kelompok telah mengunggah draft laporan.</li>
+            <li>1 kelompok belum mengunggah demo aplikasi.</li>
+          </ul>
+          <p class="muted" style="margin-top:6px;">
+            Catatan Dosen Penguji:
+            <em>"Kelompok 2 membutuhkan revisi pada analisis kebutuhan."</em>
+          </p>
         </div>
       </section>
 
       <!-- Nilai & Peringkat -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-star"></i> Nilai & Peringkat</div>
+        <div class="card-hd">
+          <i class="fa-solid fa-star"></i>
+          Nilai & Peringkat Kelompok
+        </div>
         <div class="card-bd">
-          Nilai TPK: 85, Pemweb Lanjut: 90, Integrasi Sistem: 88, Sistem Operasi: 80. <br/>
-          Peringkat: <strong>Top 5</strong> dalam kelas.
+          <p class="muted">
+            Rekap nilai berdasarkan rubrik pengujian (aspek teknis, presentasi, problem solving,
+            dan kolaborasi tim):
+          </p>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:14px; margin-top:8px;">
+              <thead>
+                <tr style="background:#f4f6fc;">
+                  <th style="text-align:left; padding:8px; border-bottom:1px solid #e0e4f0;">Komponen</th>
+                  <th style="text-align:center; padding:8px; border-bottom:1px solid #e0e4f0;">Nilai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding:6px 8px; border-bottom:1px solid #eef1f6;">Pemahaman Konsep</td>
+                  <td style="padding:6px 8px; text-align:center; border-bottom:1px solid #eef1f6;">88</td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px; border-bottom:1px solid #eef1f6;">Implementasi Teknis</td>
+                  <td style="padding:6px 8px; text-align:center; border-bottom:1px solid #eef1f6;">92</td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px; border-bottom:1px solid #eef1f6;">Integrasi Sistem</td>
+                  <td style="padding:6px 8px; text-align:center; border-bottom:1px solid #eef1f6;">89</td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px; border-bottom:1px solid #eef1f6;">Kualitas Presentasi</td>
+                  <td style="padding:6px 8px; text-align:center; border-bottom:1px solid #eef1f6;">85</td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px;">Dokumentasi</td>
+                  <td style="padding:6px 8px; text-align:center;">83</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:10px;">
+            Peringkat kelompok saat ini:
+            <strong>peringkat 4 dari 18 kelompok yang diuji</strong>.
+          </p>
+          <p class="muted" style="margin-top:4px;">
+            Untuk level individu, beberapa mahasiswa berada pada
+            <strong>Top 5 di kelas SI-3A</strong>.
+          </p>
+        </div>
+      </section>
+
+      <!-- Kelas yang diuji hari ini -->
+      <section class="card">
+        <div class="card-hd">
+          <i class="fa-solid fa-chalkboard-user"></i>
+          Kelas yang Akan Diuji Hari Ini
+        </div>
+        <div class="card-bd">
+          <p class="muted">Jadwal pengujian proyek pada hari ini:</p>
+          <ul class="clean">
+            <li><strong>09:00</strong> – SI-3A (Kelompok 2, 4)</li>
+            <li><strong>13:00</strong> – TI-4B (Kelompok 1, 3)</li>
+          </ul>
+          <p class="muted" style="margin-top:6px;">
+            Pastikan rubrik telah siap sebelum sesi presentasi dimulai.
+          </p>
+        </div>
+      </section>
+
+      <!-- Tugas Dosen Penguji Minggu Ini -->
+      <section class="card">
+        <div class="card-hd">
+          <i class="fa-solid fa-list-check"></i>
+          Tugas Dosen Penguji Minggu Ini
+        </div>
+        <div class="card-bd">
+          <ul class="clean">
+            <li>Memverifikasi nilai milestone progress untuk <strong>12 kelompok</strong>.</li>
+            <li>Mengecek dan menyetujui revisi laporan final.</li>
+            <li>Mengisi rubrik presentasi final mahasiswa.</li>
+          </ul>
+          <p class="muted" style="margin-top:6px;">
+            Progress tugas ini dapat membantu pelaporan akhir ke koordinator PBL.
+          </p>
+        </div>
+      </section>
+
+      <!-- Aksi Cepat -->
+      <section class="card">
+        <div class="card-hd">
+          <i class="fa-solid fa-bolt"></i>
+          Aksi Cepat
+        </div>
+        <div class="card-bd">
+          <p class="muted">
+            Akses cepat ke fitur yang paling sering digunakan oleh Dosen Penguji:
+          </p>
+          <ul class="clean">
+            <li><a href="{{ url('/dosenpenguji/rubrik') }}">Upload / kelola rubrik penilaian</a></li>
+            <li><a href="{{ url('/dosenpenguji/penilaian') }}">Input nilai cepat per kelompok/mahasiswa</a></li>
+            <li><a href="{{ url('/dosenpenguji/penilaian') }}">Revisi nilai pengujian</a></li>
+            <li><a href="{{ url('/dosenpenguji/mahasiswa') }}">Download laporan / rekap nilai mahasiswa</a></li>
+          </ul>
         </div>
       </section>
 
       <!-- Notifikasi -->
       <section class="card" style="margin-bottom:28px">
-        <div class="card-hd"><i class="fa-regular fa-bell"></i> Notifikasi</div>
+        <div class="card-hd">
+          <i class="fa-regular fa-bell"></i>
+          Notifikasi Dosen Penguji
+        </div>
         <div class="card-bd">
           <ul class="clean">
-            <li>Logbook Minggu 3 disetujui</li>
-            <li>Milestone Presentasi Final 7 hari lagi</li>
-            <li>Dosen pembimbing menambahkan nilai baru</li>
+            <li>✔️ <strong>12</strong> mahasiswa telah mengajukan revisi laporan.</li>
+            <li>✔️ Penilaian ujian progress harus diselesaikan sebelum <strong>15 Oktober 2025</strong>.</li>
+            <li>✔️ Dosen pembimbing menambahkan catatan baru pada <strong>Kelompok 1</strong>.</li>
+            <li>✔️ Jadwal presentasi final telah diperbarui oleh koordinator PBL.</li>
           </ul>
         </div>
       </section>

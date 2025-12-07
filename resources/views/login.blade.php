@@ -62,6 +62,45 @@
         }
         .login-box button:hover { background: #001744; }
 
+        /* Divider “OR” */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 18px 0 10px;
+            font-size: 12px;
+            color: #999;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        /* Tombol Google style putih */
+        .google-btn {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #444;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
+        .google-btn:hover {
+            background: #f3f4f6;
+        }
+
         .extra-links { text-align: center; margin-top: 15px; font-size: 14px; }
         .extra-links a { color: #002366; text-decoration: none; font-weight: bold; }
         .extra-links a:hover { text-decoration: underline; }
@@ -110,6 +149,19 @@
 
                 <button type="submit">Login</button>
             </form>
+
+            <!-- Divider OR -->
+            <div class="divider">
+                <span class="divider-line"></span>
+                <span>atau</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <!-- Tombol Login Dengan Google (pakai logo) -->
+            <a href="{{ route('google.redirect') }}" class="google-btn">
+                <img src="{{ asset('assets/google-logo.png') }}" alt="Google Logo">
+                <span>Login dengan Akun Politala (Google)</span>
+            </a>
 
             <div class="extra-links">
                 <p>Belum punya akun? <a href="{{ route('register') }}">Daftar</a></p>
