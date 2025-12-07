@@ -103,18 +103,38 @@
 
     <div class="menu">
       <div class="nav-title">Menu</div>
-      <a href="{{ url('/koordinator/dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Dashboard</a>
-      <a href="{{ url('/koordinator/kelompok') }}"><i class="fa-solid fa-user-graduate"></i>Kelompok</a>
-      <a href="{{ url('/koordinator/mahasiswa') }}"><i class="fa-solid fa-users"></i>Mahasiswa</a>
-      <a href="{{ url('/koordinator/cpmk') }}"><i class="fa-solid fa-flag-checkered"></i>Cpmk</a>
-      <a href="{{ url('/koordinator/penilaian') }}"><i class="fa-solid fa-flag-checkered"></i>Penilaian</a>
+      <a href="{{ url('/koordinator/dashboard') }}" class="active">
+        <i class="fa-solid fa-house"></i>Dashboard
+      </a>
+      <a href="{{ url('/koordinator/kelompok') }}">
+        <i class="fa-solid fa-user-graduate"></i>Kelompok
+      </a>
+      <a href="{{ url('/koordinator/mahasiswa') }}">
+        <i class="fa-solid fa-users"></i>Mahasiswa
+      </a>
+      {{-- ikon CPMK dibedakan --}}
+      <a href="{{ url('/koordinator/cpmk') }}">
+        <i class="fa-solid fa-list-check"></i>Cpmk
+      </a>
+      {{-- ikon Penilaian juga beda --}}
+      <a href="{{ url('/koordinator/penilaian') }}">
+        <i class="fa-solid fa-clipboard-list"></i>Penilaian
+      </a>
+      {{-- menu baru: Kelola Peringkat --}}
+      <a href="{{ url('/koordinator/peringkat') }}">
+        <i class="fa-solid fa-ranking-star"></i>Kelola Peringkat
+      </a>
 
       <div class="nav-title">Akun</div>
-      <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
+      <a href="{{ url('/profile') }}">
+        <i class="fa-solid fa-id-badge"></i>Profil
+      </a>
     </div>
 
     <div class="logout">
-      <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <a href="{{ url('/logout') }}" class="menu" style="display:block">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
     </div>
   </aside>
 
