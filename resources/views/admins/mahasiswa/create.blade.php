@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+{{-- judul di bar biru atas --}}
+@section('page_title', 'Manajemen Mahasiswa')
+
 @section('content')
 <div class="container-fluid">
 
@@ -15,8 +18,42 @@
         .mk-invalid{font-size:12px;color:#b91c1c;margin-top:2px;}
         .mk-actions{margin-top:24px;display:flex;justify-content:flex-end;gap:10px;}
         .mk-btn{padding-inline:22px;padding-block:8px;border-radius:999px;font-size:14px;font-weight:600;}
-        .mk-back-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;text-decoration:none;color:#4b5563;padding:4px 10px;border-radius:999px;}
-        .mk-back-link:hover{background:#e5edff;color:#111827;}
+
+        /* === KEMBALI: warna biru, tanpa underline === */
+        .mk-back-link{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:14px;
+            text-decoration:none;
+            color:#1d4ed8;
+            padding:4px 10px;
+            border-radius:999px;
+        }
+        .mk-back-link:hover{
+            background:#e5edff;
+            color:#0f3fc0;
+        }
+
+        /* === BATAL & SIMPAN gaya SIMAP === */
+        .mk-btn-cancel{
+            border:1px solid #fca5a5;
+            background:#ffecec;
+            color:#b91c1c;
+            text-decoration:none; /* hilangkan garis bawah */
+        }
+        .mk-btn-cancel:hover{
+            background:#ffdada;
+        }
+
+        .mk-btn-save{
+            border:none;
+            background:#1554d1;
+            color:#ffffff;
+        }
+        .mk-btn-save:hover{
+            background:#0f3fc0;
+        }
     </style>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -112,10 +149,10 @@
 
             <div class="mk-actions">
                 <a href="{{ route('admins.mahasiswa.index', ['kelas' => request('kelas')]) }}"
-                   class="btn btn-outline-secondary mk-btn">
+                   class="mk-btn mk-btn-cancel">
                     Batal
                 </a>
-                <button type="submit" class="btn btn-primary mk-btn">
+                <button type="submit" class="mk-btn mk-btn-save">
                     Simpan
                 </button>
             </div>
