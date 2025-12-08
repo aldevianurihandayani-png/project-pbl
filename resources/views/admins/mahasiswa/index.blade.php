@@ -466,11 +466,13 @@
                                 <table class="mhs-table">
                                     <thead>
                                         <tr>
-                                            <th class="col-no">#</th>
+                                            {{-- diubah: # -> No --}}
+                                            <th class="col-no">No</th>
                                             <th class="col-nim">NIM</th>
                                             <th class="col-nama">Nama</th>
                                             <th class="col-kelas">Kelas</th>
-                                            <th class="col-dosen">Dosen Penguji</th>
+                                            {{-- diubah: Dosen Penguji -> No HP --}}
+                                            <th class="col-dosen">No HP</th>
                                             <th class="col-aksi">Aksi</th>
                                         </tr>
                                     </thead>
@@ -481,7 +483,8 @@
                                                 <td class="col-nim-cell">{{ $mhs->nim }}</td>
                                                 <td class="col-nama-cell">{{ $mhs->nama }}</td>
                                                 <td class="col-kelas-cell">{{ $mhs->kelas }}</td>
-                                                <td class="col-dosen-cell">{{ $mhs->dosen_penguji ?? '-' }}</td>
+                                                {{-- diubah: $mhs->dosen_penguji -> $mhs->no_hp --}}
+                                                <td class="col-dosen-cell">{{ $mhs->no_hp ?? '-' }}</td>
                                                 <td class="col-aksi-cell">
                                                     <div class="aksi-wrapper">
                                                         <a href="{{ route('admins.mahasiswa.edit', ['mahasiswa' => $mhs->nim]) }}"
