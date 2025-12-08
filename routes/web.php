@@ -200,7 +200,9 @@ Route::prefix('dosenpenguji')
         Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
 
         // MAHASISWA
-        Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
+        Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])
+            ->name('mahasiswa');
+
         Route::get('/mahasiswa/kelas/{kelas}', [DPMahasiswaController::class, 'showByKelas'])
             ->name('mahasiswa.kelas');
 
@@ -291,20 +293,23 @@ Route::put('/profile', function (Request $request) {
         ->route('dosenpenguji.profile')
         ->with('success', 'Perubahan berhasil disimpan.');
 })->name('profile.update');
+});
 
 
 
 /*
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 | Koordinator PBL
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 */
 Route::prefix('koordinator')
     ->name('koordinator.')
-    ->middleware(['auth', 'verified', 'role:koordinator'])
+    ->middleware(['auth', 'role:koor_pbl'])
     ->group(function () {
         Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
     });
+
+
     
 /*
 |--------------------------------------------------------------------------
@@ -313,7 +318,7 @@ Route::prefix('koordinator')
 */
 Route::prefix('jaminanmutu')
     ->name('jaminanmutu.')
-    ->middleware(['auth', 'verified', 'role:jaminan_mutu'])
+    ->middleware(['auth', 'role:jaminan_mutu'])
     ->group(function () {
         Route::view('/dashboard', 'jaminanmutu.dashboard')->name('dashboard');
     });
@@ -378,5 +383,4 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::get('/create', [TPKMahasiswaController::class, 'create'])->name('create');
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
-});
 });

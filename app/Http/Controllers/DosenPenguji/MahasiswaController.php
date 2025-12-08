@@ -18,20 +18,22 @@ class MahasiswaController extends Controller
     {
         // filter dari query string (optional)
         $filterKelas = $request->get('kelas');      // A, B, C, D, E, atau "Semua"
-        $filterSmtr  = $request->get('semester');   // kalau ada kolom semester
+        $filterSmtr  = $request->get('semester');   // cuma buat isi dropdown, TIDAK dipakai di query
         $keyword     = $request->get('q');          // cari nama / NIM
 
         $query = Mahasiswa::query();
 
+        // filter kelas
         if ($filterKelas && $filterKelas !== 'Semua') {
             $query->where('kelas', $filterKelas);
         }
 
-        // kalau di tabel mahasiswas BELUM ada kolom "semester", baris ini boleh dihapus
-        if ($filterSmtr) {
-            $query->where('semester', $filterSmtr);
-        }
+        // ⛔ JANGAN PAKAI FILTER SEMESTER, karena kolom semester ga ada di tabel
+        // if ($filterSmtr) {
+        //     $query->where('semester', $filterSmtr);
+        // }
 
+        // filter nama / nim
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('nama', 'like', "%{$keyword}%")
@@ -42,13 +44,13 @@ class MahasiswaController extends Controller
         // summary per kelas → bahan untuk kartu
         $kelasSummary = $query
             ->select('kelas', DB::raw('COUNT(*) as total_mahasiswa'))
+            ->whereNotNull('kelas')
             ->groupBy('kelas')
             ->orderBy('kelas')
             ->get();
 
-        // ⛔️ tadinya: 'dosenpenguji.mahasiswa.index'  → view-nya tidak ada
-        // ✅ sekarang pakai file: resources/views/dosenpenguji/mahasiswa.blade.php
-        return view('dosenpenguji.mahasiswa', compact(
+        // view: resources/views/dosenpenguji/mahasiswa/index.blade.php
+        return view('dosenpenguji.mahasiswa.index', compact(
             'kelasSummary',
             'filterKelas',
             'filterSmtr',
@@ -65,7 +67,8 @@ class MahasiswaController extends Controller
     {
         $search = $request->query('q');
 
-        $query = Mahasiswa::with(['dosenPembimbing', 'proyekPbl', 'user'])
+        // ❌ HAPUS with(['dosenPembimbing', 'proyekPbl', 'user'])
+        $query = Mahasiswa::query()
             ->where('kelas', $kelas);
 
         if ($search) {
@@ -80,7 +83,7 @@ class MahasiswaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // pakai file: resources/views/dosenpenguji/mahasiswa_detail.blade.php
+        // view detail: resources/views/dosenpenguji/mahasiswa_detail.blade.php
         return view('dosenpenguji.mahasiswa_detail', compact(
             'mahasiswa',
             'kelas',
