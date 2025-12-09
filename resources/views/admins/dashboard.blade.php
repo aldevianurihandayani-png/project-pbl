@@ -12,16 +12,16 @@
         <div class="meta"><small>Jumlah Akun</small><br><b>{{ $jumlahUsers ?? 0 }}</b></div>
       </div>
     </a>
-    <a href="{{ route('admins.logbook.index') }}" class="card-link">
+    <a href="{{ route('admins.matakuliah.index') }}" class="card-link">
       <div class="card">
-        <div class="icon"><i class="fa-solid fa-book"></i></div>
-        <div class="meta"><small>Logbook</small><br><b>{{ $jumlahLogbook ?? 5 }}</b></div>
+        <div class="icon"><i class="fa-solid fa-book-bookmark"></i></div>
+        <div class="meta"><small>Mata Kuliah</small><br><b>{{ $jumlahMataKuliah ?? 0 }}</b></div>
       </div>
     </a>
     <a href="{{ route('admins.mahasiswa.index') }}" class="card-link">
       <div class="card">
         <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
-        <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 100 }}</b></div>
+        <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 0 }}</b></div>
       </div>
     </a>
   </section>
