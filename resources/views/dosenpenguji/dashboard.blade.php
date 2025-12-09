@@ -342,10 +342,10 @@
             pada mata kuliah berbasis proyek (PBL):
           </p>
           <ul class="clean">
-            <li>Kelompok 1 – Sistem Informasi Akademik</li>
-            <li>Kelompok 2 – Aplikasi Monitoring Absensi</li>
-            <li>Kelompok 3 – Smart Parking</li>
-            <li>Kelompok 4 – E-Commerce UMKM</li>
+            <li>Kelompok 1 – Sistem informasi manajemen PBL</li>
+            <li>Kelompok 2 – Sistem informasi PBL</li>
+            <li>Kelompok 3 – COMPASS</li>
+            <li>Kelompok 4 – Peminjaman Sarana Prasarana</li>
           </ul>
         </div>
       </section>
