@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin') 
 
 @section('title', 'Manajemen Mata Kuliah — Admin')
 @section('page_title', 'Manajemen Mata Kuliah')
@@ -112,6 +112,13 @@
         }
         .mk-filter-search-btn:hover {
             background: #0f3fc0;
+        }
+
+        /* ikon kaca pembesar di tombol Cari */
+        .mk-search-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* ===== GRID RINGKASAN KELAS ===== */
@@ -376,14 +383,20 @@
                             type="text"
                             name="q"
                             class="mk-filter-input"
-                            placeholder="Contoh: integrasi sistem"
                             value="{{ request('q') }}"
                         >
                     </div>
 
                     <div class="mk-filter-group" style="min-width:auto;">
                         <button type="submit" class="mk-filter-search-btn">
-                            🔍 Cari
+                            <span class="mk-search-icon">
+                                {{-- ikon kaca pembesar --}}
+                                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="6" fill="none" stroke="white" stroke-width="2" />
+                                    <line x1="16" y1="16" x2="20" y2="20" stroke="white" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </span>
+                            <span>Cari</span>
                         </button>
                     </div>
                 </form>

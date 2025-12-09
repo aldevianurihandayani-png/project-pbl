@@ -121,6 +121,11 @@
         .mhs-filter-search-btn:hover {
             background: #0f3fc0;
         }
+        .mhs-search-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* ===== GRID RINGKASAN KELAS ===== */
         .kelas-section-title {
@@ -254,14 +259,14 @@
             margin-bottom: 0;
         }
         .mhs-table thead {
-            background: #e5edff;            /* BIRU MUDA UNTUK HEADER */
+            background: #e5edff;
         }
         .mhs-table thead th {
             font-size: 12px;
-            font-weight: 800;               /* LEBIH TEBAL */
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: .08em;
-            color: #0b1f4d;                  /* TEKS LEBIH GELAP */
+            color: #0b1f4d;
             padding: 10px 14px;
             border-bottom: 1px solid #d4ddff;
         }
@@ -326,7 +331,6 @@
             color: #b91c1c;
         }
 
-        /* wrapper supaya Edit & Hapus sejajar dan ada gap */
         .aksi-wrapper {
             display: inline-flex;
             align-items: center;
@@ -351,8 +355,8 @@
             <div class="mhs-page-header">
                 <div class="mhs-page-header-top">
                     <div>
-                        <h1 class="mhs-page-title">Manajemen Mahasiswa</h1>
-                        <p class="mhs-page-sub">Data Mahasiswa per Kelas</p>
+                        {{-- hilangkan "Manajemen Mahasiswa" di kartu filter --}}
+                        <h1 class="mhs-page-title">Data Mahasiswa per Kelas</h1>
                     </div>
 
                     <a href="{{ route('admins.mahasiswa.create') }}" class="mhs-add-btn">
@@ -392,14 +396,19 @@
                             type="text"
                             name="q"
                             class="mhs-filter-input"
-                            placeholder="Contoh: Aldevi / 22030123"
                             value="{{ request('q') }}"
                         >
                     </div>
 
                     <div class="mhs-filter-group" style="min-width:auto;">
                         <button type="submit" class="mhs-filter-search-btn">
-                            🔍 Cari
+                            <span class="mhs-search-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="6" fill="none" stroke="white" stroke-width="2" />
+                                    <line x1="16" y1="16" x2="20" y2="20" stroke="white" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </span>
+                            <span>Cari</span>
                         </button>
                     </div>
                 </form>
@@ -466,12 +475,10 @@
                                 <table class="mhs-table">
                                     <thead>
                                         <tr>
-                                            {{-- diubah: # -> No --}}
                                             <th class="col-no">No</th>
                                             <th class="col-nim">NIM</th>
                                             <th class="col-nama">Nama</th>
                                             <th class="col-kelas">Kelas</th>
-                                            {{-- diubah: Dosen Penguji -> No HP --}}
                                             <th class="col-dosen">No HP</th>
                                             <th class="col-aksi">Aksi</th>
                                         </tr>
@@ -483,7 +490,6 @@
                                                 <td class="col-nim-cell">{{ $mhs->nim }}</td>
                                                 <td class="col-nama-cell">{{ $mhs->nama }}</td>
                                                 <td class="col-kelas-cell">{{ $mhs->kelas }}</td>
-                                                {{-- diubah: $mhs->dosen_penguji -> $mhs->no_hp --}}
                                                 <td class="col-dosen-cell">{{ $mhs->no_hp ?? '-' }}</td>
                                                 <td class="col-aksi-cell">
                                                     <div class="aksi-wrapper">
