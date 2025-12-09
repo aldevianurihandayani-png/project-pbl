@@ -6,10 +6,10 @@
 @section('content')
   {{-- KPI --}}
   <section class="kpi">
-    <a href="{{ route('admins.kelompok.index') }}" class="card-link">
+    <a href="{{ route('admins.users.index') }}" class="card-link">
       <div class="card">
-        <div class="icon"><i class="fa-solid fa-users"></i></div>
-        <div class="meta"><small>Jumlah Kelompok</small><br><b>{{ $jumlahKelompok ?? 4 }}</b></div>
+        <div class="icon"><i class="fa-solid fa-user-gear"></i></div>
+        <div class="meta"><small>Jumlah Akun</small><br><b>{{ $jumlahUsers ?? 0 }}</b></div>
       </div>
     </a>
     <a href="{{ route('admins.logbook.index') }}" class="card-link">
