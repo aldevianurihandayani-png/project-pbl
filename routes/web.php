@@ -133,6 +133,7 @@ Route::prefix('admins')
         Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
 
         Route::resource('profile', AdminProfileController::class);
+        Route::resource('users', AdminUserController::class);
     });
 
 /*
