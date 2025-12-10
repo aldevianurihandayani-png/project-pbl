@@ -204,7 +204,8 @@
                             <div class="actions">
 
                                 {{-- JIKA MASIH PENDING: FORM PERSETUJUAN --}}
-                                @if($user->status === 'pending')
+                                {{-- ✅ tambahan: jangan proses admin --}}
+                                @if($user->status === 'pending' && $user->role !== 'admin')
 
                                     {{-- Setujui + pilih role final --}}
                                     <form action="{{ route('admins.users.approve', $user->id) }}"
@@ -257,16 +258,19 @@
                                         Edit
                                     </a>
 
-                                    <form action="{{ route('admins.users.destroy', $user->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Yakin ingin menghapus akun ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="btn-pill btn-pill-danger">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    {{-- ✅ tambahan: jangan tampilkan tombol HAPUS untuk akun yang sedang login --}}
+                                    @if(auth()->id() !== $user->id)
+                                        <form action="{{ route('admins.users.destroy', $user->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Yakin ingin menghapus akun ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="btn-pill btn-pill-danger">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 @endif
 
                             </div>
