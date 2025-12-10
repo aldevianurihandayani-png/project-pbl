@@ -106,6 +106,53 @@
         color: #0b1d54;
         text-decoration: none;
     }
+
+    /* ===== TAMBAHAN: styling show/hide password ===== */
+    .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-wrapper .form-control-simap {
+        padding-right: 42px; /* ruang buat icon mata */
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+    }
+
+    .toggle-password:hover {
+        color: #0b1d54;
+    }
+
+    .toggle-password svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 1.7;
+    }
+
+    .toggle-password .icon-hide {
+        display: none;
+    }
+
+    .toggle-password.is-showing .icon-show {
+        display: none;
+    }
+
+    .toggle-password.is-showing .icon-hide {
+        display: inline;
+    }
 </style>
 
 <div class="form-wrapper">
@@ -175,13 +222,38 @@
             @enderror
         </div>
 
+        {{-- ===== PASSWORD dengan icon mata ===== --}}
         <div class="form-group">
             <label for="password">Password <span style="font-weight:400;">(kosongkan jika tidak diganti)</span></label>
-            <input id="password"
-                   type="password"
-                   name="password"
-                   class="form-control-simap"
-                   placeholder="Isi jika ingin mengganti password">
+
+            <div class="password-wrapper">
+                <input id="password"
+                       type="password"
+                       name="password"
+                       class="form-control-simap"
+                       placeholder="Isi jika ingin mengganti password">
+
+                <button type="button"
+                        class="toggle-password"
+                        data-target="password"
+                        aria-label="Tampilkan password">
+
+                    {{-- Icon mata (show) --}}
+                    <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M2.5 12.5C3.5 9 7 6 12 6c5 0 8.5 3 9.5 6.5-.9 3.5-4.5 6.5-9.5 6.5-5 0-8.6-3-9.5-6.5Z" />
+                        <circle cx="12" cy="12.5" r="3.25" />
+                    </svg>
+
+                    {{-- Icon mata tertutup (hide) --}}
+                    <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 4.5 20.5 21" />
+                        <path d="M5 8.5C6.5 6.5 9.2 5 12 5c5 0 8.5 3 9.5 6.5-.5 2-1.9 4-3.9 5.3" />
+                        <path d="M9.5 9A3.5 3.5 0 0 1 15 14.5" />
+                        <path d="M6.5 11.5C5.4 12.3 4.5 13.4 4 14.5c1 3.5 4.5 6.5 9.5 6.5 1 0 2.1-.1 3-.4" />
+                    </svg>
+                </button>
+            </div>
+
             @error('password')
                 <div class="text-danger">{{ $message }}</div>
             @enderror
@@ -201,5 +273,27 @@
         </div>
     </form>
 </div>
+
+{{-- ===== JS toggle show/hide password ===== --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.toggle-password').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                if (!input) return;
+
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+
+                this.classList.toggle('is-showing', isPassword);
+                this.setAttribute(
+                    'aria-label',
+                    isPassword ? 'Sembunyikan password' : 'Tampilkan password'
+                );
+            });
+        });
+    });
+</script>
 
 @endsection
