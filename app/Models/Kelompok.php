@@ -13,38 +13,21 @@ class Kelompok extends Model
 {
     use HasFactory;
 
+    // Nama tabel di database
     protected $table = 'kelompoks';
 
-    protected $fillable = [
-        'nama',
-        'kelas',
-        'judul',
-        'ketua_kelompok',
-        'dosen_pembimbing',   // FK → users.id
-        'judul_proyek',
-        'nama_klien',
-        'anggota',            // disimpan sebagai text (string berisi list nama)
-    ];
-
-    /**
-     * ==========================
-     *        RELASI MODEL
-     * ==========================
-     */
-
-    // (1) Relasi ke mahasiswa anggota kelompok
     /**
      * Kolom yang boleh diisi mass-assignment.
-     * Sesuaikan dengan struktur tabel `kelompoks` di database kamu.
+     * (digabung dari dua $fillable yang sebelumnya dobel)
      */
     protected $fillable = [
         'nama',             // nama kelompok
         'kelas',            // TI-3A, TI-3B, dst
         'judul',            // kalau dipakai
-        'judul_proyek',     // judul proyek (sering dipakai)
+        'judul_proyek',     // judul proyek PBL
         'ketua_kelompok',   // NIM ketua
         'dosen_pembimbing', // user_id dosen pembimbing
-        'nama_klien',       // nama klien (kalau di DB namanya 'klien', ganti jadi 'klien')
+        'nama_klien',       // nama klien
         'anggota',          // backup list anggota dalam bentuk string
         'nims',             // optional: list NIM anggota (string)
         'angkatan',         // angkatan ketua / kelompok
@@ -52,50 +35,46 @@ class Kelompok extends Model
     ];
 
     /* =========================================================
-     * RELASI YANG DIPAKAI BERSAMA (PEMBIMBING + PENGUJI)
+     * RELASI
      * =======================================================*/
 
     /**
-     * Satu kelompok memiliki banyak mahasiswa (via FK `kelompok_id` di tabel `mahasiswas`)
-     * Dipakai di beberapa tempat untuk ambil semua mahasiswa dalam kelompok.
+     * Satu kelompok punya banyak mahasiswa
+     * FK di tabel mahasiswas: kelompok_id → kelompoks.id
      */
     public function mahasiswas()
     {
         return $this->hasMany(Mahasiswa::class, 'kelompok_id', 'id');
     }
 
-    // (2) Relasi ke proyek PBL
     /**
-     * Satu kelompok memiliki satu proyek PBL (FK benar: id_kelompok di tabel proyek_pbl).
-     * Nama 'proyek' dipakai di beberapa kode lama.
+     * Satu kelompok punya satu proyek PBL
+     * FK: id_kelompok di tabel proyek_pbl
      */
-
     public function proyek()
     {
         return $this->hasOne(ProyekPbl::class, 'id_kelompok', 'id');
     }
 
     /**
-     * Alias dengan nama yang lebih eksplisit.
-     * Dipakai di controller sebagai with('proyekPbl').
+     * Alias proyekPbl (dipakai di beberapa kode)
      */
     public function proyekPbl()
     {
         return $this->hasOne(ProyekPbl::class, 'id_kelompok', 'id');
     }
 
-    // (3) Relasi ke User sebagai dosen pembimbing
     /**
-     * Dosen pembimbing (user) yang bertanggung jawab atas kelompok ini.
+     * Dosen pembimbing (User)
      * FK: dosen_pembimbing → users.id
      */
     public function dosenPembimbing()
     {
         return $this->belongsTo(User::class, 'dosen_pembimbing', 'id');
     }
-    // (4) Relasi ke mahasiswa sebagai ketua kelompok
+
     /**
-     * Ketua kelompok (mahasiswa).
+     * Ketua kelompok (Mahasiswa)
      * FK: ketua_kelompok (nim) → mahasiswas.nim
      */
     public function ketua()
@@ -103,35 +82,33 @@ class Kelompok extends Model
         return $this->belongsTo(Mahasiswa::class, 'ketua_kelompok', 'nim');
     }
 
-
-    // (5) Relasi ke tabel anggota kelompok (jika ada tabel terpisah)
-    public function anggotaRelasi()
-
     /**
-     * Relasi ke tabel pivot anggota_kelompok.
-     * Dipakai kalau kita mau with(['anggota.mahasiswa']).
+     * Relasi ke tabel anggota_kelompok (jika ada tabel terpisah)
+     * Dipakai misalnya with(['anggotaRelasi.mahasiswa'])
      */
-    public function anggota
+    public function anggotaRelasi()
     {
         return $this->hasMany(AnggotaKelompok::class, 'kelompok_id', 'id');
     }
 
     /**
-
-     * ==========================
-     *     ACCESSOR / MUTATOR
-     * ==========================
+     * Alias anggota (nama pendek)
      */
+    public function anggota()
+    {
+        return $this->hasMany(AnggotaKelompok::class, 'kelompok_id', 'id');
+    }
 
-    // Convert kolom "anggota" (string) → array
-
+    /**
+     * Helper: kembalikan relasi anggota
+     */
     public function anggotaKelompok()
     {
         return $this->anggota();
     }
 
     /**
-     * Many-to-many: kelompok ↔ dosen penguji.
+     * Many-to-many: kelompok ↔ dosen penguji
      * Pivot: kelompok_penguji (kelompok_id, penguji_id)
      */
     public function penguji()
@@ -150,7 +127,6 @@ class Kelompok extends Model
      * Contoh isi DB: "Budi, Siti, Andi"
      * -> $kelompok->anggota_array = ['Budi','Siti','Andi']
      */
-
     public function getAnggotaArrayAttribute(): array
     {
         if (!$this->anggota) {
