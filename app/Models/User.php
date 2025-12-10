@@ -8,94 +8,91 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\VerifyEmailCustom;
 
-class User extends Authenticatable implements MustVerifyEmail 
-
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
+    protected $table = 'users';
+    protected $primaryKey = 'id';
     public $timestamps = false;
 
-    /**
-     * Kolom yang boleh diisi mass assignment.
-     * Sertakan 'nama' (kolom DB) dan 'name' (alias) agar keduanya aman.
-     */
     protected $fillable = [
         'nama', 'name',
         'email',
         'password',
+
+        // ✔ role final setelah disetujui admin
         'role',
+
+        // ✔ data tambahan
         'nim',
-        'nim',                 
         'nidn',
         'prodi',
         'profile_photo_path',
         'foto',
         'email_verified_at',
         'avatar_url',
+
+        // ============================
+        // ✔ Tambahan baru untuk sistem approval
+        // ============================
+        'status',          // pending | active | rejected
+        'requested_role',  // role yang diminta user saat register
     ];
 
-    
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-   
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed', // otomatis bcrypt (Laravel 10+)
+        'password'          => 'hashed',
+
+        // opsional, tetapi rapi — cast jadi string
+        'status'            => 'string',
+        'requested_role'    => 'string',
     ];
 
+    protected $appends = ['avatar_url_computed', 'avatar_url'];
 
-    /**
-     * Atribut tambahan saat model di-serialize
-     */
-    protected $appends = ['avatar_url_computed','avatar_url'];
-
-    
     public function mahasiswa()
     {
         return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
     }
 
-
-    /**
-     * Accessor/Mutator untuk memetakan atribut 'name' ke kolom DB 'nama'.
-     * - $user->name akan membaca kolom 'nama'
-     * - set $user->name = '...' akan menulis ke kolom 'nama'
-     */
+    // name -> baca dari kolom 'nama'
     public function getNameAttribute()
     {
         return $this->attributes['nama'] ?? ($this->attributes['name'] ?? null);
     }
 
-
-    public function getAvatarUrlAttribute()
-    {
-        return $this->attributes['nama'] ?? null;
-    }
-
+    // set name -> tulis ke kolom 'nama'
     public function setNameAttribute($value): void
     {
         $this->attributes['nama'] = $value;
     }
 
-    /**
-     * Accessor: URL foto profil komputasi (fallback).
-     * Tidak menimpa kolom 'avatar_url' di DB; disajikan sebagai 'avatar_url_computed'.
-     */
+    public function getAvatarUrlAttribute()
+    {
+        return $this->attributes['avatar_url'] ?? null;
+    }
+
     public function getAvatarUrlComputedAttribute()
     {
-        // Prioritaskan kolom DB 'avatar_url' kalau ada
         if (!empty($this->attributes['avatar_url'])) {
             return $this->attributes['avatar_url'];
         }
 
-        // Fallback ke file yang diunggah
         if (!empty($this->profile_photo_path)) {
             return asset('storage/' . ltrim($this->profile_photo_path, '/'));
         }
 
         return null;
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailCustom());
     }
 }

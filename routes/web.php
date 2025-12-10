@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\NotificationController as AdminNotificationContro
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\AdminUserController;
 
 // Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
@@ -136,6 +137,17 @@ Route::prefix('admins')
         Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
 
         Route::resource('profile', AdminProfileController::class);
+        Route::resource('users', AdminUserController::class);
+
+        // 👇 Tambahan: route approve / reject akun (sistem persetujuan user)
+        Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])
+            ->name('users.approve');
+
+        Route::post('/users/{user}/reject', [AdminUserController::class, 'reject'])
+            ->name('users.reject');
+
+        // 👇 route khusus untuk menu "Manajemen Akun" di sidebar
+        Route::get('/akun', [AdminUserController::class, 'index'])->name('akun.index');
     });
 
 /*
@@ -247,15 +259,15 @@ Route::prefix('dosenpenguji')
         });
 
         /// Master data – Kelompok (dosen penguji)
-Route::get('/kelompok', [DPKelompokController::class, 'index'])
-    ->name('kelompok');
+        Route::get('/kelompok', [DPKelompokController::class, 'index'])
+            ->name('kelompok');
 
-// detail satu kelompok (pakai controller::show yang sudah kamu buat)
-Route::get('/kelompok/{id}', [DPKelompokController::class, 'show'])
-    ->name('kelompok.show');
+        // detail satu kelompok (pakai controller::show yang sudah kamu buat)
+        Route::get('/kelompok/{id}', [DPKelompokController::class, 'show'])
+            ->name('kelompok.show');
 
-Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
-    ->name('matakuliah');
+        Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
+            ->name('matakuliah');
 
 
         // CPMK
@@ -266,29 +278,34 @@ Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
         Route::delete('/cpmk/{cpmk}', [CpmkController::class, 'destroy'])
             ->name('cpmk.destroy');
 
-       // PROFIL DOSEN PENGUJI (prefix /dosenpenguji)
-Route::view('/profile', 'dosenpenguji.profile')->name('profile');
-Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
+        // PROFIL DOSEN PENGUJI (prefix /dosenpenguji)
+        Route::view('/profile', 'dosenpenguji.profile')->name('profile');
+        Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
 
-Route::put('/profile', function (Request $request) {
+        Route::put('/profile', function (Request $request) {
 
-    $user = auth()->user();
 
-    $validated = $request->validate([
-        'nama'     => 'nullable|string|max:255',
-        'name'     => 'nullable|string|max:255',
-        'email'    => 'required|email',
-        'password' => 'nullable|min:6',
-    ]);
+            $user = auth()->user();
 
-    $data = [
-        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
-        'email' => $validated['email'],
-    ];
 
-    if (!empty($validated['password'])) {
-        $data['password'] = Hash::make($validated['password']);
-    }
+            $validated = $request->validate([
+                'nama'     => 'nullable|string|max:255',
+                'name'     => 'nullable|string|max:255',
+                'email'    => 'required|email',
+                'password' => 'nullable|min:6',
+            ]);
+
+            $data = [
+                'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+                'email' => $validated['email'],
+            ];
+
+            if (!empty($validated['password'])) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+
+            $user->update($data);
 
     $user->update($data);
 
@@ -297,7 +314,6 @@ Route::put('/profile', function (Request $request) {
         ->with('success', 'Perubahan berhasil disimpan.');
 })->name('profile.update');
 });
-
 
 
 /*
@@ -390,3 +406,4 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
+
