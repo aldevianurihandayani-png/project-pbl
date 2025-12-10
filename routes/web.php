@@ -136,6 +136,13 @@ Route::prefix('admins')
         Route::resource('profile', AdminProfileController::class);
         Route::resource('users', AdminUserController::class);
 
+        // 👇 Tambahan: route approve / reject akun (sistem persetujuan user)
+        Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])
+            ->name('users.approve');
+
+        Route::post('/users/{user}/reject', [AdminUserController::class, 'reject'])
+            ->name('users.reject');
+
         // 👇 route khusus untuk menu "Manajemen Akun" di sidebar
         Route::get('/akun', [AdminUserController::class, 'index'])->name('akun.index');
     });

@@ -6,13 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;   // ✅ tambahkan ini
+use Illuminate\Support\Facades\Auth;
 
 class AdminUserController extends Controller
 {
     public function index()
     {
-        // ✔ pakai kolom id
         $users = User::orderBy('id', 'ASC')->get();
 
         return view('admins.users.index', compact('users'));
@@ -37,15 +36,19 @@ class AdminUserController extends Controller
         $validated = $request->validate([
             'nama'     => 'nullable|string|max:255',
             'email'    => 'required|email|unique:users,email',
-            'role'     => 'required',
+            'role'     => 'required|in:admin,mahasiswa,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu',
             'password' => 'required|min:6',
         ]);
 
         User::create([
-            'nama'     => $validated['nama'] ?? null,
-            'email'    => $validated['email'],
-            'role'     => $validated['role'],
-            'password' => Hash::make($validated['password']),
+            'nama'           => $validated['nama'] ?? null,
+            'email'          => $validated['email'],
+            'role'           => $validated['role'],
+            'password'       => Hash::make($validated['password']),
+
+            // akun yang dibuat langsung oleh admin dianggap sudah aktif
+            'status'         => 'active',
+            'requested_role' => null,
         ]);
 
         return redirect()
@@ -78,7 +81,7 @@ class AdminUserController extends Controller
         $validated = $request->validate([
             'nama'     => 'nullable|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $user->id . ',id',
-            'role'     => 'required',
+            'role'     => 'required|in:admin,mahasiswa,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu',
             'password' => 'nullable|min:6',
         ]);
 
@@ -99,7 +102,6 @@ class AdminUserController extends Controller
 
     public function destroy(User $user)
     {
-        // ✅ pakai facade Auth, bukan helper yg bikin intelephense bingung
         if (Auth::id() === $user->id) {
             return back()->with('error', 'Tidak dapat menghapus akun yang sedang login.');
         }
@@ -109,5 +111,40 @@ class AdminUserController extends Controller
         return redirect()
             ->route('admins.users.index')
             ->with('success', 'Akun berhasil dihapus');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPROVE / REJECT USER (PENDAFTARAN PENDING)
+    |--------------------------------------------------------------------------
+    */
+
+    public function approve(Request $request, User $user)
+    {
+        $request->validate([
+            'role' => 'required|in:admin,mahasiswa,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu',
+        ]);
+
+        // role final dari admin
+        $user->role           = $request->role;
+        $user->status         = 'active';
+        $user->requested_role = null;   // opsional: reset karena sudah diputuskan
+        $user->save();
+
+        // TODO: bisa tambahkan notifikasi / email ke user di sini
+
+        return back()->with('success', 'Akun disetujui dan role sudah ditetapkan.');
+    }
+
+    public function reject(User $user)
+    {
+        $user->status         = 'rejected';
+        // opsional: kosongkan role juga
+        // $user->role           = null;
+        $user->save();
+
+        // TODO: bisa tambahkan notifikasi / email penolakan di sini
+
+        return back()->with('success', 'Akun ditolak.');
     }
 }

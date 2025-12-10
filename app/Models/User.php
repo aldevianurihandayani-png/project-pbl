@@ -12,7 +12,6 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
-    // ✔ Pakai default Laravel: tabel "users", PK "id"
     protected $table = 'users';
     protected $primaryKey = 'id';
     public $timestamps = false;
@@ -21,7 +20,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'nama', 'name',
         'email',
         'password',
+
+        // ✔ role final setelah disetujui admin
         'role',
+
+        // ✔ data tambahan
         'nim',
         'nidn',
         'prodi',
@@ -29,6 +32,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'foto',
         'email_verified_at',
         'avatar_url',
+
+        // ============================
+        // ✔ Tambahan baru untuk sistem approval
+        // ============================
+        'status',          // pending | active | rejected
+        'requested_role',  // role yang diminta user saat register
     ];
 
     protected $hidden = [
@@ -39,6 +48,10 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
+
+        // opsional, tetapi rapi — cast jadi string
+        'status'            => 'string',
+        'requested_role'    => 'string',
     ];
 
     protected $appends = ['avatar_url_computed', 'avatar_url'];
@@ -48,7 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
     }
 
-    // name -> baca dari kolom 'nama' (fallback ke 'name')
+    // name -> baca dari kolom 'nama'
     public function getNameAttribute()
     {
         return $this->attributes['nama'] ?? ($this->attributes['name'] ?? null);
@@ -60,13 +73,11 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->attributes['nama'] = $value;
     }
 
-    // avatar_url asli di DB
     public function getAvatarUrlAttribute()
     {
         return $this->attributes['avatar_url'] ?? null;
     }
 
-    // avatar_url_computed: fallback ke file upload kalau perlu
     public function getAvatarUrlComputedAttribute()
     {
         if (!empty($this->attributes['avatar_url'])) {
