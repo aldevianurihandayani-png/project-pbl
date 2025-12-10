@@ -14,6 +14,7 @@ class MahasiswaController extends Controller
     {
         $kelasFilter = $request->query('kelas');
 
+        // statistik per kelas
         $kelasStats = Mahasiswa::select(
                 'kelas',
                 DB::raw('COUNT(*) as total'),
@@ -24,6 +25,7 @@ class MahasiswaController extends Controller
             ->get()
             ->keyBy('kelas');
 
+        // data mahasiswa kalau user pilih 1 kelas
         $mahasiswas = null;
         if ($kelasFilter) {
             $mahasiswas = Mahasiswa::where('kelas', $kelasFilter)
@@ -40,7 +42,9 @@ class MahasiswaController extends Controller
 
     public function create(Request $request)
     {
+        // kalau datang dari kartu kelas -> ?kelas=A
         $kelas = $request->query('kelas');
+
         return view('admins.mahasiswa.create', compact('kelas'));
     }
 
@@ -52,6 +56,7 @@ class MahasiswaController extends Controller
             'email'    => 'nullable|email|max:255',
             'angkatan' => 'nullable|digits:4',
             'no_hp'    => 'nullable|string|max:50',
+            // kembali ke A–E saja
             'kelas'    => 'required|in:A,B,C,D,E',
         ]);
 
@@ -64,18 +69,14 @@ class MahasiswaController extends Controller
 
     public function edit(Mahasiswa $mahasiswa)
     {
-        // Route model binding sekarang pakai nim (sesuai primaryKey di model)
-        return view('admins.mahasiswa.edit', [
-            'mahasiswa' => $mahasiswa,
-        ]);
+        // route model binding pakai nim (sudah di model)
+        return view('admins.mahasiswa.edit', compact('mahasiswa'));
     }
 
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
         $data = $request->validate([
-            // PENTING: abaikan nim yang sedang diedit berdasarkan kolom nim,
-            // bukan berdasarkan kolom id (karena tabel tidak punya id).
-            'nim'      => [
+            'nim' => [
                 'required',
                 'string',
                 'max:50',

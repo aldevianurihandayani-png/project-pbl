@@ -22,6 +22,7 @@ use App\Http\Controllers\Koordinator\PeringkatController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
+use App\Http\Controllers\Admin\DosenController;
 use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
@@ -29,6 +30,8 @@ use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
+// 🔽 TAMBAHAN UNTUK CRUD KELAS
+use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 
 // Dosen (Pembimbing)
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
@@ -128,9 +131,21 @@ Route::prefix('admins')
 
         Route::resource('matakuliah', AdminMataKuliahController::class);
         Route::resource('mahasiswa', AdminMahasiswaController::class);
+        Route::resource('dosen', DosenController::class);
         Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
         Route::resource('logbook', AdminLogbookController::class)->only(['index']);
-        Route::resource('feedback', AdminFeedbackController::class);
+
+        // 🔽 TAMBAHAN: CRUD KELAS UNTUK ADMIN
+        Route::resource('kelas', AdminKelasController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        // FEEDBACK (resource) – nama lengkapnya: admins.feedback.index, admins.feedback.store, dst
+        Route::resource('feedback', AdminFeedbackController::class)
+            ->names('feedback');
+
+        // Route khusus untuk update status feedback (baru/diproses/selesai)
+        Route::patch('feedback/{feedback}/status', [AdminFeedbackController::class, 'updateStatus'])
+            ->name('feedback.updateStatus');
 
         Route::resource('notifikasi', AdminNotifikasiController::class);
         Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
@@ -269,7 +284,6 @@ Route::prefix('dosenpenguji')
         Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
             ->name('matakuliah');
 
-
         // CPMK
         Route::get('/cpmk', [CpmkController::class, 'index'])->name('cpmk.index');
         Route::post('/cpmk', [CpmkController::class, 'store'])->name('cpmk.store');
@@ -284,9 +298,7 @@ Route::prefix('dosenpenguji')
 
         Route::put('/profile', function (Request $request) {
 
-
             $user = auth()->user();
-
 
             $validated = $request->validate([
                 'nama'     => 'nullable|string|max:255',
@@ -304,17 +316,14 @@ Route::prefix('dosenpenguji')
                 $data['password'] = Hash::make($validated['password']);
             }
 
-
+            // update sekali saja
             $user->update($data);
 
-    $user->update($data);
-
-    return redirect()
-        ->route('dosenpenguji.profile')
-        ->with('success', 'Perubahan berhasil disimpan.');
-})->name('profile.update');
-});
-
+            return redirect()
+                ->route('dosenpenguji.profile')
+                ->with('success', 'Perubahan berhasil disimpan.');
+        })->name('profile.update');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -331,8 +340,6 @@ Route::prefix('koordinator')
         Route::resource('peringkat', PeringkatController::class);
     });
 
-
-    
 /*
 |--------------------------------------------------------------------------
 | Jaminan Mutu
@@ -371,8 +378,7 @@ Route::put('/profile', function (Request $request) {
         $data['password'] = Hash::make($validated['password']);
     }
 
-    // NOTE: di sini kamu belum memanggil $user->update($data);
-    // kalau memang mau update user global, tambahkan:
+    // kalau mau benar-benar menyimpan perubahan global:
     // $user->update($data);
 
     return redirect()
@@ -406,4 +412,3 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
-
