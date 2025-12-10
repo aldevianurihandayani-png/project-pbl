@@ -15,6 +15,9 @@ use App\Http\Controllers\TPK\TPKMahasiswaController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
 
+// Koordinator
+use App\Http\Controllers\Koordinator\PeringkatController;
+
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
@@ -269,7 +272,7 @@ Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
 
 Route::put('/profile', function (Request $request) {
 
-    $user = auth()->user();  
+    $user = auth()->user();
 
     $validated = $request->validate([
         'nama'     => 'nullable|string|max:255',
@@ -298,15 +301,18 @@ Route::put('/profile', function (Request $request) {
 
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | Koordinator PBL
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 Route::prefix('koordinator')
     ->name('koordinator.')
     ->middleware(['auth', 'role:koor_pbl'])
     ->group(function () {
         Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
+
+        // CRUD Kelola Peringkat (Koordinator)
+        Route::resource('peringkat', PeringkatController::class);
     });
 
 
