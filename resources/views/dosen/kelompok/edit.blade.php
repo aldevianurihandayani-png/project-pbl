@@ -199,21 +199,56 @@
                          value="{{ old('nama_klien', $kelompok->nama_klien) }}" required>
               </div>
 
+              {{-- KETUA KELOMPOK: pilih dari mahasiswa --}}
               <div class="form-group">
-                  <label for="ketua_kelompok">Ketua Kelompok (NIM)</label>
-                  <input type="text" name="ketua_kelompok" id="ketua_kelompok" class="form-control"
-                         value="{{ old('ketua_kelompok', $kelompok->ketua_kelompok) }}" required>
+                  <label for="ketua_kelompok">Ketua Kelompok</label>
+                  <select name="ketua_kelompok" id="ketua_kelompok" class="form-control" required>
+                      <option value="">-- Pilih Ketua Kelompok --</option>
+                      @foreach($mahasiswas as $mhs)
+                          <option value="{{ $mhs->nim }}"
+                              @selected(old('ketua_kelompok', $kelompok->ketua_kelompok) == $mhs->nim)
+                          >
+                              {{ $mhs->nim }} - {{ $mhs->nama }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
 
+              {{-- ANGGOTA: pilih langsung mahasiswa --}}
               <div class="form-group">
-                  <label for="anggota">Anggota (pisahkan dengan koma)</label>
-                  <textarea name="anggota" id="anggota" rows="3" class="form-control" required>{{ old('anggota', $kelompok->anggota) }}</textarea>
+                  <label for="anggota">Anggota (pilih mahasiswa)</label>
+                  <select name="anggota[]" id="anggota" class="form-control" multiple size="8" required>
+                      @forelse($mahasiswas as $mhs)
+                          <option value="{{ $mhs->nim }}"
+                              @selected(in_array($mhs->nim, old('anggota', $anggotaTerpilih ?? [])))
+                          >
+                              {{ $mhs->nim }} - {{ $mhs->nama }}
+                          </option>
+                      @empty
+                          <option disabled>Tidak ada mahasiswa yang tersedia untuk kelas ini.</option>
+                      @endforelse
+                  </select>
+                  <small class="text-muted">
+                      Tahan Ctrl (Windows) / Command (Mac) untuk memilih lebih dari satu mahasiswa.
+                  </small>
+                  @error('anggota')
+                      <div class="text-danger small">{{ $message }}</div>
+                  @enderror
               </div>
 
+              {{-- DOSEN PEMBIMBING: dropdown dari tabel dosen --}}
               <div class="form-group">
-                  <label for="dosen_pembimbing">Dosen Pembimbing</label>
-                  <input type="text" name="dosen_pembimbing" id="dosen_pembimbing" class="form-control"
-                         value="{{ old('dosen_pembimbing', $kelompok->dosen_pembimbing) }}">
+                  <label for="dosen_pembimbing_id">Dosen Pembimbing</label>
+                  <select name="dosen_pembimbing_id" id="dosen_pembimbing_id" class="form-control" required>
+                      <option value="">-- Pilih Dosen Pembimbing --</option>
+                      @foreach($dosenPembimbings as $dosen)
+                          <option value="{{ $dosen->id }}"
+                              @selected(old('dosen_pembimbing_id', $kelompok->dosen_pembimbing_id) == $dosen->id)
+                          >
+                              {{ $dosen->nama }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
 
               <button type="submit" class="btn">Simpan Perubahan</button>
