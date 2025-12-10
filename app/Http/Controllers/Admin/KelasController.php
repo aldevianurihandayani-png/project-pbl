@@ -3,54 +3,85 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Kelas;
 use Illuminate\Http\Request;
+use App\Models\Kelas; // Assuming you have a Kelas model
 
 class KelasController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-        // kalau mau, bisa dipakai untuk halaman khusus; tapi untuk kasusmu,
-        // kita lebih pakai route store/update/destroy dari halaman lain.
-        $kelas = Kelas::orderBy('nama')->get();
-        return view('admins.kelas.index', compact('kelas'));
+        $kelas = Kelas::all(); // Fetch all classes
+        return view('Admin.kelas.index', compact('kelas'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama'       => 'required|string|max:100',
-            'kode'       => 'nullable|string|max:50',
-            'keterangan' => 'nullable|string',
-        ]);
-
-        $kelas = Kelas::create($request->only('nama', 'kode', 'keterangan'));
-
-        // Kalau dipanggil dari halaman lain, bisa redirect balik ke URL sebelumnya
-        return back()->with('success', 'Kelas berhasil ditambahkan.');
+        //
     }
 
-    public function update(Request $request, Kelas $kela)
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
     {
-        $request->validate([
-            'nama'       => 'required|string|max:100',
-            'kode'       => 'nullable|string|max:50',
-            'keterangan' => 'nullable|string',
-        ]);
-
-        $kela->update($request->only('nama', 'kode', 'keterangan'));
-
-        return back()->with('success', 'Kelas berhasil diperbarui.');
+        //
     }
 
-    public function destroy(Kelas $kela)
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
     {
-        if ($kela->mahasiswas()->exists()) {
-            return back()->with('error', 'Kelas masih digunakan oleh mahasiswa.');
-        }
+        //
+    }
 
-        $kela->delete();
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
 
-        return back()->with('success', 'Kelas berhasil dihapus.');
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
     }
 }
