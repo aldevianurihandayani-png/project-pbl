@@ -18,7 +18,10 @@ class Kelompok extends Model
 
     /**
      * Kolom yang boleh diisi mass-assignment.
+
      * (digabung dari dua $fillable yang sebelumnya dobel)
+
+     * Sesuaikan dengan struktur tabel `kelompoks` di database.
      */
     protected $fillable = [
         'nama',             // nama kelompok
@@ -34,6 +37,7 @@ class Kelompok extends Model
         'semester',         // semester PBL (1–6)
     ];
 
+
     /* =========================================================
      * RELASI
      * =======================================================*/
@@ -42,6 +46,12 @@ class Kelompok extends Model
      * Satu kelompok punya banyak mahasiswa
      * FK di tabel mahasiswas: kelompok_id → kelompoks.id
      */
+
+    /* ==========================
+     *        RELASI MODEL
+     * ========================== */
+
+
     public function mahasiswas()
     {
         return $this->hasMany(Mahasiswa::class, 'kelompok_id', 'id');
@@ -51,6 +61,7 @@ class Kelompok extends Model
      * Satu kelompok punya satu proyek PBL
      * FK: id_kelompok di tabel proyek_pbl
      */
+
     public function proyek()
     {
         return $this->hasOne(ProyekPbl::class, 'id_kelompok', 'id');
@@ -59,28 +70,34 @@ class Kelompok extends Model
     /**
      * Alias proyekPbl (dipakai di beberapa kode)
      */
+
     public function proyekPbl()
     {
         return $this->hasOne(ProyekPbl::class, 'id_kelompok', 'id');
     }
 
+
     /**
      * Dosen pembimbing (User)
      * FK: dosen_pembimbing → users.id
      */
+
     public function dosenPembimbing()
     {
         return $this->belongsTo(User::class, 'dosen_pembimbing', 'id');
     }
 
+
     /**
      * Ketua kelompok (Mahasiswa)
      * FK: ketua_kelompok (nim) → mahasiswas.nim
      */
+
     public function ketua()
     {
         return $this->belongsTo(Mahasiswa::class, 'ketua_kelompok', 'nim');
     }
+
 
     /**
      * Relasi ke tabel anggota_kelompok (jika ada tabel terpisah)
@@ -88,7 +105,7 @@ class Kelompok extends Model
      */
     public function anggotaRelasi()
     {
-        return $this->hasMany(AnggotaKelompok::class, 'kelompok_id', 'id');
+        // isi kalau nanti dipakai
     }
 
     /**
@@ -102,10 +119,12 @@ class Kelompok extends Model
     /**
      * Helper: kembalikan relasi anggota
      */
+
     public function anggotaKelompok()
     {
         return $this->anggota();
     }
+
 
     /**
      * Many-to-many: kelompok ↔ dosen penguji
@@ -115,6 +134,7 @@ class Kelompok extends Model
     {
         return $this->belongsToMany(User::class, 'kelompok_penguji', 'kelompok_id', 'penguji_id');
     }
+
 
     /* =========================================================
      * ACCESSOR / HELPER
@@ -127,6 +147,7 @@ class Kelompok extends Model
      * Contoh isi DB: "Budi, Siti, Andi"
      * -> $kelompok->anggota_array = ['Budi','Siti','Andi']
      */
+
     public function getAnggotaArrayAttribute(): array
     {
         if (!$this->anggota) {

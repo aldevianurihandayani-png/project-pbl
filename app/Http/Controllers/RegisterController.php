@@ -21,6 +21,7 @@ class RegisterController extends Controller
             'email'    => ['required','email','unique:users,email'],
             'password' => ['required','confirmed','min:8'],
 
+
             // 👇 Sekarang bukan role final, tetapi role yang diminta user
             'role'     => [
                 'required', 
@@ -34,6 +35,8 @@ class RegisterController extends Controller
                 ])
             ],
 
+
+            'role'     => ['required', Rule::in(['mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','jaminan_mutu','admin'])],
             'nim'      => ['nullable','string','max:30'],
             'prodi'    => ['nullable','string','max:100'],
         ]);

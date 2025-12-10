@@ -305,8 +305,9 @@
                   <th style="width:120px;">NIM</th>
                   <th>Nama</th>
                   <th style="width:220px;">Email</th>
-                  <th style="width:190px;">Dosen Pembimbing</th>
-                  <th>Proyek PBL</th>
+                  <th style="width:120px;">Angkatan</th>
+                  <th style="width:140px;">No. HP</th>
+                  <th style="width:80px;">Kelas</th>
                 </tr>
               </thead>
               <tbody>
@@ -315,14 +316,14 @@
                     <td>{{ ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + $loop->iteration }}</td>
                     <td>{{ $mhs->nim }}</td>
                     <td>{{ $mhs->nama }}</td>
-                    {{-- email biasa: ambil dari relasi user, ganti ke $mhs->email kalau kolomnya ada --}}
-                    <td>{{ $mhs->user->email ?? '-' }}</td>
-                    <td>{{ optional($mhs->dosenPembimbing)->nama ?? '-' }}</td>
-                    <td>{{ optional($mhs->proyekPbl)->judul ?? optional($mhs->proyekPbl)->nama_proyek ?? '-' }}</td>
+                    <td>{{ $mhs->email }}</td>
+                    <td>{{ $mhs->angkatan }}</td>
+                    <td>{{ $mhs->no_hp }}</td>
+                    <td>{{ $mhs->kelas }}</td>
                   </tr>
                 @empty
                   <tr class="empty-row">
-                    <td colspan="6">Belum ada data mahasiswa di kelas ini.</td>
+                    <td colspan="7">Belum ada data mahasiswa di kelas ini.</td>
                   </tr>
                 @endforelse
               </tbody>

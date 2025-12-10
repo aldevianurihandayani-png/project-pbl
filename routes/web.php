@@ -15,6 +15,9 @@ use App\Http\Controllers\TPK\TPKMahasiswaController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
 
+// Koordinator
+use App\Http\Controllers\Koordinator\PeringkatController;
+
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\MataKuliahController as AdminMataKuliahController;
@@ -212,7 +215,9 @@ Route::prefix('dosenpenguji')
         Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
 
         // MAHASISWA
-        Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])->name('mahasiswa');
+        Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])
+            ->name('mahasiswa');
+
         Route::get('/mahasiswa/kelas/{kelas}', [DPMahasiswaController::class, 'showByKelas'])
             ->name('mahasiswa.kelas');
 
@@ -279,7 +284,9 @@ Route::prefix('dosenpenguji')
 
         Route::put('/profile', function (Request $request) {
 
-            $user = auth()->user();  
+
+            $user = auth()->user();
+
 
             $validated = $request->validate([
                 'nama'     => 'nullable|string|max:255',
@@ -297,13 +304,16 @@ Route::prefix('dosenpenguji')
                 $data['password'] = Hash::make($validated['password']);
             }
 
+
             $user->update($data);
 
-            return redirect()
-                ->route('dosenpenguji.profile')
-                ->with('success', 'Perubahan berhasil disimpan.');
-        })->name('profile.update');
-    });
+    $user->update($data);
+
+    return redirect()
+        ->route('dosenpenguji.profile')
+        ->with('success', 'Perubahan berhasil disimpan.');
+})->name('profile.update');
+});
 
 
 /*
@@ -313,10 +323,15 @@ Route::prefix('dosenpenguji')
 */
 Route::prefix('koordinator')
     ->name('koordinator.')
-    ->middleware(['auth', 'verified', 'role:koordinator'])
+    ->middleware(['auth', 'role:koor_pbl'])
     ->group(function () {
         Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
+
+        // CRUD Kelola Peringkat (Koordinator)
+        Route::resource('peringkat', PeringkatController::class);
     });
+
+
     
 /*
 |--------------------------------------------------------------------------
@@ -325,7 +340,7 @@ Route::prefix('koordinator')
 */
 Route::prefix('jaminanmutu')
     ->name('jaminanmutu.')
-    ->middleware(['auth', 'verified', 'role:jaminan_mutu'])
+    ->middleware(['auth', 'role:jaminan_mutu'])
     ->group(function () {
         Route::view('/dashboard', 'jaminanmutu.dashboard')->name('dashboard');
     });
@@ -391,3 +406,4 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
+

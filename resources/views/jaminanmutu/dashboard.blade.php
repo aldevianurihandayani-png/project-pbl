@@ -123,12 +123,12 @@
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="welcome">
-        <h1>Dashboard Jaminan Mutu</h1>
+        <h1>Dashboard Jaminan Mutu (PBL)</h1>
       </div>
       <div class="userbox">
         <div class="notif">
           <i class="fa-regular fa-bell"></i>
-          <span class="badge">3</span>
+          <span class="badge">{{ $jumlahNotifikasiBelumDibaca ?? 3 }}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
@@ -143,42 +143,77 @@
       <!-- KPI -->
       <section class="kpi">
         <div class="card">
-          <div class="icon"><i class="fa-solid fa-users"></i></div>
-          <div class="meta"><small>Penilaian</small><br><b>{{ $jumlahPenilaian ?? 5 }}</b></div>
+          <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div>
+          <div class="meta">
+            <small>Penilaian PBL Terekam</small><br>
+            <b>{{ $jumlahPenilaian ?? 32 }}</b>
+          </div>
         </div>
         <div class="card">
-          <div class="icon"><i class="fa-solid fa-book"></i></div>
-          <div class="meta"><small>Rubrik</small><br><b>{{ $jumlahRubrik ?? 9 }}</b></div>
+          <div class="icon"><i class="fa-solid fa-book-open"></i></div>
+          <div class="meta">
+            <small>Rubrik Penilaian Aktif</small><br>
+            <b>{{ $jumlahRubrik ?? 6 }}</b>
+          </div>
         </div>
         <div class="card">
-          <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
-          <div class="meta"><small>Mahasiswa</small><br><b>{{ $jumlahMahasiswa ?? 140 }}</b></div>
+          <div class="icon"><i class="fa-solid fa-people-group"></i></div>
+          <div class="meta">
+            <small>Kelompok PBL Terlibat</small><br>
+            <b>{{ $jumlahKelompokPbl ?? 18 }}</b>
+          </div>
         </div>
       </section>
 
-      <!-- Status Logbook -->
+      <!-- Rekap Penilaian -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-clipboard-check"></i> Penilaian</div>
+        <div class="card-hd"><i class="fa-solid fa-chart-line"></i> Rekap Penilaian PBL</div>
         <div class="card-bd">
-          Nilai sudah Terupload <strong>lihat sekarang</strong>.<br>
-          <span class="muted">Terakhir diperbarui: 9 Oktober 2025</span>
+          Sebanyak <strong>{{ $kelompokSudahDinilai ?? 15 }}</strong> dari 
+          <strong>{{ $jumlahKelompokPbl ?? 18 }}</strong> kelompok PBL sudah dinilai oleh dosen/praktisi.
+          <br>
+          <span class="muted">
+            Rata-rata skor mutu proses PBL: <strong>{{ $rataRataNilaiProses ?? '82' }}</strong> / 100.
+          </span><br>
+          <span class="muted">
+            Terakhir diperbarui: {{ $lastUpdatedPenilaian ?? '9 Desember 2025' }}.
+          </span>
         </div>
       </section>
 
-      <!-- Milestone -->
+      <!-- Capaian & Kepatuhan Mutu -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-flag"></i> CPMK</div>
+        <div class="card-hd"><i class="fa-solid fa-bullseye"></i> Capaian Indikator Mutu PBL</div>
         <div class="card-bd">
-          Capaian Mata Kuliah sudah di perbarui <strong>10 Oktober 2025</strong>.
+          Persentase pemenuhan indikator mutu PBL semester ini:
+          <strong>{{ $persenIndikatorTercapai ?? '78%' }}</strong>.
+          <br><br>
+          <span class="muted">
+            - Ketercapaian CPL melalui PBL: {{ $cplTercapai ?? '80%' }}<br>
+            - Ketersediaan bukti logbook & laporan: {{ $buktiLengkap ?? '92%' }}<br>
+            - Keterlibatan mitra/industri: {{ $keterlibatanMitra ?? '65%' }}
+          </span>
         </div>
       </section>
 
-      <!-- Nilai & Peringkat -->
+      <!-- Temuan & Rekomendasi -->
       <section class="card">
-        <div class="card-hd"><i class="fa-solid fa-star"></i> Nilai & Peringkat</div>
+        <div class="card-hd"><i class="fa-solid fa-magnifying-glass-chart"></i> Temuan Jaminan Mutu & Rekomendasi</div>
         <div class="card-bd">
-          Nilai TPK: 85, Pemweb Lanjut: 90, Integrasi Sistem: 88, Sistem Operasi: 80. <br/>
-          Peringkat: <strong>Top 5</strong> dalam kelas.
+          <ul class="clean">
+            <li>
+              <strong>Dokumentasi aktivitas PBL</strong> sudah cukup lengkap, namun beberapa kelompok
+              belum mengunggah <em>evidence</em> validasi mitra.
+            </li>
+            <li>
+              <strong>Penilaian soft skill</strong> belum sepenuhnya konsisten antar dosen pembimbing.
+              Disarankan untuk menyepakati rubrik dan contoh penilaian bersama.
+            </li>
+            <li>
+              <strong>Umpan balik mitra</strong> menunjukkan kepuasan tinggi terhadap solusi yang diberikan,
+              tetapi mengusulkan durasi PBL yang lebih panjang.
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -187,9 +222,9 @@
         <div class="card-hd"><i class="fa-regular fa-bell"></i> Notifikasi</div>
         <div class="card-bd">
           <ul class="clean">
-            <li>Logbook Minggu 3 disetujui</li>
-            <li>Milestone Presentasi Final 7 hari lagi</li>
-            <li>Dosen pembimbing menambahkan nilai baru</li>
+            <li>{{ $notif1 ?? '3 kelompok PBL baru saja mengunggah laporan akhir untuk diverifikasi.' }}</li>
+            <li>{{ $notif2 ?? 'Koordinator PBL Teknik Informatika memperbarui data rubrik penilaian.' }}</li>
+            <li>{{ $notif3 ?? 'Batas waktu review mutu PBL semester ini: 5 hari lagi.' }}</li>
           </ul>
         </div>
       </section>
