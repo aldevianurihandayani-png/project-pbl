@@ -1,5 +1,5 @@
 {{-- resources/views/dosen/logbook/table.blade.php --}}
-
+@extends ('layout.dosen')
 <table class="table-auto w-full">
     <thead>
     <tr>

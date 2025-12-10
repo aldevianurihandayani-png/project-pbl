@@ -67,7 +67,7 @@ class KelompokController extends Controller
         $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
 
         // ambil semua dosen pembimbing untuk dropdown
-        $dosenPembimbings = User::where('role', 'pembimbing')->orderBy('name')->get();
+        $dosenPembimbings = User::where('role', 'pembimbing')->orderBy('nama')->get();
 
         return view('dosen.kelompok.create', [
             'kelasTerpilih'    => $kelasTerpilih,
