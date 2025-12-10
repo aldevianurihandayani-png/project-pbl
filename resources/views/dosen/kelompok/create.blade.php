@@ -204,27 +204,64 @@
 
               <div class="form-group">
                   <label for="judul_proyek">Judul Proyek</label>
-                  <input type="text" name="judul_proyek" class="form-control" id="judul_proyek" value="{{ old('judul_proyek') }}" required>
+                  <input type="text" name="judul_proyek" class="form-control" id="judul_proyek"
+                         value="{{ old('judul_proyek') }}" required>
               </div>
 
               <div class="form-group">
                   <label for="nama_klien">Nama Klien</label>
-                  <input type="text" name="nama_klien" class="form-control" id="nama_klien" value="{{ old('nama_klien') }}" required>
+                  <input type="text" name="nama_klien" class="form-control" id="nama_klien"
+                         value="{{ old('nama_klien') }}" required>
               </div>
 
+              {{-- KETUA KELOMPOK: pilih dari mahasiswa --}}
               <div class="form-group">
-                  <label for="ketua_kelompok">Ketua Kelompok (NIM)</label>
-                  <input type="text" name="ketua_kelompok" class="form-control" id="ketua_kelompok" value="{{ old('ketua_kelompok') }}" required>
+                  <label for="ketua_kelompok">Ketua Kelompok</label>
+                  <select name="ketua_kelompok" id="ketua_kelompok" class="form-control" required>
+                      <option value="">-- Pilih Ketua Kelompok --</option>
+                      @foreach($mahasiswas as $mhs)
+                          <option value="{{ $mhs->nim }}" @selected(old('ketua_kelompok') == $mhs->nim)>
+                              {{ $mhs->nim }} - {{ $mhs->nama }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
 
+              {{-- ANGGOTA: pilih langsung mahasiswa --}}
               <div class="form-group">
-                  <label for="anggota">Anggota (pisahkan dengan koma)</label>
-                  <textarea name="anggota" class="form-control" id="anggota" rows="3" required>{{ old('anggota') }}</textarea>
+                  <label for="anggota">Anggota (pilih mahasiswa)</label>
+                  <select name="anggota[]" id="anggota" class="form-control" multiple size="8" required>
+                      @forelse($mahasiswas as $mhs)
+                          <option value="{{ $mhs->nim }}"
+                              @selected(in_array($mhs->nim, old('anggota', [])))
+                          >
+                              {{ $mhs->nim }} - {{ $mhs->nama }}
+                          </option>
+                      @empty
+                          <option disabled>Tidak ada mahasiswa yang tersedia.</option>
+                      @endforelse
+                  </select>
+                  <small class="text-muted">
+                      Tahan Ctrl (Windows) / Command (Mac) untuk memilih lebih dari satu mahasiswa.
+                  </small>
+                  @error('anggota')
+                      <div class="text-danger small">{{ $message }}</div>
+                  @enderror
               </div>
 
+              {{-- DOSEN PEMBIMBING: dropdown dari tabel dosen --}}
               <div class="form-group">
-                  <label for="dosen_pembimbing">Dosen Pembimbing</label>
-                  <input type="text" name="dosen_pembimbing" class="form-control" id="dosen_pembimbing" value="{{ old('dosen_pembimbing', auth()->user()->name ?? '') }}">
+                  <label for="dosen_pembimbing_id">Dosen Pembimbing</label>
+                  <select name="dosen_pembimbing_id" id="dosen_pembimbing_id" class="form-control" required>
+                      <option value="">-- Pilih Dosen Pembimbing --</option>
+                      @foreach($dosenPembimbings as $dosen)
+                          <option value="{{ $dosen->id_dosen }}"
+                              @selected(old('dosen_pembimbing_id') == $dosen->id_dosen)
+                          >
+                              {{ $dosen->nama_dosen }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
 
               <button type="submit" class="btn">Simpan Kelompok</button>

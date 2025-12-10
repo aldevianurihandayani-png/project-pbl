@@ -39,12 +39,10 @@ class Mahasiswa extends Model
        RELASI
     ====================================== */
 
-    // Kelompok
+    // Kelompok (setiap mahasiswa hanya punya satu kelompok)
     public function kelompok()
     {
         // FK: id_kelompok -> PK: id di tabel kelompok
-        // kalau di DB kamu nama kolomnya `kelompok_id`, ganti saja:
-        // return $this->belongsTo(Kelompok::class, 'kelompok_id', 'id');
         return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 
@@ -80,6 +78,23 @@ class Mahasiswa extends Model
     public function proyekPbl()
     {
         return $this->belongsTo(ProyekPbl::class, 'proyek_pbl_id', 'id');
+    }
+
+    /* ======================================
+       HELPER UNTUK KELOMPOK / ANGGOTA
+    ====================================== */
+
+    // Cek apakah mahasiswa sudah punya kelompok
+    public function hasKelompok(): bool
+    {
+        return ! is_null($this->id_kelompok);
+    }
+
+    // Set kelompok untuk beberapa NIM sekaligus (dipakai di controller)
+    public static function setKelompokForAnggota(array $nims, int $kelompokId): int
+    {
+        return static::whereIn('nim', $nims)
+            ->update(['id_kelompok' => $kelompokId]);
     }
 
     // Route model binding pakai nim
