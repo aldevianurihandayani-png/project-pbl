@@ -14,6 +14,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\TPK\TPKMahasiswaController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
+use App\Http\Controllers\NotificationController;
 
 // Koordinator
 use App\Http\Controllers\Koordinator\PeringkatController;
@@ -112,6 +113,15 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+/*
+|--------------------------------------------------------------------------
+| 🔔🔔 NOTIFIKASI – ROUTE
+|--------------------------------------------------------------------------
+*/
+Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
+    ->name('notif.readAll')
+    ->middleware('auth');   // ⬅️ semua user login boleh akses
 
 /*
 |--------------------------------------------------------------------------

@@ -11,21 +11,15 @@ use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
 
-        View::composer(['layouts.app', 'admins.dashboard', 'admins.feedback.index'], function ($view) {
+        View::composer('*', function ($view) {
             if (Auth::check()) {
                 $unreadCount = Notification::getUnreadCount();
                 $notifications = Notification::getListForTopbar();

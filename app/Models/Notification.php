@@ -10,33 +10,35 @@ class Notification extends Model
 {
     use HasFactory;
 
-    // Jika kamu TIDAK pakai tabel 'notifications' bawaan Laravel, set table sendiri:
-    // protected $table = 'app_notifications';
+    protected $table = 'notifications';
 
     protected $fillable = [
         'user_id',
+        'type',      // 'materi', 'tugas', 'info'
         'title',
-        'message',
         'course',
+        'link_url',
         'is_read',
     ];
 
     protected $casts = [
-        'is_read'   => 'boolean',
-        'created_at'=> 'datetime',
-        'updated_at'=> 'datetime',
+        'is_read'    => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
+    /* RELASI */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /* ---------- Scopes ---------- */
+    /* SCOPES */
     public function scopeForCurrent($q)
     {
         return $q->where(function ($x) {
-            $x->whereNull('user_id')->orWhere('user_id', Auth::id());
+            $x->whereNull('user_id')
+              ->orWhere('user_id', Auth::id());
         });
     }
 
@@ -45,20 +47,35 @@ class Notification extends Model
         return $q->where('is_read', false);
     }
 
-    /* ---------- Helpers ---------- */
+    /* HELPERS */
     public static function getUnreadCount(): int
     {
-        return static::query()->unread()->forCurrent()->count();
-    }
+        if (!Auth::check()) return 0;
 
-    public static function getListForTopbar()
-    {
         return static::query()
             ->unread()
             ->forCurrent()
+            ->count();
+    }
+
+    public static function getListForTopbar(int $limit = 10)
+    {
+        if (!Auth::check()) return collect();
+
+        return static::query()
+            ->forCurrent()
             ->latest()
-            ->limit(10)
-            ->get(['id','title','created_at','user_id']);
+            ->limit($limit)
+            ->get([
+                'id',
+                'type',
+                'title',
+                'course',
+                'link_url',
+                'is_read',
+                'created_at',
+                'user_id',
+            ]);
     }
 
     public function markAsRead(): bool
