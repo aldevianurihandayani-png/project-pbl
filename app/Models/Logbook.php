@@ -14,6 +14,7 @@ class Logbook extends Model
         'keterangan',
         'foto',
         'user_id',
+        'nilai'
     ];
 
    

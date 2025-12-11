@@ -370,9 +370,11 @@
                         <label class="mhs-filter-label">Kelas</label>
                         <select name="filter_kelas" class="mhs-filter-select">
                             <option value="">Semua</option>
-                            @foreach (['A','B','C','D','E'] as $k)
-                                <option value="{{ $k }}" {{ request('filter_kelas') == $k ? 'selected' : '' }}>
-                                    Kelas {{ $k }}
+                            {{-- 🔹 pakai kelas dari tabel `kelas` --}}
+                            @foreach ($daftarKelas as $row)
+                                <option value="{{ $row->nama_kelas }}"
+                                    {{ request('filter_kelas') == $row->nama_kelas ? 'selected' : '' }}>
+                                    {{ $row->nama_kelas }}
                                 </option>
                             @endforeach
                         </select>
@@ -421,21 +423,21 @@
             <div class="kelas-section-title">Data Mahasiswa per Kelas</div>
 
             <div class="kelas-grid mb-4">
-                @php $daftarKelas = ['A','B','C','D','E']; @endphp
-
-                @foreach ($daftarKelas as $kls)
+                {{-- 🔹 loop kartu berdasarkan tabel `kelas` --}}
+                @foreach ($daftarKelas as $row)
                     @php
-                        $stat = $kelasStats[$kls] ?? null;
-                        $total = $stat->total
+                        $namaKelas = $row->nama_kelas;              // misal: "Kelas A" / "A" tergantung datanya
+                        $stat      = $kelasStats[$namaKelas] ?? null;
+                        $total     = $stat->total
                             ?? $stat->jumlah_mahasiswa
                             ?? $stat->count
                             ?? 0;
                     @endphp
 
-                    <a href="{{ route('admins.mahasiswa.index', ['kelas' => $kls]) }}" class="kelas-card-link">
+                    <a href="{{ route('admins.mahasiswa.index', ['kelas' => $namaKelas]) }}" class="kelas-card-link">
                         <div class="kelas-card">
                             <div class="kelas-card-inner">
-                                <div class="kelas-name mb-1">Kelas {{ $kls }}</div>
+                                <div class="kelas-name mb-1">{{ $namaKelas }}</div>
                                 <div class="kelas-meta">
                                     Jumlah mahasiswa:
                                     <strong>{{ $total }}</strong> orang

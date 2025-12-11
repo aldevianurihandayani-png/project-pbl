@@ -3,85 +3,118 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
-use App\Models\Kelas; // Assuming you have a Kelas model
+use Illuminate\Validation\Rule;
 
 class KelasController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Tampilkan daftar semua kelas.
      */
     public function index()
     {
-        $kelas = Kelas::all(); // Fetch all classes
-        return view('Admin.kelas.index', compact('kelas'));
+        // ambil semua kelas, urut nama_kelas
+        $daftarKelas = Kelas::orderBy('nama_kelas')->get();
+
+        // ✅ PAKAI VIEW admins.kelas.index (bukan manage lagi)
+        return view('admins.kelas.index', compact('daftarKelas'));
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Form tambah kelas baru.
      */
     public function create()
     {
-        //
+        return view('admins.kelas.create');
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Simpan kelas baru.
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'nama_kelas' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:kelas,nama_kelas',
+            ],
+            'semester'   => ['required', 'integer', 'min:1'],
+            'periode'    => ['required', 'string', 'max:50'],
+        ], [], [
+            'nama_kelas' => 'Nama Kelas',
+            'semester'   => 'Semester',
+            'periode'    => 'Periode',
+        ]);
+
+        Kelas::create($data);
+
+        return redirect()
+            ->route('admins.kelas.index')
+            ->with('success', 'Kelas berhasil ditambahkan.');
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * (Opsional) Tampilkan detail satu kelas.
+     * Kalau tidak dipakai, boleh abaikan / tidak dipanggil di route.
      */
-    public function show($id)
+    public function show(Kelas $kela)
     {
-        //
+        // diarahkan saja ke halaman edit
+        return redirect()->route('admins.kelas.edit', $kela->id);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Form edit kelas.
      */
-    public function edit($id)
+    public function edit(Kelas $kela)
     {
-        //
+        // karena nama parameter route resource untuk "kelas" jadi {kela}
+        $kelas = $kela;
+
+        return view('admins.kelas.edit', compact('kelas'));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Update data kelas.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Kelas $kela)
     {
-        //
+        $kelas = $kela;
+
+        $data = $request->validate([
+            'nama_kelas' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('kelas', 'nama_kelas')->ignore($kelas->id),
+            ],
+            'semester'   => ['required', 'integer', 'min:1'],
+            'periode'    => ['required', 'string', 'max:50'],
+        ], [], [
+            'nama_kelas' => 'Nama Kelas',
+            'semester'   => 'Semester',
+            'periode'    => 'Periode',
+        ]);
+
+        $kelas->update($data);
+
+        return redirect()
+            ->route('admins.kelas.index')
+            ->with('success', 'Kelas berhasil diperbarui.');
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Hapus kelas.
      */
-    public function destroy($id)
+    public function destroy(Kelas $kela)
     {
-        //
+        $kela->delete();
+
+        return redirect()
+            ->route('admins.kelas.index')
+            ->with('success', 'Kelas berhasil dihapus.');
     }
 }
