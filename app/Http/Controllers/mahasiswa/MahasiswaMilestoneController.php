@@ -36,20 +36,31 @@ class MahasiswaMilestoneController extends Controller
             'status'    => 'nullable|boolean',
         ]);
 
-        // pastikan boolean 0/1
+        // pastikan boolean
         $validated['status'] = $request->boolean('status');
 
-        // Coba cari proyek user (opsional). Jika tak ketemu, biarkan null.
+        // cari proyek mahasiswa
         $user = Auth::user();
-        $idProyek = ProyekPbl::query()
+        $proyek = ProyekPbl::query()
             ->whereHas('kelompok.mahasiswas', function ($q) use ($user) {
-                $q->where('nim', $user->nim);  // sesuaikan jika pakai kolom lain
+                $q->where('nim', $user->nim);
             })
-            ->value('id_proyek_pbl');
+            ->first();
 
-        $validated['id_proyek_pbl'] = $idProyek ?: null;
+        $validated['id_proyek_pbl'] = $proyek->id_proyek_pbl ?? null;
 
-        Milestone::create($validated);
+        // simpan milestone
+        $milestone = Milestone::create($validated);
+
+        // 🔔 NOTIF GLOBAL — muncul di semua role
+        Notification::create([
+            'user_id' => null,
+            'judul'   => 'Milestone baru dibuat',
+            'pesan'   => 'Mahasiswa ' . ($user->nama ?? $user->name)
+                        . ' membuat milestone "' . $milestone->deskripsi
+                        . '" dan menunggu persetujuan.',
+            'is_read' => 0,
+        ]);
 
         return redirect()
             ->route('mahasiswa.milestone.index')
@@ -68,38 +79,43 @@ class MahasiswaMilestoneController extends Controller
     }
 
     public function update(Request $request, Milestone $milestone)
-{
-    $validated = $request->validate([
-        'deskripsi' => 'required|string|max:255',
-        'tanggal'   => 'required|date',
-        'status'    => 'nullable|boolean',
-    ]);
-
-    // status baru dari form
-    $newStatus = $request->boolean('status');
-
-    // simpan status lama sebelum di-update
-    $oldStatus = $milestone->status;
-
-    $validated['status'] = $newStatus;
-
-    // update milestone
-    $milestone->update($validated);
-
-    // 🔔 JIKA sebelumnya belum disetujui (0) dan sekarang jadi disetujui (1)
-    if (!$oldStatus && $newStatus) {
-        Notification::create([
-            'user_id' => Auth::id(), // mahasiswa yang sedang login
-            'judul'   => 'Milestone Disetujui',
-            'pesan'   => 'Milestone "'.$milestone->deskripsi.'" telah disetujui.',
-            'is_read' => 0,
+    {
+        $validated = $request->validate([
+            'deskripsi' => 'required|string|max:255',
+            'tanggal'   => 'required|date',
+            'status'    => 'nullable|boolean',
         ]);
-    }
 
-    return redirect()
-        ->route('mahasiswa.milestone.index')
-        ->with('success', 'Milestone diperbarui.');
-}
+        // status baru
+        $newStatus = $request->boolean('status');
+
+        // status lama
+        $oldStatus = $milestone->status;
+
+        $validated['status'] = $newStatus;
+
+        // update
+        $milestone->update($validated);
+
+        // 🔔 NOTIF GLOBAL jika milestone berubah menjadi disetujui
+        if (!$oldStatus && $newStatus) {
+
+            $user = Auth::user();
+
+            Notification::create([
+                'user_id' => null,
+                'judul'   => 'Milestone disetujui',
+                'pesan'   => 'Milestone "' . $milestone->deskripsi
+                            . '" milik ' . ($user->nama ?? $user->name)
+                            . ' telah disetujui.',
+                'is_read' => 0,
+            ]);
+        }
+
+        return redirect()
+            ->route('mahasiswa.milestone.index')
+            ->with('success', 'Milestone diperbarui.');
+    }
 
     public function destroy(Milestone $milestone)
     {

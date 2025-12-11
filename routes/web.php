@@ -120,12 +120,21 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| 🔔🔔 NOTIFIKASI – ROUTE
+/*
+|--------------------------------------------------------------------------
+| 🔔 NOTIFIKASI – ROUTE
 |--------------------------------------------------------------------------
 */
+
+// Halaman daftar notifikasi
+Route::get('/notif', [NotificationController::class, 'index'])
+    ->name('notif.index')
+    ->middleware('auth');
+
+// Tandai semua notifikasi sebagai sudah dibaca (POST)
 Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
     ->name('notif.readAll')
-    ->middleware('auth');   // ⬅️ semua user login boleh akses
+    ->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -215,15 +224,22 @@ Route::prefix('dosen')
         Route::resource('milestone', DosenMilestoneController::class)
             ->only(['index', 'edit', 'update']);
 
+        // resource utama logbook (index, show, edit, dll)
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
+        // toggle status logbook
         Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
             ->name('logbook.toggleStatus');
+
+        // 🔥 route khusus untuk update nilai logbook
+        Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
+            ->name('logbook.nilai.update');
 
         // Halaman detail kelas (TI-3E, TI-3D, dst)
         Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
             ->name('kelompok.kelas');
     });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -423,11 +439,9 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
 
-use App\Http\Controllers\TPK\TPKKelompokController;
+Route::resource('logbooks', LogbookController::class);
 
-Route::prefix('tpk/kelompok')->name('tpk.kelompok.')->group(function () {
-    Route::get('/',        [TPKKelompokController::class, 'index'])->name('index');
-    Route::get('/create',  [TPKKelompokController::class, 'create'])->name('create');
-    Route::post('/store',  [TPKKelompokController::class, 'store'])->name('store');
-    Route::get('/hitung',  [TPKKelompokController::class, 'calculate'])->name('calculate');
-});
+// 🔥 route kirim komentar dari mahasiswa
+Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
+    ->name('logbooks.feedback.store');
+

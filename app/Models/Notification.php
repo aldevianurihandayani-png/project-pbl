@@ -10,10 +10,8 @@ class Notification extends Model
 {
     use HasFactory;
 
-    // Nama tabel di database
     protected $table = 'notifications';
 
-    // Kolom yang boleh diisi mass-assignment
     protected $fillable = [
         'user_id',
         'judul',
@@ -21,32 +19,30 @@ class Notification extends Model
         'is_read',
     ];
 
-    // Casting tipe data
     protected $casts = [
         'is_read'    => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
-    /* ======================================
-     * RELASI
-     * ====================================== */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
     /* ======================================
-     * SCOPES
+     * SCOPE
      * ====================================== */
 
-    // Notifikasi untuk user yang sedang login
+    // WAJIB: notif global + notif user
     public function scopeForCurrent($query)
     {
-        return $query->where('user_id', Auth::id());
+        return $query->where(function ($x) {
+            $x->whereNull('user_id')               // notif global
+              ->orWhere('user_id', Auth::id());    // notif per-user
+        });
     }
 
-    // Hanya yang belum dibaca
     public function scopeUnread($query)
     {
         return $query->where('is_read', false);
@@ -56,12 +52,9 @@ class Notification extends Model
      * HELPERS
      * ====================================== */
 
-    // Jumlah notif belum dibaca
     public static function getUnreadCount(): int
     {
-        if (!Auth::check()) {
-            return 0;
-        }
+        if (!Auth::check()) return 0;
 
         return static::query()
             ->unread()
@@ -69,12 +62,9 @@ class Notification extends Model
             ->count();
     }
 
-    // List notif terbaru untuk topbar
     public static function getListForTopbar(int $limit = 10)
     {
-        if (!Auth::check()) {
-            return collect();
-        }
+        if (!Auth::check()) return collect();
 
         return static::query()
             ->forCurrent()
@@ -89,10 +79,6 @@ class Notification extends Model
                 'user_id',
             ]);
     }
-
-    /* ======================================
-     * ACTIONS
-     * ====================================== */
 
     public function markAsRead(): bool
     {
