@@ -5,30 +5,26 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Kelompok;
 use App\Models\Kelas;
-use App\Models\User; // <-- tambah ini (atau ganti dengan model dosenmu)
+use App\Models\Mahasiswa;
+use App\Models\Dosen;
 use Illuminate\Http\Request;
 
 class KelompokController extends Controller
 {
-    /**
-     * Halaman index: kartu-kartu kelas + filter + search.
-     */
     public function index(Request $request)
     {
         $query = Kelompok::query();
 
-        // filter berdasarkan semester + kelas (A/B/C/D/E)
         if ($request->has('semester') && $request->semester != '') {
             $kelasFilter = 'TI-' . $request->semester;
 
             if ($request->has('kelas') && $request->kelas != '') {
-                $kelasFilter .= $request->kelas; // contoh: TI-3E
+                $kelasFilter .= $request->kelas;
             }
 
             $query->where('kelas', 'like', $kelasFilter . '%');
         }
 
-        // pencarian nama kelompok / judul proyek
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -45,9 +41,6 @@ class KelompokController extends Controller
         ]);
     }
 
-    /**
-     * Halaman CRUD kelompok untuk satu kelas (misal: TI-3E)
-     */
     public function kelas($kelas)
     {
         $kelompoks = Kelompok::where('kelas', $kelas)->get();
@@ -59,25 +52,28 @@ class KelompokController extends Controller
     }
 
     /**
-     * Show form create.
+     * FORM TAMBAH KELOMPOK
      */
     public function create(Request $request)
     {
-        $kelasTerpilih = $request->query('kelas'); // misal TI-3E
+        $kelasTerpilih = $request->query('kelas');
         $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
+        $dosenPembimbings = Dosen::orderBy('nama_dosen')->get();
 
-        // ambil semua dosen pembimbing untuk dropdown
-        $dosenPembimbings = User::where('role', 'pembimbing')->orderBy('name')->get();
+        // Mahasiswa per kelas yang BELUM punya kelompok
+        $mahasiswas = Mahasiswa::query()
+            ->when($kelasTerpilih, fn ($q) => $q->where('kelas', $kelasTerpilih))
+            ->whereNull('kelompok_id')   // <-- PAKAI kelompok_id
+            ->orderBy('nama')
+            ->get();
 
-        return view('dosen.kelompok.create', [
-            'kelasTerpilih'    => $kelasTerpilih,
-            'daftarKelas'      => $daftarKelas,
-            'dosenPembimbings' => $dosenPembimbings,
-        ]);
+        return view('dosen.kelompok.create', compact(
+            'kelasTerpilih', 'daftarKelas', 'dosenPembimbings', 'mahasiswas'
+        ));
     }
 
     /**
-     * Store new kelompok.
+     * STORE KELOMPOK BARU
      */
     public function store(Request $request)
     {
@@ -87,8 +83,9 @@ class KelompokController extends Controller
             'nama_klien'          => 'required',
             'ketua_kelompok'      => 'required',
             'kelas'               => 'required',
-            'anggota'             => 'required',
-            'dosen_pembimbing_id' => 'required|exists:users,id', // relasi ke tabel users
+            'anggota'             => 'required|array',
+            'anggota.*'           => 'distinct|exists:mahasiswas,nim',
+            'dosen_pembimbing_id' => 'required|exists:dosens,id_dosen',
         ]);
 
         if (!str_starts_with($validatedData['kelas'], 'TI-')) {
@@ -97,7 +94,19 @@ class KelompokController extends Controller
 
         $validatedData['judul'] = $validatedData['judul_proyek'];
 
+        $anggotaNim = $validatedData['anggota'];
+        $validatedData['anggota'] = implode(', ', $anggotaNim);
+
+        // SIMPAN KELOMPOK
         $kelompok = Kelompok::create($validatedData);
+
+        // UPDATE anggota → kelompok_id
+        Mahasiswa::whereIn('nim', $anggotaNim)
+            ->update(['kelompok_id' => $kelompok->id]);
+
+        // pastikan ketua masuk juga
+        Mahasiswa::where('nim', $validatedData['ketua_kelompok'])
+            ->update(['kelompok_id' => $kelompok->id]);
 
         return redirect()
             ->route('dosen.kelompok.kelas', $kelompok->kelas)
@@ -105,26 +114,38 @@ class KelompokController extends Controller
     }
 
     /**
-     * Show form edit.
+     * FORM EDIT KELOMPOK
      */
     public function edit(Kelompok $kelompok)
     {
         $daftarKelas   = Kelas::orderBy('nama_kelas')->get();
         $kelasTerpilih = $kelompok->kelas;
+        $dosenPembimbings = Dosen::orderBy('nama_dosen')->get();
 
-        // dropdown dosen pembimbing juga di halaman edit
-        $dosenPembimbings = User::where('role', 'pembimbing')->orderBy('name')->get();
+        // Mahasiswa:
+        // - belum punya kelompok
+        // - atau anggota kelompok ini
+        $mahasiswas = Mahasiswa::query()
+            ->where('kelas', $kelasTerpilih)
+            ->where(function ($q) use ($kelompok) {
+                $q->whereNull('kelompok_id')
+                  ->orWhere('kelompok_id', $kelompok->id);
+            })
+            ->orderBy('nama')
+            ->get();
 
-        return view('dosen.kelompok.edit', [
-            'kelompok'          => $kelompok,
-            'daftarKelas'       => $daftarKelas,
-            'kelasTerpilih'     => $kelasTerpilih,
-            'dosenPembimbings'  => $dosenPembimbings,
-        ]);
+        $anggotaTerpilih = Mahasiswa::where('kelompok_id', $kelompok->id)
+            ->pluck('nim')
+            ->toArray();
+
+        return view('dosen.kelompok.edit', compact(
+            'kelompok', 'daftarKelas', 'kelasTerpilih',
+            'dosenPembimbings', 'mahasiswas', 'anggotaTerpilih'
+        ));
     }
 
     /**
-     * Update kelompok.
+     * UPDATE KELOMPOK
      */
     public function update(Request $request, Kelompok $kelompok)
     {
@@ -134,8 +155,9 @@ class KelompokController extends Controller
             'nama_klien'          => 'required',
             'ketua_kelompok'      => 'required',
             'kelas'               => 'required',
-            'anggota'             => 'required',
-            'dosen_pembimbing_id' => 'required|exists:users,id',
+            'anggota'             => 'required|array',
+            'anggota.*'           => 'distinct|exists:mahasiswas,nim',
+            'dosen_pembimbing_id' => 'required|exists:dosens,id_dosen',
         ]);
 
         if (!str_starts_with($validatedData['kelas'], 'TI-')) {
@@ -144,19 +166,37 @@ class KelompokController extends Controller
 
         $validatedData['judul'] = $validatedData['judul_proyek'];
 
+        $anggotaNim = $validatedData['anggota'];
+        $validatedData['anggota'] = implode(', ', $anggotaNim);
+
+        // UPDATE KELOMPOK
         $kelompok->update($validatedData);
+
+        // lepaskan semua mahasiswa dari kelompok sebelumnya
+        Mahasiswa::where('kelompok_id', $kelompok->id)
+            ->update(['kelompok_id' => null]);
+
+        // masukkan anggota baru
+        Mahasiswa::whereIn('nim', $anggotaNim)
+            ->update(['kelompok_id' => $kelompok->id]);
+
+        // pastikan ketua masuk
+        Mahasiswa::where('nim', $validatedData['ketua_kelompok'])
+            ->update(['kelompok_id' => $kelompok->id]);
 
         return redirect()
             ->route('dosen.kelompok.kelas', $kelompok->kelas)
             ->with('success', 'Kelompok updated successfully.');
     }
 
-    /**
-     * Delete kelompok.
-     */
     public function destroy(Kelompok $kelompok)
     {
         $kelas = $kelompok->kelas;
+
+        // hapus relasi mahasiswa dari kelompok ini
+        Mahasiswa::where('kelompok_id', $kelompok->id)
+            ->update(['kelompok_id' => null]);
+
         $kelompok->delete();
 
         return redirect()

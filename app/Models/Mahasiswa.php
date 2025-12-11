@@ -17,7 +17,7 @@ class Mahasiswa extends Model
     protected $keyType    = 'string';
     public $incrementing  = false;
 
-    // Kolom yang boleh diisi (sesuaikan dengan kolom yang benar-benar ada di tabel)
+    // Kolom yang boleh diisi (pastikan sama dengan kolom di tabel mahasiswas)
     protected $fillable = [
         'nim',
         'nama',
@@ -26,12 +26,12 @@ class Mahasiswa extends Model
         'no_hp',
         'kelas',
 
-        // tambahkan kalau memang ada di tabel:
-        'id_dosen',           // FK ke tabel dosen (opsional)
-        'id_kelompok',        // FK ke tabel kelompok (kalau nama kolomnya ini)
-        'user_id',            // kalau relasi ke users pakai user_id
-        'dosen_pembimbing_id',
-        'proyek_pbl_id',
+        // FK hubungan
+        'id_kelompok',          // FK ke tabel kelompoks (id)
+        'dosen_pembimbing_id',  // FK ke tabel dosens (id)
+        'proyek_pbl_id',        // FK ke tabel proyek_pbls (id)
+        'user_id',              // FK ke users (id)
+
         'semester',
     ];
 
@@ -39,12 +39,10 @@ class Mahasiswa extends Model
        RELASI
     ====================================== */
 
-    // Kelompok
+    // Setiap mahasiswa hanya punya satu kelompok
     public function kelompok()
     {
-        // FK: id_kelompok -> PK: id di tabel kelompok
-        // kalau di DB kamu nama kolomnya `kelompok_id`, ganti saja:
-        // return $this->belongsTo(Kelompok::class, 'kelompok_id', 'id');
+        // FK: id_kelompok (di tabel mahasiswas) -> PK: id (di tabel kelompoks)
         return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 
@@ -70,16 +68,37 @@ class Mahasiswa extends Model
     // Dosen Pembimbing / Penguji
     public function dosenPembimbing()
     {
-        // sesuaikan FK-nya dengan kolom yang kamu pakai:
-        // kalau pakai `id_dosen` → ganti 'dosen_pembimbing_id' jadi 'id_dosen'
+        // FK: dosen_pembimbing_id di tabel mahasiswas → id di tabel dosens
         return $this->belongsTo(Dosen::class, 'dosen_pembimbing_id', 'id');
-        // return $this->belongsTo(Dosen::class, 'id_dosen', 'id');
     }
 
     // Proyek PBL
     public function proyekPbl()
     {
         return $this->belongsTo(ProyekPbl::class, 'proyek_pbl_id', 'id');
+    }
+
+    /* ======================================
+       HELPER UNTUK KELOMPOK / ANGGOTA
+    ====================================== */
+
+    // Cek apakah mahasiswa sudah punya kelompok
+    public function hasKelompok(): bool
+    {
+        return ! is_null($this->id_kelompok);
+    }
+
+    // Scope: ambil hanya mahasiswa yang belum punya kelompok
+    public function scopeBelumPunyaKelompok($query)
+    {
+        return $query->whereNull('id_kelompok');
+    }
+
+    // Set kelompok untuk beberapa NIM sekaligus (dipakai di controller)
+    public static function setKelompokForAnggota(array $nims, int $kelompokId): int
+    {
+        return static::whereIn('nim', $nims)
+            ->update(['id_kelompok' => $kelompokId]);
     }
 
     // Route model binding pakai nim

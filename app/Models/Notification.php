@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
 {
@@ -30,7 +28,7 @@ class Notification extends Model
     /* RELASI */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /* SCOPES */
@@ -42,10 +40,15 @@ class Notification extends Model
         });
     }
 
-    public function scopeUnread($q)
+    /**
+     * Ambil list notifikasi terbaru untuk topbar.
+     * Bisa dipanggil tanpa parameter.
+     */
+    public static function getListForTopbar($userId = null, $limit = 5)
     {
-        return $q->where('is_read', false);
-    }
+        if (!$userId && auth()->check()) {
+            $userId = auth()->id();
+        }
 
     /* HELPERS */
     public static function getUnreadCount(): int

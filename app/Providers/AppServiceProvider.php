@@ -3,11 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
 use Illuminate\Support\Facades\View;
-use App\Models\Notification;
-use App\Http\Controllers\Admin\NotificationController;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,14 +16,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-
         View::composer('*', function ($view) {
             if (Auth::check()) {
-                $unreadCount = Notification::getUnreadCount();
-                $notifications = Notification::getListForTopbar();
+
+                $userId = Auth::id();
+
+                // aman walaupun dipanggil tanpa parameter di model
+                $unreadCount   = Notification::getUnreadCount($userId);
+                $notifications = Notification::getListForTopbar($userId, 5);
+
                 $view->with(compact('unreadCount', 'notifications'));
             }
         });
-
     }
 }

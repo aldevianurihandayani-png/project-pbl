@@ -31,18 +31,25 @@
       <span>Mahasiswa</span>
     </a>
 
-    {{-- Kelompok --}}
-    <a href="{{ route('admins.kelompok.index') }}"
-       class="{{ request()->routeIs('admins.kelompok.*') ? 'active' : '' }}">
-      <i class="fa-solid fa-people-group"></i>
-      <span>Kelompok</span>
+    {{-- Kelas --}}
+    <a href="{{ route('admins.kelas.index') }}"
+       class="{{ request()->routeIs('admins.kelas.*') ? 'active' : '' }}">
+      <i class="fa-solid fa-school"></i>
+      <span>Kelas</span>
     </a>
 
-    {{-- Logbook --}}
-    <a href="{{ route('admins.logbook.index') }}"
-       class="{{ request()->routeIs('admins.logbook.*') ? 'active' : '' }}">
-      <i class="fa-solid fa-book"></i>
-      <span>Logbook</span>
+    {{-- Dosen --}}
+    <a href="{{ route('admins.dosen.index') }}"
+       class="{{ request()->routeIs('admins.dosen.*') ? 'active' : '' }}">
+      <i class="fa-solid fa-user-tie"></i>
+      <span>Dosen</span>
+    </a>
+
+    {{-- Akun --}}
+    <a href="{{ route('admins.users.index') }}"
+       class="{{ request()->routeIs('admins.users.*') ? 'active' : '' }}">
+      <i class="fa-solid fa-user-gear"></i>
+      <span>Akun</span>
     </a>
 
     {{-- Feedback --}}

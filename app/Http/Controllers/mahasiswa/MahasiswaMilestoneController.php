@@ -5,6 +5,7 @@ namespace App\Http\Controllers\mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Milestone;
 use App\Models\ProyekPbl;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,21 +68,38 @@ class MahasiswaMilestoneController extends Controller
     }
 
     public function update(Request $request, Milestone $milestone)
-    {
-        $validated = $request->validate([
-            'deskripsi' => 'required|string|max:255',
-            'tanggal'   => 'required|date',
-            'status'    => 'nullable|boolean',
+{
+    $validated = $request->validate([
+        'deskripsi' => 'required|string|max:255',
+        'tanggal'   => 'required|date',
+        'status'    => 'nullable|boolean',
+    ]);
+
+    // status baru dari form
+    $newStatus = $request->boolean('status');
+
+    // simpan status lama sebelum di-update
+    $oldStatus = $milestone->status;
+
+    $validated['status'] = $newStatus;
+
+    // update milestone
+    $milestone->update($validated);
+
+    // 🔔 JIKA sebelumnya belum disetujui (0) dan sekarang jadi disetujui (1)
+    if (!$oldStatus && $newStatus) {
+        Notification::create([
+            'user_id' => Auth::id(), // mahasiswa yang sedang login
+            'judul'   => 'Milestone Disetujui',
+            'pesan'   => 'Milestone "'.$milestone->deskripsi.'" telah disetujui.',
+            'is_read' => 0,
         ]);
-
-        $validated['status'] = $request->boolean('status');
-
-        $milestone->update($validated);
-
-        return redirect()
-            ->route('mahasiswa.milestone.index')
-            ->with('success', 'Milestone diperbarui.');
     }
+
+    return redirect()
+        ->route('mahasiswa.milestone.index')
+        ->with('success', 'Milestone diperbarui.');
+}
 
     public function destroy(Milestone $milestone)
     {
