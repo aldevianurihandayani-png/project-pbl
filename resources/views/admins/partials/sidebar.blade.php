@@ -31,6 +31,20 @@
       <span>Mahasiswa</span>
     </a>
 
+    {{-- Kelas --}}
+    <a href="{{ route('admins.kelas.index') }}"
+       class="{{ request()->routeIs('admins.kelas.*') ? 'active' : '' }}">
+      <i class="fa-solid fa-school"></i>
+      <span>Kelas</span>
+    </a>
+
+    {{-- Dosen --}}
+    <a href="{{ route('admins.dosen.index') }}"
+       class="{{ request()->routeIs('admins.dosen.*') ? 'active' : '' }}">
+      <i class="fa-solid fa-user-tie"></i>
+      <span>Dosen</span>
+    </a>
+
     {{-- Akun --}}
     <a href="{{ route('admins.users.index') }}"
        class="{{ request()->routeIs('admins.users.*') ? 'active' : '' }}">

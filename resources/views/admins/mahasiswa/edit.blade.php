@@ -34,7 +34,6 @@
         }
         .mk-invalid{font-size:12px;color:#b91c1c;margin-top:2px;}
 
-        /* ====== TOMBOL AKSI BARU ====== */
         .mk-actions{
             margin-top:24px;display:flex;justify-content:flex-end;gap:12px;
         }
@@ -45,14 +44,12 @@
             border:none;cursor:pointer;text-decoration:none !important;
             transition:.2s ease-in-out;
         }
-        /* BATAL */
         .mk-btn-cancel{
             background:#ffe4e6;color:#b91c1c;border:1px solid #fbcfd2;
         }
         .mk-btn-cancel:hover{
             background:#fecdd3;color:#9f1c1c;border-color:#f9b8bf;
         }
-        /* SIMPAN */
         .mk-btn-save{
             background:#2563eb;color:white;border:1px solid #2563eb;
         }
@@ -105,27 +102,37 @@
                 <div class="mk-form-grid">
                     <div class="mk-field">
                         <label for="nim">NIM</label>
-                        <input type="text" id="nim" name="nim" value="{{ old('nim', $mahasiswa->nim) }}">
+                        <input type="text" id="nim" name="nim"
+                               value="{{ old('nim', $mahasiswa->nim) }}">
+                        @error('nim') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="nama">Nama</label>
-                        <input type="text" id="nama" name="nama" value="{{ old('nama', $mahasiswa->nama) }}">
+                        <input type="text" id="nama" name="nama"
+                               value="{{ old('nama', $mahasiswa->nama) }}">
+                        @error('nama') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" value="{{ old('email', $mahasiswa->email) }}">
+                        <input type="email" id="email" name="email"
+                               value="{{ old('email', $mahasiswa->email) }}">
+                        @error('email') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="angkatan">Angkatan</label>
-                        <input type="text" id="angkatan" name="angkatan" value="{{ old('angkatan', $mahasiswa->angkatan) }}">
+                        <input type="text" id="angkatan" name="angkatan"
+                               value="{{ old('angkatan', $mahasiswa->angkatan) }}">
+                        @error('angkatan') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="no_hp">No. HP</label>
-                        <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp', $mahasiswa->no_hp) }}">
+                        <input type="text" id="no_hp" name="no_hp"
+                               value="{{ old('no_hp', $mahasiswa->no_hp) }}">
+                        @error('no_hp') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
@@ -138,6 +145,7 @@
                                 </option>
                             @endforeach
                         </select>
+                        @error('kelas') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
                 </div>
             </div>

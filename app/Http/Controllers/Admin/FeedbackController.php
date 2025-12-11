@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;   // <-- tambahan, untuk id_user
 
 class FeedbackController extends Controller
 {
@@ -13,31 +14,26 @@ class FeedbackController extends Controller
      */
     public function index(Request $request)
     {
-        // Untuk ringkasan di sidebar (jumlah per status)
+        // Untuk ringkasan di sidebar (jumlah per status, dll)
         $allFeedbacks = Feedback::all();
 
-        // Query utama untuk tabel (pakai urutan berdasarkan id DESC, bukan created_at)
+        // Query utama untuk tabel
+        // PENTING: pakai kolom PK yang benar, yaitu id_feedback
         $displayQuery = Feedback::query()
-            ->orderByDesc('id');
+            ->orderByDesc('id_feedback');
 
         // Filter status (baru / diproses / selesai)
         if ($request->filled('status')) {
             $displayQuery->where('status', $request->status);
         }
 
-        // Filter kategori (umum / bug / fitur / lainnya)
-        if ($request->filled('category')) {
-            $displayQuery->where('category', $request->category);
-        }
-
-        // Pencarian nama / email / isi pesan
+        // Pencarian isi feedback
+        // (kalau nanti mau search nama/email user, bisa ditambah relasi ke tabel users)
         if ($request->filled('q')) {
             $search = $request->q;
 
-            $displayQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%");
+            $displayQuery->where(function ($q2) use ($search) {
+                $q2->where('isi', 'like', "%{$search}%");
             });
         }
 
@@ -47,23 +43,23 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Simpan feedback baru dari form modal.
+     * Simpan feedback baru dari form.
+     * Disesuaikan dengan struktur tabel: id_user, isi, status, ...
      */
     public function store(Request $request)
     {
+        // Di form kamu boleh tetap pakai name="message" (textarea),
+        // di sini kita map ke kolom "isi"
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255',
-            'category' => 'required|string',
-            'message'  => 'required|string',
+            'message' => 'required|string',
         ]);
 
         Feedback::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'category' => $request->category,
-            'message'  => $request->message,
-            'status'   => 'baru',
+            'id_user'       => Auth::id(),                // user yang sedang login
+            'id_notifikasi' => $request->input('id_notifikasi'), // kalau ada, boleh null
+            'isi'           => $request->message,
+            'status'        => 'baru',                    // default: baru
+            // 'tanggal'    -> otomatis pakai DEFAULT CURRENT_TIMESTAMP di DB
         ]);
 
         return redirect()
