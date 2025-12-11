@@ -3,20 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Feedback extends Model
 {
-    // Jika nama tabel kamu adalah "feedback"
     protected $table = 'feedback';
+    protected $primaryKey = 'id';
 
-    // Jika tabel TIDAK punya created_at dan updated_at
     public $timestamps = false;
 
     protected $fillable = [
-        'name',
-        'email',
-        'category',
-        'message',
+        'id_user',
+        'id_notifikasi',
+        'isi',
         'status',
+        'tanggal',
     ];
+
+    protected $casts = [
+        'tanggal' => 'datetime',
+    ];
+
+    // 🔥 relasi ke user
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
 }
