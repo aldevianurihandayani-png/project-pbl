@@ -2,67 +2,54 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
 {
-    use HasFactory;
-
-    // Jika kamu TIDAK pakai tabel 'notifications' bawaan Laravel, set table sendiri:
-    // protected $table = 'app_notifications';
+    protected $table = 'notification';          // nama tabel
+    protected $primaryKey = 'id_notifikasi';    // primary key
+    public $timestamps = true;
 
     protected $fillable = [
         'user_id',
-        'title',
-        'message',
-        'course',
+        'judul',
+        'pesan',
         'is_read',
-    ];
-
-    protected $casts = [
-        'is_read'   => 'boolean',
-        'created_at'=> 'datetime',
-        'updated_at'=> 'datetime',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    /* ---------- Scopes ---------- */
-    public function scopeForCurrent($q)
+    /**
+     * Hitung jumlah notifikasi yang belum dibaca
+     * Bisa dipanggil tanpa parameter.
+     */
+    public static function getUnreadCount($userId = null)
     {
-        return $q->where(function ($x) {
-            $x->whereNull('user_id')->orWhere('user_id', Auth::id());
-        });
+        if (!$userId && auth()->check()) {
+            $userId = auth()->id();
+        }
+
+        return self::where('user_id', $userId)
+            ->where('is_read', false)
+            ->count();
     }
 
-    public function scopeUnread($q)
+    /**
+     * Ambil list notifikasi terbaru untuk topbar.
+     * Bisa dipanggil tanpa parameter.
+     */
+    public static function getListForTopbar($userId = null, $limit = 5)
     {
-        return $q->where('is_read', false);
-    }
+        if (!$userId && auth()->check()) {
+            $userId = auth()->id();
+        }
 
-    /* ---------- Helpers ---------- */
-    public static function getUnreadCount(): int
-    {
-        return static::query()->unread()->forCurrent()->count();
-    }
-
-    public static function getListForTopbar()
-    {
-        return static::query()
-            ->unread()
-            ->forCurrent()
-            ->latest()
-            ->limit(10)
-            ->get(['id','title','created_at','user_id']);
-    }
-
-    public function markAsRead(): bool
-    {
-        return $this->update(['is_read' => true]);
+        return self::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 }
