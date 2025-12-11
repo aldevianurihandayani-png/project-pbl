@@ -137,11 +137,7 @@ Route::prefix('admins')
 
         // 🔽 TAMBAHAN: CRUD KELAS UNTUK ADMIN
         Route::resource('kelas', AdminKelasController::class)
-            ->only(['index', 'store', 'update', 'destroy']);
-
-        // 🔽 TAMBAHAN: CRUD KELAS UNTUK ADMIN
-        Route::resource('kelas', AdminKelasController::class)
-            ->only(['index', 'store', 'update', 'destroy']);
+            ->except(['show']);
 
         // FEEDBACK (resource) – nama lengkapnya: admins.feedback.index, admins.feedback.store, dst
         Route::resource('feedback', AdminFeedbackController::class)
