@@ -215,19 +215,26 @@
                         @enderror
                     </div>
 
+                    {{-- ==== DROPDOWN KELAS DINAMIS DARI TABEL KELAS ==== --}}
                     @php
                         $kelasFromQuery = request('kelas');
                         $kelasSelected = old('kelas', $kelasFromQuery);
+                        $opsiKelas = $daftarKelas ?? [];
                     @endphp
                     <div class="mk-field">
                         <label for="kelas">Kelas</label>
                         <select id="kelas" name="kelas"
                                 class="@error('kelas') is-invalid @enderror">
                             <option value="">-- Pilih Kelas --</option>
-                            @foreach (['A','B','C','D','E'] as $kls)
-                                <option value="{{ $kls }}"
-                                    {{ $kelasSelected == $kls ? 'selected' : '' }}>
-                                    {{ $kls }}
+
+                            @foreach ($opsiKelas as $item)
+                                @php
+                                    // dukung dua bentuk: collection model atau array string
+                                    $namaKelas = is_object($item) ? $item->nama_kelas : $item;
+                                @endphp
+                                <option value="{{ $namaKelas }}"
+                                    {{ $kelasSelected == $namaKelas ? 'selected' : '' }}>
+                                    {{ $namaKelas }}
                                 </option>
                             @endforeach
                         </select>
@@ -306,4 +313,4 @@
     </div>
 
 </div>
-@endsection 
+@endsection

@@ -15,6 +15,8 @@ class Kelas extends Model
     public $timestamps = false;      // karena created_at & updated_at NULL
 
     protected $fillable = [
-        'nama_kelas',
+        'nama_kelas',   // TI-3A, TI-3B, dst.
+        'semester',     // 1, 2, 3, dst.
+        'periode',      // 2024/2025 Ganjil
     ];
 }

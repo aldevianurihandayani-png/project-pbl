@@ -35,7 +35,7 @@
     <a href="{{ route('admins.kelas.index') }}"
        class="{{ request()->routeIs('admins.kelas.*') ? 'active' : '' }}">
       <i class="fa-solid fa-school"></i>
-      <span>Kelas</span>
+      <span>Akademik</span>
     </a>
 
     {{-- Dosen --}}

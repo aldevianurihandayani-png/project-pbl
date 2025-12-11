@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mahasiswa;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ class MahasiswaController extends Controller
     {
         $kelasFilter = $request->query('kelas');
 
-        // statistik per kelas
+        // statistik per kelas (berdasarkan data mahasiswa)
         $kelasStats = Mahasiswa::select(
                 'kelas',
                 DB::raw('COUNT(*) as total'),
@@ -22,8 +23,15 @@ class MahasiswaController extends Controller
                 DB::raw('MAX(angkatan) as max_angkatan')
             )
             ->groupBy('kelas')
+            ->orderBy('kelas')
             ->get()
             ->keyBy('kelas');
+
+        // 🔹 daftar kelas master dari tabel `kelas`
+        // dipakai untuk:
+        // - kartu "Data Mahasiswa per Kelas"
+        // - dropdown filter kelas di view (kalau mau)
+        $daftarKelas = Kelas::orderBy('nama_kelas')->get();
 
         // data mahasiswa kalau user pilih 1 kelas
         $mahasiswas = null;
@@ -34,30 +42,37 @@ class MahasiswaController extends Controller
         }
 
         return view('admins.mahasiswa.index', [
-            'kelasStats'  => $kelasStats,
-            'kelasFilter' => $kelasFilter,
-            'mahasiswas'  => $mahasiswas,
+            'kelasStats'   => $kelasStats,
+            'kelasFilter'  => $kelasFilter,
+            'mahasiswas'   => $mahasiswas,
+            'daftarKelas'  => $daftarKelas,   // 🔹 dikirim ke blade
         ]);
     }
 
     public function create(Request $request)
     {
-        // kalau datang dari kartu kelas -> ?kelas=A
         $kelas = $request->query('kelas');
 
-        return view('admins.mahasiswa.create', compact('kelas'));
+        // gunakan get() agar object ->nama_kelas bisa dipakai di view
+        $daftarKelas = Kelas::orderBy('nama_kelas')->get();
+
+        return view('admins.mahasiswa.create', compact('kelas', 'daftarKelas'));
     }
 
     public function store(Request $request)
     {
+        // validasi harus pakai array string
+        $daftarKelas = Kelas::orderBy('nama_kelas')
+            ->pluck('nama_kelas')
+            ->toArray();
+
         $data = $request->validate([
             'nim'      => 'required|string|max:50|unique:mahasiswas,nim',
             'nama'     => 'required|string|max:255',
             'email'    => 'nullable|email|max:255',
             'angkatan' => 'nullable|digits:4',
             'no_hp'    => 'nullable|string|max:50',
-            // kembali ke A–E saja
-            'kelas'    => 'required|in:A,B,C,D,E',
+            'kelas'    => ['required', Rule::in($daftarKelas)],
         ]);
 
         Mahasiswa::create($data);
@@ -69,12 +84,19 @@ class MahasiswaController extends Controller
 
     public function edit(Mahasiswa $mahasiswa)
     {
-        // route model binding pakai nim (sudah di model)
-        return view('admins.mahasiswa.edit', compact('mahasiswa'));
+        // dropdown kelas (pakai model supaya bisa $row->nama_kelas)
+        $daftarKelas = Kelas::orderBy('nama_kelas')->get();
+
+        return view('admins.mahasiswa.edit', compact('mahasiswa', 'daftarKelas'));
     }
 
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
+        // validasi pakai array string
+        $daftarKelas = Kelas::orderBy('nama_kelas')
+            ->pluck('nama_kelas')
+            ->toArray();
+
         $data = $request->validate([
             'nim' => [
                 'required',
@@ -86,7 +108,7 @@ class MahasiswaController extends Controller
             'email'    => 'nullable|email|max:255',
             'angkatan' => 'nullable|digits:4',
             'no_hp'    => 'nullable|string|max:50',
-            'kelas'    => 'required|in:A,B,C,D,E',
+            'kelas'    => ['required', Rule::in($daftarKelas)],
         ]);
 
         $mahasiswa->update($data);
