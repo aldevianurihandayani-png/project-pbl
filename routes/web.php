@@ -14,6 +14,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\TPK\TPKMahasiswaController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
+use App\Http\Controllers\NotificationController;
 
 // Koordinator
 use App\Http\Controllers\Koordinator\PeringkatController;
@@ -116,6 +117,15 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+/*
+|--------------------------------------------------------------------------
+| 🔔🔔 NOTIFIKASI – ROUTE
+|--------------------------------------------------------------------------
+*/
+Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
+    ->name('notif.readAll')
+    ->middleware('auth');   // ⬅️ semua user login boleh akses
 
 /*
 |--------------------------------------------------------------------------
@@ -411,4 +421,13 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::get('/create', [TPKMahasiswaController::class, 'create'])->name('create');
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
+});
+
+use App\Http\Controllers\TPK\TPKKelompokController;
+
+Route::prefix('tpk/kelompok')->name('tpk.kelompok.')->group(function () {
+    Route::get('/',        [TPKKelompokController::class, 'index'])->name('index');
+    Route::get('/create',  [TPKKelompokController::class, 'create'])->name('create');
+    Route::post('/store',  [TPKKelompokController::class, 'store'])->name('store');
+    Route::get('/hitung',  [TPKKelompokController::class, 'calculate'])->name('calculate');
 });

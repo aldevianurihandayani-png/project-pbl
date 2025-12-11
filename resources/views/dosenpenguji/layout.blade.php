@@ -114,6 +114,9 @@
     .notif-ft{padding:10px;border-top:1px solid #eef1f6;text-align:center}
     .notif-ft a{color:#0e257a;text-decoration:none;font-weight:700}
 
+    .notif-item.unread{background:#f7f9ff;}
+    .notif-item-link{text-decoration:none;color:inherit;}
+
     /* --- Robust click & layering for notifications --- */
     header.topbar{ z-index: 5000; }
     #bellBtn{ position: relative; z-index: 7000; pointer-events:auto; }
@@ -160,13 +163,8 @@
 </head>
 <body>
  @php
-  // Dummy notifikasi sementara
-  $notifications = [
-    ['icon'=>'fa-bell','title'=>'Ada rubrik baru dipublikasikan','meta'=>'2 jam lalu'],
-    ['icon'=>'fa-file-signature','title'=>'Pengumpulan penilaian kelompok 3','meta'=>'Kemarin'],
-    ['icon'=>'fa-users','title'=>'Kelompok 1 menambahkan anggota baru','meta'=>'3 hari lalu'],
-  ];
-  $notifCount = count($notifications);
+    // jumlah notif belum dibaca (dari AppServiceProvider)
+    $notifCount = $unreadCount ?? 0;
  @endphp
 
   <aside class="sidebar" id="sidebar">
@@ -227,38 +225,56 @@
       </div>
 
       <div class="top-actions" id="topActions">
-        {{-- Bell --}}
+        {{-- 🔔 Bell --}}
         <div class="bell" id="bellBtn" aria-label="Notifikasi">
           <i class="fa-solid fa-bell"></i>
-          @if($notifCount>0)
+          @if($notifCount > 0)
             <span class="dot" id="notifDot">{{ $notifCount }}</span>
           @endif
         </div>
 
-        {{-- Dropdown Notifikasi --}}
+        {{-- 🔔 Dropdown Notifikasi (dari DB) --}}
         <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
           <div class="notif-hd">
             <span>Notifikasi</span>
             <small style="color:#6c7a8a">{{ $notifCount }} baru</small>
           </div>
 
-          @if($notifCount>0)
-            <div class="notif-list" id="notifList">
-              @foreach($notifications as $n)
-                <div class="notif-item">
-                  <div class="notif-icon"><i class="fa-solid {{ $n['icon'] }}"></i></div>
-                  <div>
-                    <div style="font-weight:700;color:#0e257a">{{ $n['title'] }}</div>
-                    <div class="notif-meta">{{ $n['meta'] }}</div>
+          @forelse($notifications as $n)
+            <a href="{{ $n->link_url ?? '#' }}" class="notif-item-link">
+              <div class="notif-item {{ $n->is_read ? '' : 'unread' }}">
+                <div class="notif-icon">
+                  @if($n->type === 'tugas')
+                    <i class="fa-solid fa-clipboard-check"></i>
+                  @elseif($n->type === 'materi')
+                    <i class="fa-solid fa-book-open"></i>
+                  @else
+                    <i class="fa-solid fa-bell"></i>
+                  @endif
+                </div>
+                <div>
+                  <div style="font-weight:700;color:#0e257a">{{ $n->title }}</div>
+                  @if($n->course)
+                    <div class="notif-meta">{{ $n->course }}</div>
+                  @endif
+                  <div class="notif-meta">
+                    {{ $n->created_at?->diffForHumans() }}
                   </div>
                 </div>
-              @endforeach
-            </div>
-          @else
+              </div>
+            </a>
+          @empty
             <div class="notif-empty">Belum ada notifikasi.</div>
-          @endif
+          @endforelse
 
-          <div class="notif-ft"><a href="#">Lihat semua pemberitahuan</a></div>
+          <div class="notif-ft">
+            <form action="{{ route('notif.readAll') }}" method="POST" style="margin:0">
+              @csrf
+              <button type="submit" class="btn btn-secondary" style="font-size:12px;padding:6px 12px">
+                Tandai semua sudah dibaca
+              </button>
+            </form>
+          </div>
         </div>
 
         {{-- User Menu (pakai foto profil) --}}
