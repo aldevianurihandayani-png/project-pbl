@@ -12,6 +12,7 @@ class Feedback extends Model
 
     public $timestamps = false;
 
+    // Kolom-kolom yang boleh di-isi massal
     protected $fillable = [
         'id_user',
         'id_notifikasi',

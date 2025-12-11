@@ -115,6 +115,14 @@
       </div>
     </header>
 
+    {{-- ✅ TEST SEMENTARA NOTIF --}}
+    @auth
+      <pre style="margin: 10px; color: red; font-weight: bold;">
+UNREAD TEST: {{ $unreadCount ?? 'null' }}
+      </pre>
+    @endauth
+    {{-- END TEST --}}
+
     <div class="content">
       @yield('content')
     </div>

@@ -19,7 +19,6 @@
         .mk-actions{margin-top:24px;display:flex;justify-content:flex-end;gap:10px;}
         .mk-btn{padding-inline:22px;padding-block:8px;border-radius:999px;font-size:14px;font-weight:600;}
 
-        /* === KEMBALI: warna biru, tanpa underline === */
         .mk-back-link{
             display:inline-flex;
             align-items:center;
@@ -35,25 +34,20 @@
             color:#0f3fc0;
         }
 
-        /* === BATAL & SIMPAN gaya SIMAP === */
         .mk-btn-cancel{
             border:1px solid #fca5a5;
             background:#ffecec;
             color:#b91c1c;
-            text-decoration:none; /* hilangkan garis bawah */
+            text-decoration:none;
         }
-        .mk-btn-cancel:hover{
-            background:#ffdada;
-        }
+        .mk-btn-cancel:hover{background:#ffdada;}
 
         .mk-btn-save{
             border:none;
             background:#1554d1;
             color:#ffffff;
         }
-        .mk-btn-save:hover{
-            background:#0f3fc0;
-        }
+        .mk-btn-save:hover{background:#0f3fc0;}
     </style>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -87,58 +81,55 @@
                 </div>
 
                 @php
+                    // default kelas: dari old() -> dari variabel $kelas (kalau ada) -> dari query string ?kelas=
                     $kelasSelected = old('kelas', $kelas ?? request('kelas'));
+                    $opsiKelas = $daftarKelas ?? [];
                 @endphp
 
                 <div class="mk-form-grid">
                     <div class="mk-field">
                         <label for="nim">NIM</label>
-                        <input type="text" id="nim" name="nim"
-                               class="@error('nim') is-invalid @enderror"
-                               value="{{ old('nim') }}">
+                        <input type="text" id="nim" name="nim" value="{{ old('nim') }}">
                         @error('nim') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="nama">Nama</label>
-                        <input type="text" id="nama" name="nama"
-                               class="@error('nama') is-invalid @enderror"
-                               value="{{ old('nama') }}">
+                        <input type="text" id="nama" name="nama" value="{{ old('nama') }}">
                         @error('nama') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email"
-                               class="@error('email') is-invalid @enderror"
-                               value="{{ old('email') }}">
+                        <input type="email" id="email" name="email" value="{{ old('email') }}">
                         @error('email') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="angkatan">Angkatan</label>
-                        <input type="text" id="angkatan" name="angkatan"
-                               class="@error('angkatan') is-invalid @enderror"
-                               value="{{ old('angkatan') }}">
+                        <input type="text" id="angkatan" name="angkatan" value="{{ old('angkatan') }}">
                         @error('angkatan') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mk-field">
                         <label for="no_hp">No. HP</label>
-                        <input type="text" id="no_hp" name="no_hp"
-                               class="@error('no_hp') is-invalid @enderror"
-                               value="{{ old('no_hp') }}">
+                        <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp') }}">
                         @error('no_hp') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
+                    {{-- ===== DROPDOWN KELAS (DINAMIS DARI TABEL KELAS) ===== --}}
                     <div class="mk-field">
                         <label for="kelas">Kelas</label>
-                        <select id="kelas" name="kelas"
-                                class="@error('kelas') is-invalid @enderror">
+                        <select id="kelas" name="kelas">
                             <option value="">-- Pilih Kelas --</option>
-                            @foreach(['A','B','C','D','E'] as $kls)
-                                <option value="{{ $kls }}" {{ $kelasSelected == $kls ? 'selected' : '' }}>
-                                    {{ $kls }}
+                            @foreach($opsiKelas as $item)
+                                @php
+                                    // dukung: collection model (punya nama_kelas) atau array string biasa
+                                    $namaKelas = is_object($item) ? $item->nama_kelas : $item;
+                                @endphp
+                                <option value="{{ $namaKelas }}"
+                                    {{ $kelasSelected == $namaKelas ? 'selected' : '' }}>
+                                    {{ $namaKelas }}
                                 </option>
                             @endforeach
                         </select>
@@ -152,6 +143,7 @@
                    class="mk-btn mk-btn-cancel">
                     Batal
                 </a>
+
                 <button type="submit" class="mk-btn mk-btn-save">
                     Simpan
                 </button>

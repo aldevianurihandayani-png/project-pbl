@@ -89,19 +89,21 @@
             margin-top: 24px;
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
+            gap: 12px;
         }
         .mk-btn {
-            padding-inline: 22px;
-            padding-block: 10px;
-            border-radius: 999px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none !important;
-            transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+            padding:9px 22px;
+            border-radius:999px;
+            font-size:14px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border:none;
+            cursor:pointer;
+            text-decoration:none !important;
+            transition:.2s ease-in-out;
         }
-
-        /* Batal */
         .btn-outline-secondary.mk-btn {
             border: 1px solid #cbd5e1;
             background: #f8fafc;
@@ -112,8 +114,6 @@
             border-color: #94a3b8;
             color: #1e293b;
         }
-
-        /* Simpan Perubahan */
         .btn-primary.mk-btn {
             border: 1px solid #2563eb;
             background: #2563eb;
@@ -128,22 +128,22 @@
 
         /* link kembali di atas */
         .mk-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            text-decoration: none;
-            color: #4b5563;
-            padding: 4px 10px;
-            border-radius: 999px;
-            transition: background-color .15s ease, color .15s ease;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:14px;
+            text-decoration:none;
+            color:#4b5563;
+            padding:4px 10px;
+            border-radius:999px;
+            transition:background-color .15s ease, color .15s ease;
         }
         .mk-back-icon {
             font-size: 14px;
         }
         .mk-back-link:hover {
-            background-color: #e5edff;
-            color: #111827;
+            background-color:#e5edff;
+            color:#111827;
         }
     </style>
 
@@ -233,18 +233,24 @@
                             @enderror
                         </div>
 
+                        {{-- ==== DROPDOWN KELAS DINAMIS ==== --}}
                         <div class="mk-field">
                             <label for="kelas">Kelas</label>
                             @php
                                 $kelasSelected = old('kelas', $matakuliah->kelas);
+                                $opsiKelas = $daftarKelas ?? [];
                             @endphp
                             <select id="kelas" name="kelas"
                                     class="@error('kelas') is-invalid @enderror">
                                 <option value="">-- Pilih Kelas --</option>
-                                @foreach (['A','B','C','D','E'] as $kls)
-                                    <option value="{{ $kls }}"
-                                        {{ $kelasSelected == $kls ? 'selected' : '' }}>
-                                        {{ $kls }}
+                                @foreach ($opsiKelas as $item)
+                                    @php
+                                        // support: collection model (punya nama_kelas) ATAU array string biasa
+                                        $namaKelas = is_object($item) ? $item->nama_kelas : $item;
+                                    @endphp
+                                    <option value="{{ $namaKelas }}"
+                                        {{ $kelasSelected == $namaKelas ? 'selected' : '' }}>
+                                        {{ $namaKelas }}
                                     </option>
                                 @endforeach
                             </select>

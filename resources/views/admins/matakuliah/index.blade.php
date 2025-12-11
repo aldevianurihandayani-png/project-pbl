@@ -114,7 +114,6 @@
             background: #0f3fc0;
         }
 
-        /* ikon kaca pembesar di tombol Cari */
         .mk-search-icon {
             display: inline-flex;
             align-items: center;
@@ -216,7 +215,7 @@
             border-color: #1554d1;
         }
 
-        /* ===== DETAIL PER KELAS (kartu menyamping) ===== */
+        /* ===== DETAIL PER KELAS ===== */
         .mk-detail-wrap {
             max-width: 1120px;
             margin: 0 auto;
@@ -308,10 +307,10 @@
             padding: 5px 14px;
             font-size: 12px;
             font-weight: 600;
-            text-decoration: none !important; /* supaya "Edit" tidak bergaris bawah */
+            text-decoration: none !important;
         }
 
-        /* ========== STYLE BARU: EDIT & HAPUS ala SIMAP ========== */
+        /* tombol Edit / Hapus ala SIMAP */
         .btn-edit {
             background: #e9f0ff;
             border: 1px solid #1d4ed8;
@@ -329,11 +328,9 @@
         .btn-hapus:hover {
             background: #ffd4d4;
         }
-        /* (optional) kalau masih ada class bootstrap lama, biarkan saja tidak dipakai */
     </style>
 
     @php
-        // kalau controller belum kirim, ini backup
         $kelasFilter = $kelasFilter ?? request('kelas');
     @endphp
 
@@ -357,9 +354,11 @@
                         <label class="mk-filter-label">Kelas</label>
                         <select name="filter_kelas" class="mk-filter-select">
                             <option value="">Semua</option>
-                            @foreach (['A','B','C','D','E'] as $k)
-                                <option value="{{ $k }}" {{ request('filter_kelas') == $k ? 'selected' : '' }}>
-                                    Kelas {{ $k }}
+                            {{-- 🔹 kelas diambil dari tabel `kelas` --}}
+                            @foreach ($daftarKelas as $row)
+                                <option value="{{ $row->nama_kelas }}"
+                                    {{ request('filter_kelas') == $row->nama_kelas ? 'selected' : '' }}>
+                                    {{ $row->nama_kelas }}
                                 </option>
                             @endforeach
                         </select>
@@ -390,7 +389,6 @@
                     <div class="mk-filter-group" style="min-width:auto;">
                         <button type="submit" class="mk-filter-search-btn">
                             <span class="mk-search-icon">
-                                {{-- ikon kaca pembesar --}}
                                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                                     <circle cx="11" cy="11" r="6" fill="none" stroke="white" stroke-width="2" />
                                     <line x1="16" y1="16" x2="20" y2="20" stroke="white" stroke-width="2" stroke-linecap="round" />
@@ -409,12 +407,12 @@
             <div class="kelas-section-title">Ringkasan per Kelas</div>
 
             <div class="kelas-grid mb-4">
-                @php $daftarKelas = ['A','B','C','D','E']; @endphp
-
-                @foreach ($daftarKelas as $kls)
+                {{-- 🔹 kartu kelas juga dari tabel `kelas` --}}
+                @foreach ($daftarKelas as $row)
                     @php
-                        $stat = $kelasStats[$kls] ?? null;
-                        $total = $stat->total ?? 0;
+                        $namaKelas    = $row->nama_kelas;
+                        $stat         = $kelasStats[$namaKelas] ?? null;
+                        $total        = $stat->total ?? 0;
                         $rangeSemester = $stat
                             ? ($stat->min_semester == $stat->max_semester
                                 ? 'Semester '.$stat->min_semester
@@ -422,10 +420,10 @@
                             : '-';
                     @endphp
 
-                    <a href="{{ route('admins.matakuliah.index', ['kelas' => $kls]) }}" class="kelas-card-link">
+                    <a href="{{ route('admins.matakuliah.index', ['kelas' => $namaKelas]) }}" class="kelas-card-link">
                         <div class="kelas-card">
                             <div class="kelas-card-inner">
-                                <div class="kelas-name mb-1">Kelas {{ $kls }}</div>
+                                <div class="kelas-name mb-1">{{ $namaKelas }}</div>
 
                                 <div class="kelas-meta mb-1">
                                     Jumlah mata kuliah:
@@ -462,11 +460,10 @@
                 <div class="d-flex justify-content-between align-items-end mb-3 mt-1">
                     <div>
                         <h2 class="mk-page-title mb-1" style="font-size:18px; color:#0b1f4d;">
-                            Daftar Mata Kuliah — Kelas {{ $kelasFilter }}
+                            Daftar Mata Kuliah — {{ $kelasFilter }}
                         </h2>
-                        {{-- hanya teks deskripsi, TIDAK ada link "Kelas B" biru lagi --}}
-                        <p class="mk-filter-label mb-0" style="margin-bottom:0;">
-                            Data mata kuliah terdaftar di kelas {{ $kelasFilter }}.
+                        <p class="mk-filter-label mb-0">
+                            Data mata kuliah terdaftar di {{ $kelasFilter }}.
                         </p>
                     </div>
                     <div class="mk-class-pill">
@@ -479,7 +476,7 @@
 
                 @if ($matakuliahs->count() == 0)
                     <div class="alert alert-info mt-3">
-                        Belum ada data mata kuliah untuk kelas {{ $kelasFilter }}.
+                        Belum ada data mata kuliah untuk {{ $kelasFilter }}.
                     </div>
                 @else
                     <div class="mk-mk-grid">

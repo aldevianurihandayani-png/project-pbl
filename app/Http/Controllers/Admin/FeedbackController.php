@@ -14,7 +14,7 @@ class FeedbackController extends Controller
      */
     public function index(Request $request)
     {
-        // Untuk ringkasan di sidebar (jumlah per status)
+        // Untuk ringkasan di sidebar (jumlah per status, dll)
         $allFeedbacks = Feedback::all();
 
         // Query utama untuk tabel
@@ -58,6 +58,8 @@ class FeedbackController extends Controller
      */
     public function store(Request $request)
     {
+        // Di form kamu boleh tetap pakai name="message" (textarea),
+        // di sini kita map ke kolom "isi"
         $request->validate([
             'message'  => 'required|string',
         ]);
