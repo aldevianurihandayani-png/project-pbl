@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
 {
@@ -12,10 +14,8 @@ class Notification extends Model
 
     protected $fillable = [
         'user_id',
-        'type',      // 'materi', 'tugas', 'info'
-        'title',
-        'course',
-        'link_url',
+        'judul',
+        'pesan',
         'is_read',
     ];
 
@@ -25,32 +25,33 @@ class Notification extends Model
         'updated_at' => 'datetime',
     ];
 
-    /* RELASI */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /* SCOPES */
-    public function scopeForCurrent($q)
+    /* ======================================
+     * SCOPE
+     * ====================================== */
+
+    // WAJIB: notif global + notif user
+    public function scopeForCurrent($query)
     {
-        return $q->where(function ($x) {
-            $x->whereNull('user_id')
-              ->orWhere('user_id', Auth::id());
+        return $query->where(function ($x) {
+            $x->whereNull('user_id')               // notif global
+              ->orWhere('user_id', Auth::id());    // notif per-user
         });
     }
 
-    /**
-     * Ambil list notifikasi terbaru untuk topbar.
-     * Bisa dipanggil tanpa parameter.
-     */
-    public static function getListForTopbar($userId = null, $limit = 5)
+    public function scopeUnread($query)
     {
-        if (!$userId && auth()->check()) {
-            $userId = auth()->id();
-        }
+        return $query->where('is_read', false);
+    }
 
-    /* HELPERS */
+    /* ======================================
+     * HELPERS
+     * ====================================== */
+
     public static function getUnreadCount(): int
     {
         if (!Auth::check()) return 0;
@@ -71,10 +72,8 @@ class Notification extends Model
             ->limit($limit)
             ->get([
                 'id',
-                'type',
-                'title',
-                'course',
-                'link_url',
+                'judul',
+                'pesan',
                 'is_read',
                 'created_at',
                 'user_id',
