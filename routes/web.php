@@ -416,7 +416,6 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
-<<<<<<< HEAD
 
 use App\Http\Controllers\TPK\TPKKelompokController;
 
@@ -426,5 +425,3 @@ Route::prefix('tpk/kelompok')->name('tpk.kelompok.')->group(function () {
     Route::post('/store',  [TPKKelompokController::class, 'store'])->name('store');
     Route::get('/hitung',  [TPKKelompokController::class, 'calculate'])->name('calculate');
 });
-=======
->>>>>>> 6478f3f8fc0b0c292f0fb30e51841b2067123a51
