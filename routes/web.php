@@ -190,15 +190,22 @@ Route::prefix('dosen')
         Route::resource('milestone', DosenMilestoneController::class)
             ->only(['index', 'edit', 'update']);
 
+        // resource utama logbook (index, show, edit, dll)
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
+        // toggle status logbook
         Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
             ->name('logbook.toggleStatus');
+
+        // 🔥 route khusus untuk update nilai logbook
+        Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
+            ->name('logbook.nilai.update');
 
         // Halaman detail kelas (TI-3E, TI-3D, dst)
         Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
             ->name('kelompok.kelas');
     });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -406,4 +413,10 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
+
+Route::resource('logbooks', LogbookController::class);
+
+// 🔥 route kirim komentar dari mahasiswa
+Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
+    ->name('logbooks.feedback.store');
 
