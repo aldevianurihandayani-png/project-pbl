@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
 {
@@ -16,28 +17,25 @@ class FeedbackController extends Controller
         // Untuk ringkasan di sidebar (jumlah per status)
         $allFeedbacks = Feedback::all();
 
-        // Query utama untuk tabel (pakai urutan berdasarkan id DESC, bukan created_at)
-        $displayQuery = Feedback::query()
-            ->orderByDesc('id');
+        // Query utama untuk tabel
+        $displayQuery = Feedback::with('user')   // relasi ke tabel users
+            ->orderByDesc('tanggal');           // urut dari tanggal terbaru
 
         // Filter status (baru / diproses / selesai)
-        if ($request->filled('status')) {
+        if ($request->filled('status') && $request->status !== 'semua') {
             $displayQuery->where('status', $request->status);
         }
 
-        // Filter kategori (umum / bug / fitur / lainnya)
-        if ($request->filled('category')) {
-            $displayQuery->where('category', $request->category);
-        }
-
-        // Pencarian nama / email / isi pesan
+        // Pencarian: nama user / email user / isi feedback
         if ($request->filled('q')) {
             $search = $request->q;
 
             $displayQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%");
+                $q->where('isi', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -47,23 +45,29 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Simpan feedback baru dari form modal.
+     * Simpan feedback baru dari form modal (versi admin).
+     *
+     * Di DB sekarang hanya ada:
+     *  - id_user
+     *  - id_notifikasi
+     *  - isi
+     *  - status
+     *  - tanggal
+     *
+     * Jadi input yang benar-benar dipakai hanya "message".
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255',
-            'category' => 'required|string',
             'message'  => 'required|string',
         ]);
 
         Feedback::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'category' => $request->category,
-            'message'  => $request->message,
-            'status'   => 'baru',
+            'id_user'       => Auth::id(), // admin yang sedang login
+            'id_notifikasi' => null,       // tidak terkait logbook tertentu
+            'isi'           => $request->message,
+            'status'        => 'baru',
+            'tanggal'       => now(),
         ]);
 
         return redirect()
