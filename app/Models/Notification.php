@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
 {
@@ -12,10 +14,8 @@ class Notification extends Model
 
     protected $fillable = [
         'user_id',
-        'type',      // 'materi', 'tugas', 'info'
-        'title',
-        'course',
-        'link_url',
+        'judul',
+        'pesan',
         'is_read',
     ];
 
@@ -25,13 +25,17 @@ class Notification extends Model
         'updated_at' => 'datetime',
     ];
 
-    /* RELASI */
+    /* ======================================
+     * RELASI
+     * ====================================== */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /* SCOPES */
+    /* ======================================
+     * SCOPES
+     * ====================================== */
     public function scopeForCurrent($q)
     {
         return $q->where(function ($x) {
@@ -40,17 +44,14 @@ class Notification extends Model
         });
     }
 
-    /**
-     * Ambil list notifikasi terbaru untuk topbar.
-     * Bisa dipanggil tanpa parameter.
-     */
-    public static function getListForTopbar($userId = null, $limit = 5)
+    public function scopeUnread($q)
     {
-        if (!$userId && auth()->check()) {
-            $userId = auth()->id();
-        }
+        return $q->where('is_read', false);
+    }
 
-    /* HELPERS */
+    /* ======================================
+     * HELPERS
+     * ====================================== */
     public static function getUnreadCount(): int
     {
         if (!Auth::check()) return 0;
@@ -71,16 +72,17 @@ class Notification extends Model
             ->limit($limit)
             ->get([
                 'id',
-                'type',
-                'title',
-                'course',
-                'link_url',
+                'judul',
+                'pesan',
                 'is_read',
                 'created_at',
                 'user_id',
             ]);
     }
 
+    /* ======================================
+     * ACTIONS
+     * ====================================== */
     public function markAsRead(): bool
     {
         return $this->update(['is_read' => true]);

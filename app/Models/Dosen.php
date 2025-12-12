@@ -14,7 +14,6 @@ class Dosen extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    // 🔥 penting! daftar kolom yang boleh diisi massal:
     protected $fillable = [
         'nama_dosen',
         'jabatan',
@@ -22,7 +21,14 @@ class Dosen extends Model
         'no_telp',
     ];
 
-    // (opsional) kalau pakai relasi ke mata kuliah:
+    // 🔥 RELASI: Dosen → Mahasiswa (1 dosen membimbing banyak mahasiswa)
+    public function mahasiswas()
+    {
+        return $this->hasMany(Mahasiswa::class, 'id_dosen', 'id_dosen');
+        // kolom 'id_dosen' harus ada di tabel mahasiswas
+    }
+
+    // relasi ke mata kuliah (opsional)
     public function mataKuliah()
     {
         return $this->hasMany(MataKuliah::class, 'id_dosen', 'id_dosen');
