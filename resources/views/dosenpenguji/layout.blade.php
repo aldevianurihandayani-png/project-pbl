@@ -241,29 +241,26 @@
           </div>
 
           @forelse($notifications as $n)
-            <a href="{{ $n->link_url ?? '#' }}" class="notif-item-link">
-              <div class="notif-item {{ $n->is_read ? '' : 'unread' }}">
-                <div class="notif-icon">
-                  @if($n->type === 'tugas')
-                    <i class="fa-solid fa-clipboard-check"></i>
-                  @elseif($n->type === 'materi')
-                    <i class="fa-solid fa-book-open"></i>
-                  @else
-                    <i class="fa-solid fa-bell"></i>
-                  @endif
-                </div>
-                <div>
-                  <div style="font-weight:700;color:#0e257a">{{ $n->title }}</div>
-                  @if($n->course)
-                    <div class="notif-meta">{{ $n->course }}</div>
-                  @endif
-                  <div class="notif-meta">
-                    {{ $n->created_at?->diffForHumans() }}
-                  </div>
-                </div>
-              </div>
-            </a>
-          @empty
+    <div class="notif-item {{ $n->is_read ? '' : 'unread' }}">
+      <div class="notif-icon">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+
+      <div>
+        <div style="font-weight:700;color:#0e257a">
+          {{ $n->judul }}
+        </div>
+
+        @if($n->pesan)
+          <div class="notif-meta">{{ $n->pesan }}</div>
+        @endif
+
+        <div class="notif-meta">
+          {{ $n->created_at?->diffForHumans() }}
+        </div>
+      </div>
+    </div>
+@empty
             <div class="notif-empty">Belum ada notifikasi.</div>
           @endforelse
 

@@ -17,16 +17,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
+
             if (Auth::check()) {
 
-                $userId = Auth::id();
-
-                // aman walaupun dipanggil tanpa parameter di model
-                $unreadCount   = Notification::getUnreadCount($userId);
-                $notifications = Notification::getListForTopbar($userId, 5);
+                // Model kita TIDAK menerima parameter
+                $unreadCount   = Notification::getUnreadCount();
+                $notifications = Notification::getListForTopbar(5);
 
                 $view->with(compact('unreadCount', 'notifications'));
             }
+
         });
     }
 }

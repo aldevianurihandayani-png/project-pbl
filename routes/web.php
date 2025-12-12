@@ -122,12 +122,21 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| 🔔🔔 NOTIFIKASI – ROUTE
+/*
+|--------------------------------------------------------------------------
+| 🔔 NOTIFIKASI – ROUTE
 |--------------------------------------------------------------------------
 */
+
+// Halaman daftar notifikasi
+Route::get('/notif', [NotificationController::class, 'index'])
+    ->name('notif.index')
+    ->middleware('auth');
+
+// Tandai semua notifikasi sebagai sudah dibaca (POST)
 Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
     ->name('notif.readAll')
-    ->middleware('auth');   // ⬅️ semua user login boleh akses
+    ->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------

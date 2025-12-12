@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
@@ -38,9 +39,9 @@ class Notification extends Model
      * ====================================== */
     public function scopeForCurrent($q)
     {
-        return $q->where(function ($x) {
-            $x->whereNull('user_id')
-              ->orWhere('user_id', Auth::id());
+        return $query->where(function ($x) {
+            $x->whereNull('user_id')               // notif global
+              ->orWhere('user_id', Auth::id());    // notif per-user
         });
     }
 
