@@ -161,8 +161,7 @@ Route::prefix('admins')
             ->except(['show']);
 
         // FEEDBACK (resource) – nama lengkapnya: admins.feedback.index, admins.feedback.store, dst
-        Route::resource('feedback', AdminFeedbackController::class)
-            ->names('feedback');
+        Route::resource('feedback', AdminFeedbackController::class);
 
         // Route khusus untuk update status feedback (baru/diproses/selesai)
         Route::patch('feedback/{feedback}/status', [AdminFeedbackController::class, 'updateStatus'])

@@ -312,22 +312,69 @@
 
         /* tombol Edit / Hapus ala SIMAP */
         .btn-edit {
-            background: #e9f0ff;
-            border: 1px solid #1d4ed8;
-            color: #1d4ed8;
+            background: #1554d1;
+            border: 1px solid #1554d1;
+            color: #ffffff !important;
         }
         .btn-edit:hover {
-            background: #dbe8ff;
+            background: #0f3fc0;
+            border-color: #0f3fc0;
+            color: #ffffff !important;
         }
 
         .btn-hapus {
-            background: #ffe8e8;
+            background: #ffffff;
             border: 1px solid #dc2626;
-            color: #b91c1c;
+            color: #dc2626 !important;
         }
         .btn-hapus:hover {
-            background: #ffd4d4;
+            background: rgba(220, 38, 38, 0.08);
+            color: #dc2626 !important;
         }
+
+        /* ================== RAPIN HASIL PENCARIAN (TAMBAHAN) ================== */
+        .mk-search-wrap {
+            margin-top: 14px;
+            padding: 14px 16px 16px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #dde5ff;
+            box-shadow: 0 14px 32px rgba(15,23,42,.05);
+        }
+        .mk-search-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .mk-search-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0b1f4d;
+            margin: 0;
+        }
+        .mk-search-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1554d1;
+            background: #edf2ff;
+            border: 1px solid #cfd7ff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .mk-search-note {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .mk-search-pagination {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+        }
+        /* ================== END TAMBAHAN ================== */
     </style>
 
     @php
@@ -446,6 +493,79 @@
                     </a>
                 @endforeach
             </div>
+
+            {{-- ✅✅✅ TAMBAHAN: HASIL PENCARIAN MATA KULIAH (DIRAPIKAN) ✅✅✅ --}}
+            @if(isset($hasSearch) && $hasSearch)
+
+                <div class="mk-search-wrap">
+                    <div class="mk-search-head">
+                        <h3 class="mk-search-title">Hasil Pencarian Mata Kuliah</h3>
+                        <div class="mk-search-badge">
+                            {{ $matakuliahs->total() ?? $matakuliahs->count() }} data
+                        </div>
+                    </div>
+
+                    <div class="mk-search-note">
+                        Kata kunci: <strong>{{ request('q') }}</strong>
+                        @if(request('filter_kelas')) • Kelas: <strong>{{ request('filter_kelas') }}</strong> @endif
+                        @if(request('filter_semester')) • Semester: <strong>{{ request('filter_semester') }}</strong> @endif
+                    </div>
+
+                    @if($matakuliahs->count() == 0)
+                        <div class="alert alert-info mt-3 mb-0">
+                            Tidak ada mata kuliah yang cocok dengan pencarian.
+                        </div>
+                    @else
+                        <div class="mk-mk-grid mt-3">
+                            @foreach ($matakuliahs as $mk)
+                                <div class="mk-mk-card">
+                                    <div class="mk-mk-inner">
+                                        <div class="mk-mk-code">{{ $mk->kode_mk }}</div>
+                                        <div class="mk-mk-name">{{ $mk->nama_mk }}</div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            <span>Kelas: <strong>{{ $mk->kelas ?? '-' }}</strong></span>
+                                        </div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            <span>SKS: {{ $mk->sks }}</span>
+                                            <span>Semester: {{ $mk->semester }}</span>
+                                        </div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            Dosen pengampu:
+                                            <strong>{{ $mk->nama_dosen ?? '-' }}</strong>
+                                        </div>
+
+                                        <div class="mk-mk-footer">
+                                            <a href="{{ route('admins.matakuliah.edit', $mk->kode_mk) }}"
+                                               class="mk-btn-sm btn-edit">
+                                                Edit
+                                            </a>
+
+                                            <form action="{{ route('admins.matakuliah.destroy', $mk->kode_mk) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Yakin ingin menghapus mata kuliah ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="mk-btn-sm btn-hapus">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mk-search-pagination">
+                            {{ $matakuliahs->withQueryString()->links() }}
+                        </div>
+                    @endif
+                </div>
+
+            @endif
+            {{-- ✅✅✅ END TAMBAHAN ✅✅✅ --}}
 
         {{-- ================== MODE 2: DETAIL PER KELAS ================== --}}
         @else

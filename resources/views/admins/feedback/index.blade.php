@@ -237,7 +237,9 @@
                                     <a href="#" class="btn btn-success btn-sm mr-1" title="Balas Feedback">
                                         <i class="fa-solid fa-reply"></i> Balas
                                     </a>
-                                    <form action="{{ route('admins.feedback.destroy', $feedback) }}" method="POST" style="display: inline;" onsubmit="return confirm('Anda yakin ingin menghapus feedback ini?');">
+
+                                    {{-- ✅ FIX CUMA DI BARIS ACTION INI --}}
+                                    <form action="{{ route('admins.feedback.destroy', ['feedback' => $feedback->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Anda yakin ingin menghapus feedback ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm" title="Hapus Feedback">

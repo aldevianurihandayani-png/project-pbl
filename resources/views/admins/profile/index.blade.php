@@ -1,5 +1,8 @@
-@include('admins.partials.header', ['title' => 'Profil Administrator'])
+@extends('layouts.admin')
 
+@section('page_title', 'Profil Administrator')
+
+@section('content')
 <div class="card shadow mb-4">
     <div class="card-header">
         <h6 class="m-0 font-weight-bold text-primary">Informasi Profil</h6>
@@ -11,7 +14,7 @@
             </div>
         @endif
 
-                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admins.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="form-group d-flex align-items-center">
@@ -90,5 +93,4 @@
         </form>
     </div>
 </div>
-
-@include('admins.partials.footer')
+@endsection

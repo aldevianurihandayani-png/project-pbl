@@ -16,13 +16,58 @@ class MataKuliahController extends Controller
     {
         $kelasFilter = $request->query('kelas'); // ?kelas=Kelas A / Kelas B / dll
 
+        // ==============================
+        // ✅ TAMBAHAN: deteksi mode pencarian (overview)
+        // ==============================
+        $hasSearch = $request->filled('q') || $request->filled('filter_kelas') || $request->filled('filter_semester');
+
         // data tabel di bawah (detail per kelas)
         $matakuliahs = collect();
+
+        // ==============================
+        // MODE 2: DETAIL PER KELAS (tetap seperti punyamu)
+        // ==============================
         if ($kelasFilter) {
             $matakuliahs = MataKuliah::where('kelas', $kelasFilter)
                 ->orderBy('semester')
                 ->orderBy('kode_mk')
                 ->paginate(10)
+                ->withQueryString();
+        }
+
+        // ==============================
+        // ✅ TAMBAHAN: MODE 1 OVERVIEW + SEARCH RESULT
+        // Kalau tidak sedang lihat detail kelas (?kelas=...), dan user menekan cari/filter
+        // maka tampilkan hasil pencarian ke view lewat $matakuliahs (paginator)
+        // ==============================
+        if (!$kelasFilter && $hasSearch) {
+            $query = MataKuliah::query();
+
+            // filter kelas dari dropdown (overview)
+            if ($request->filled('filter_kelas')) {
+                $query->where('kelas', $request->filter_kelas);
+            }
+
+            // filter semester dari dropdown (overview)
+            if ($request->filled('filter_semester')) {
+                $query->where('semester', $request->filter_semester);
+            }
+
+            // cari kode/nama
+            if ($request->filled('q')) {
+                $q = $request->q;
+                $query->where(function ($w) use ($q) {
+                    $w->where('kode_mk', 'like', "%{$q}%")
+                      ->orWhere('nama_mk', 'like', "%{$q}%");
+                });
+            }
+
+            // paginate hasil pencarian
+            $matakuliahs = $query
+                ->orderBy('kelas')
+                ->orderBy('semester')
+                ->orderBy('kode_mk')
+                ->paginate(12)
                 ->withQueryString();
         }
 
@@ -49,6 +94,9 @@ class MataKuliahController extends Controller
             'kelasStats'   => $kelasStats,
             'kelasFilter'  => $kelasFilter,
             'daftarKelas'  => $daftarKelas,   // <= penting
+
+            // ✅ TAMBAHAN: biar view bisa tau kapan harus nampilin hasil cari
+            'hasSearch'    => $hasSearch,
         ]);
     }
 
