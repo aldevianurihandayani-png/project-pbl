@@ -52,7 +52,7 @@
             </tr>
         @endforeach
 
-        @if($daftarKelas->isEmpty())
+        @if(empty($daftarKelas) || count($daftarKelas) === 0)
             <tr>
                 <td colspan="5">Belum ada data kelas.</td>
             </tr>

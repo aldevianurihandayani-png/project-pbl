@@ -6,10 +6,24 @@
 @section('content')
 <div class="container-fluid">
 
+    @php
+        // ✅ biar aman kalau $matakuliah dianggap array oleh analyzer
+        $mkKelas    = data_get($matakuliah, 'kelas');
+        $mkKode     = data_get($matakuliah, 'kode_mk');
+        $mkNama     = data_get($matakuliah, 'nama_mk');
+        $mkSks      = data_get($matakuliah, 'sks');
+        $mkSemester = data_get($matakuliah, 'semester');
+        $mkIdDosen  = data_get($matakuliah, 'id_dosen');
+
+        // ✅ hilangkan warning foreach (anggap bisa null)
+        $opsiKelas = collect($daftarKelas ?? []);
+        $opsiDosen = collect($dosens ?? []);
+    @endphp
+
     {{-- HEADER: KEMBALI + JUDUL --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('admins.matakuliah.index', ['kelas' => request('kelas', $matakuliah->kelas)]) }}"
+            <a href="{{ route('admins.matakuliah.index', ['kelas' => request('kelas', $mkKelas)]) }}"
                class="mk-back-link">
                 <span class="mk-back-icon">←</span>
                 <span>Kembali</span>
@@ -160,7 +174,7 @@
     </style>
 
     <div class="mk-form-card">
-        <form action="{{ route('admins.matakuliah.update', $matakuliah->kode_mk) }}" method="POST">
+        <form action="{{ route('admins.matakuliah.update', $mkKode) }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -175,7 +189,7 @@
                     <div class="mk-field">
                         <label for="kode_mk">Kode Mata Kuliah</label>
                         <input type="text" id="kode_mk" name="kode_mk"
-                               value="{{ $matakuliah->kode_mk }}"
+                               value="{{ $mkKode }}"
                                disabled>
                         <small>Kode tidak dapat diubah.</small>
                     </div>
@@ -184,7 +198,7 @@
                         <label for="nama_mk">Nama Mata Kuliah</label>
                         <input type="text" id="nama_mk" name="nama_mk"
                                class="@error('nama_mk') is-invalid @enderror"
-                               value="{{ old('nama_mk', $matakuliah->nama_mk) }}">
+                               value="{{ old('nama_mk', $mkNama) }}">
                         @error('nama_mk')
                             <div class="mk-invalid">{{ $message }}</div>
                         @enderror
@@ -194,7 +208,7 @@
                         <label for="sks">SKS</label>
                         <input type="number" id="sks" name="sks" min="1"
                                class="@error('sks') is-invalid @enderror"
-                               value="{{ old('sks', $matakuliah->sks) }}">
+                               value="{{ old('sks', $mkSks) }}">
                         @error('sks')
                             <div class="mk-invalid">{{ $message }}</div>
                         @enderror
@@ -204,7 +218,7 @@
                         <label for="semester">Semester</label>
                         <input type="number" id="semester" name="semester" min="1"
                                class="@error('semester') is-invalid @enderror"
-                               value="{{ old('semester', $matakuliah->semester) }}">
+                               value="{{ old('semester', $mkSemester) }}">
                         @error('semester')
                             <div class="mk-invalid">{{ $message }}</div>
                         @enderror
@@ -212,8 +226,7 @@
 
                     {{-- ==== DROPDOWN KELAS DINAMIS DARI TABEL KELAS ==== --}}
                     @php
-                        $kelasSelected = old('kelas', $matakuliah->kelas);
-                        $opsiKelas = $daftarKelas ?? [];
+                        $kelasSelected = old('kelas', $mkKelas);
                     @endphp
                     <div class="mk-field">
                         <label for="kelas">Kelas</label>
@@ -223,7 +236,7 @@
 
                             @foreach ($opsiKelas as $item)
                                 @php
-                                    $namaKelas = is_object($item) ? $item->nama_kelas : $item;
+                                    $namaKelas = is_object($item) ? data_get($item, 'nama_kelas') : $item;
                                 @endphp
                                 <option value="{{ $namaKelas }}"
                                     {{ $kelasSelected == $namaKelas ? 'selected' : '' }}>
@@ -246,8 +259,7 @@
 
                 <div class="mk-form-grid">
                     @php
-                        $dosenSelected = old('id_dosen', $matakuliah->id_dosen);
-                        $opsiDosen = $dosens ?? [];
+                        $dosenSelected = old('id_dosen', $mkIdDosen);
                     @endphp
 
                     <div class="mk-field" style="grid-column: 1 / -1;">
@@ -259,9 +271,14 @@
                             </option>
 
                             @foreach ($opsiDosen as $dosen)
-                                <option value="{{ $dosen->id_dosen }}"
-                                    {{ (string)$dosenSelected === (string)$dosen->id_dosen ? 'selected' : '' }}>
-                                    {{ $dosen->nama_dosen }}{{ $dosen->nip ? ' ('.$dosen->nip.')' : '' }}
+                                @php
+                                    $idDosen  = data_get($dosen, 'id_dosen');
+                                    $nama     = data_get($dosen, 'nama_dosen');
+                                    $nip      = data_get($dosen, 'nip');
+                                @endphp
+                                <option value="{{ $idDosen }}"
+                                    {{ (string)$dosenSelected === (string)$idDosen ? 'selected' : '' }}>
+                                    {{ $nama }}{{ $nip ? ' ('.$nip.')' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -275,7 +292,7 @@
 
             {{-- TOMBOL AKSI --}}
             <div class="mk-actions">
-                <a href="{{ route('admins.matakuliah.index', ['kelas' => $matakuliah->kelas]) }}"
+                <a href="{{ route('admins.matakuliah.index', ['kelas' => $mkKelas]) }}"
                    class="btn btn-outline-secondary mk-btn">
                     Batal
                 </a>

@@ -215,7 +215,7 @@
                     @php
                         $kelasFromQuery = request('kelas');
                         $kelasSelected = old('kelas', $kelasFromQuery);
-                        $opsiKelas = $daftarKelas ?? [];
+                        $opsiKelas = collect($daftarKelas ?? []);
                     @endphp
                     <div class="mk-field">
                         <label for="kelas">Kelas</label>
@@ -250,7 +250,7 @@
                 <div class="mk-form-grid">
                     @php
                         $dosenSelected = old('id_dosen');
-                        $opsiDosen = $dosens ?? [];
+                        $opsiDosen = collect($dosens ?? []);
                     @endphp
 
                     <div class="mk-field" style="grid-column: 1 / -1;">
