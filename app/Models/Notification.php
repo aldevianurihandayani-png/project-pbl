@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
@@ -26,18 +25,17 @@ class Notification extends Model
         'updated_at' => 'datetime',
     ];
 
-    /* ======================================
-     * RELASI
-     * ====================================== */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
     /* ======================================
-     * SCOPES
+     * SCOPE
      * ====================================== */
-    public function scopeForCurrent($q)
+
+    // WAJIB: notif global + notif user
+    public function scopeForCurrent($query)
     {
         return $query->where(function ($x) {
             $x->whereNull('user_id')               // notif global
@@ -45,14 +43,15 @@ class Notification extends Model
         });
     }
 
-    public function scopeUnread($q)
+    public function scopeUnread($query)
     {
-        return $q->where('is_read', false);
+        return $query->where('is_read', false);
     }
 
     /* ======================================
      * HELPERS
      * ====================================== */
+
     public static function getUnreadCount(): int
     {
         if (!Auth::check()) return 0;
@@ -81,9 +80,6 @@ class Notification extends Model
             ]);
     }
 
-    /* ======================================
-     * ACTIONS
-     * ====================================== */
     public function markAsRead(): bool
     {
         return $this->update(['is_read' => true]);
