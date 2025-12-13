@@ -25,6 +25,7 @@
         font-weight: 600;
         color: #0b1d54;
     }
+
     .page-header { margin-bottom: 24px; }
     .page-header h1 { font-size: 28px; font-weight: 700; color: var(--primary-color); margin: 0 0 8px 0; }
     .page-header p { font-size: 16px; color: #6c757d; margin: 0; }
@@ -32,31 +33,46 @@
     .filter-card-header h2 { font-size: 18px; font-weight: 600; margin: 0; }
     .add-feedback-btn { background-color: var(--secondary-color); color: var(--white-color); border: none; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease; text-decoration: none; }
     .add-feedback-btn:hover { background-color: #2980b9; }
+    .feedback-container {
+        display: flex;
+        gap: 24px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .main-content { flex-grow: 1; }
+    .sidebar-summary { flex-basis: 300px; min-width: 300px; }
+    .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid #e0e0e0;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
     .filter-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; align-items: flex-end; }
     .form-group { display: flex; flex-direction: column; }
     .form-group label { font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #495057; }
-    .form-control { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
-    .btn-primary { background-color: var(--primary-color); color: var(--white-color); border: none; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease; width: 100%; }
+    .form-control { padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+    .btn-primary { background-color: #2c3e50; color: #ffffff; border: none; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease; width: 100%; }
     .btn-primary:hover { background-color: #1e2b37; }
     .feedback-table table { width: 100%; border-collapse: collapse; }
-    .feedback-table th, .feedback-table td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+    .feedback-table th, .feedback-table td { padding: 16px; text-align: left; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
     .feedback-table th { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #6c757d; }
     .feedback-table td { font-size: 14px; }
-    .info-cell .name { font-weight: 600; color: var(--primary-color); }
+    .info-cell .name { font-weight: 600; color: #2c3e50; }
     .info-cell .email, .info-cell .date, .info-cell .category { font-size: 12px; color: #6c757d; display: block; }
     .info-cell .category { font-weight: 500; }
-    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; color: var(--white-color); text-transform: capitalize; }
-    .status-baru { background-color: var(--info-color); }
-    .status-diproses { background-color: var(--warning-color); color: #333; }
-    .status-selesai { background-color: var(--success-color); }
-    .summary-card .summary-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; color: #ffffff; text-transform: capitalize; }
+    .status-baru { background-color: #17a2b8; }
+    .status-diproses { background-color: #ffc107; color: #333; }
+    .status-selesai { background-color: #28a745; }
+    .summary-card .summary-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #e0e0e0; }
     .summary-card .summary-item:last-child { border-bottom: none; }
     .summary-card .summary-item .label { font-weight: 600; }
-    .summary-card .summary-item .count { font-size: 20px; font-weight: 700; color: var(--secondary-color); }
+    .summary-card .summary-item .count { font-size: 20px; font-weight: 700; color: #3498db; }
     .summary-card h3 { font-size: 18px; font-weight: 600; margin-top: 0; margin-bottom: 10px; }
     .quick-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .btn-quick-action { text-align: left; padding: 12px 16px; border: 1px solid var(--border-color); background-color: #fdfdfd; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
-    .btn-quick-action:hover { background-color: var(--background-color); color: var(--primary-color); border-color: var(--secondary-color); }
+    .btn-quick-action { text-align: left; padding: 12px 16px; border: 1px solid #e0e0e0; background-color: #fdfdfd; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+    .btn-quick-action:hover { background-color: #f4f6f9; color: #2c3e50; border-color: #3498db; }
     @media (max-width: 1200px) {
         .feedback-container { flex-direction: column-reverse; }
         .sidebar-summary { flex-basis: auto; min-width: 0; }
@@ -65,14 +81,14 @@
 
     /* Modal Styles */
     .modal {
-      display: none; 
-      position: fixed; 
-      z-index: 1000; 
+      display: none;
+      position: fixed;
+      z-index: 1000;
       left: 0;
       top: 0;
-      width: 100%; 
-      height: 100%; 
-      overflow: auto; 
+      width: 100%;
+      height: 100%;
+      overflow: auto;
       background-color: rgba(0,0,0,0.5);
       padding-top: 60px;
     }
@@ -101,7 +117,7 @@
     .modal-header h2 {
       margin: 0;
       font-size: 20px;
-      color: var(--primary-color);
+      color: #2c3e50;
     }
     .close-btn {
       color: #aaa;
@@ -122,80 +138,24 @@
     .modal-body textarea {
         resize: vertical;
     }
-  </style>
-</head>
-<body>
+</style>
 
-  <!-- ========== SIDEBAR ========== -->
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="brand-badge">SI</div>
-      <div class="brand-title">
-        <strong>SIMAP</strong>
-        <small>Politala</small>
-      </div>
-    </div>
+<div class="page">
 
-    <div class="menu">
-      <div class="nav-title">Menu</div>
-      <a href="{{ url('/admins/dashboard') }}"><i class="fa-solid fa-house"></i>Dashboard</a>
-      <a href="{{ url('/admins/matakuliah') }}"><i class="fa-solid fa-user-graduate"></i>Mata Kuliah</a>
-      <a href="{{ route('admins.feedback.index') }}" class="active"><i class="fa-solid fa-comments"></i>Feedback</a>
-      <a href="#"><i class="fa-solid fa-bell"></i>Notifikasi</a>
-      
-      <div class="nav-title">Akun</div>
-      <a href="#"><i class="fa-solid fa-id-badge"></i>Profil</a>
-    </div>
-
-    <div class="logout">
-        <form action="{{ route('logout') }}" method="POST" style="display: none;" id="logout-form">
-            @csrf
-        </form>
-        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="menu" style="display:block">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </a>
-    </div>
-  </aside>
-
-  <!-- ========== MAIN ========== -->
-  <main>
-    <header class="topbar">
-      <button class="topbar-btn" onclick="document.getElementById('sidebar').classList.toggle('show')">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      <div class="welcome">
-        <h1>Kelola Feedback</h1>
-      </div>
-      <div class="userbox">
-        <div class="notif">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge">3</span>
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(auth()->user()->name ?? 'NU',0,2)) }}
-          </div>
-          <strong>{{ auth()->user()->name ?? 'Nama User' }}</strong>
-        </div>
-      </div>
-    </header>
+    @endif
 
-    <div class="page">
-    
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-      <div class="feedback-container">
+    <div class="feedback-container">
         <div class="main-content">
             <div class="card filter-card">
                 <div class="filter-card-header">
@@ -239,39 +199,27 @@
                         @forelse ($displayFeedbacks as $feedback)
                             <tr>
                                 <td class="info-cell">
-                                    {{-- Nama & email dari relasi user --}}
                                     <div class="name">
                                         {{ optional($feedback->user)->name ?? 'User ID: '.$feedback->id_user }}
                                     </div>
                                     <div class="email">
                                         {{ optional($feedback->user)->email ?? '-' }}
                                     </div>
-
-                                    {{-- Tanggal memakai kolom "tanggal" --}}
                                     <div class="date">
                                         {{ $feedback->tanggal ? \Carbon\Carbon::parse($feedback->tanggal)->format('d M Y, H:i') : '-' }}
                                     </div>
-
-                                    {{-- Kategori sudah tidak dipakai, tampilkan "-" --}}
                                     <div class="category">
                                         Kategori: <strong>-</strong>
                                     </div>
                                 </td>
-
-                                {{-- Pesan = kolom "isi" --}}
                                 <td>{{ \Illuminate\Support\Str::limit($feedback->isi, 80) }}</td>
-
-                                {{-- Balasan: sementara kosong --}}
                                 <td>—</td>
-
                                 <td>
                                     <span class="status-badge status-{{ $feedback->status }}">
                                         {{ ucfirst($feedback->status) }}
                                     </span>
                                 </td>
-
                                 <td class="action-buttons">
-                                    {{-- kirim ringkasan feedback ke modal lewat data-* --}}
                                     <a href="#"
                                        class="btn btn-info btn-sm mr-1 view-btn"
                                        title="Lihat Detail"
@@ -331,53 +279,44 @@
                 </div>
             </div>
         </div>
-      </div>
     </div>
-  </main>
+</div>
 
-  <!-- Modal View Feedback -->
-  <div id="viewFeedbackModal" class="modal">
+{{-- Modal View Feedback --}}
+<div id="viewFeedbackModal" class="modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <h2>Detail Feedback</h2>
-        <span class="close-btn-view">&times;</span>
-      </div>
-      <div class="modal-body" id="viewFeedbackBody">
-        <!-- Content will be populated by JS -->
-      </div>
+        <div class="modal-header">
+            <h2>Detail Feedback</h2>
+            <span class="close-btn-view">&times;</span>
+        </div>
+        <div class="modal-body" id="viewFeedbackBody">
+            <!-- diisi via JS -->
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- Modal Tambah Feedback -->
-  <div id="addFeedbackModal" class="modal">
+{{-- Modal Tambah Feedback --}}
+<div id="addFeedbackModal" class="modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <h2>Tambah Feedback Baru</h2>
-        <span class="close-btn">&times;</span>
-      </div>
-      <div class="modal-body">
-        <form id="addFeedbackForm" action="{{ route('admins.feedback.store') }}" method="POST">
-          @csrf
-          <div class="form-group">
-            <label for="message">Pesan Feedback</label>
-            <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
-          </div>
-          <button type="submit" class="btn-primary">Kirim Feedback</button>
-        </form>
-      </div>
+        <div class="modal-header">
+            <h2>Tambah Feedback Baru</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addFeedbackForm" action="{{ route('admins.feedback.store') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="message">Pesan Feedback</label>
+                    <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Kirim Feedback</button>
+            </form>
+        </div>
     </div>
-  </div>
+</div>
 
-  <script>
-    // Tutup sidebar ketika klik di luar (mobile)
-    document.addEventListener('click', (e)=>{
-      const sb = document.getElementById('sidebar');
-      if(!sb.classList.contains('show')) return;
-      const btn = e.target.closest('.topbar-btn');
-      if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
-    });
-
-    // Add Modal Logic
+<script>
+    // Modal tambah
     const addModal = document.getElementById("addFeedbackModal");
     const addBtn = document.querySelector(".add-feedback-btn");
     const closeAddBtn = addModal.querySelector(".close-btn");
@@ -391,7 +330,7 @@
       addModal.style.display = "none";
     }
 
-    // View Modal Logic
+    // Modal view
     const viewModal = document.getElementById("viewFeedbackModal");
     const closeViewBtn = viewModal.querySelector(".close-btn-view");
 
@@ -443,7 +382,7 @@
       viewModal.style.display = "none";
     }
 
-    // Close modals if clicked outside
+    // Tutup modal kalau klik di luar
     window.onclick = function(event) {
       if (event.target == addModal) {
         addModal.style.display = "none";
@@ -453,13 +392,13 @@
       }
     }
 
-    // Quick Action Buttons Filtering
+    // Tombol filter status cepat
     document.querySelectorAll('.filter-status-btn').forEach(button => {
         button.addEventListener('click', function() {
             const status = this.dataset.status;
             window.location.href = `{{ route('admins.feedback.index') }}?status=${status}`;
         });
     });
-  </script>
-</body>
-</html>
+</script>
+
+@endsection

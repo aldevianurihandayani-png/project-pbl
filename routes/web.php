@@ -38,6 +38,8 @@ use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\DosenMilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\DosenLogbookController;
+use App\Http\Controllers\Dosen\DosenPembimbingController;
+
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -239,6 +241,13 @@ Route::prefix('dosen')
         Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
             ->name('kelompok.kelas');
     });
+// Halaman daftar mahasiswa bimbingan
+Route::get('/dosen/mahasiswa', [DosenPembimbingController::class, 'index'])
+    ->name('dosen.mahasiswa.index');
+
+// Halaman detail mahasiswa
+Route::get('/dosen/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
+    ->name('dosen.mahasiswa.show');
 
 
 /*
