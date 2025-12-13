@@ -1,4 +1,4 @@
-@extends('layouts.admin') 
+@extends('layouts.admin')
 
 @section('page_title', 'Manajemen Dosen')
 
@@ -6,15 +6,27 @@
 <div class="container-fluid">
 
     <style>
-        body,
-        .container-fluid{
-            background:#f4f6ff !important;
+        :root{
+            --bg:#f4f6ff;
+            --card:#ffffff;
+            --text:#0b1f4d;
+            --muted:#6b7280;
+            --line:#e6ecff;
+            --head:#e5edff;
+            --primary:#1554d1;
+            --primary-hover:#0f3fc0;
+            --danger:#dc2626;
+            --danger-text:#b91c1c;
+        }
+
+        body, .container-fluid{
+            background:var(--bg) !important;
         }
 
         .dsn-shell{
             max-width:1120px;
             margin:0 auto;
-            padding:14px 0 32px;
+            padding:18px 0 36px;
         }
 
         /* ===== HEADER ATAS ===== */
@@ -22,81 +34,110 @@
             display:flex;
             justify-content:space-between;
             align-items:flex-end;
-            gap:12px;
-            margin-bottom:16px;
+            gap:14px;
+            margin-bottom:18px;
         }
         .dsn-title-wrap{
             display:flex;
             flex-direction:column;
-            gap:2px;
+            gap:4px;
         }
         .dsn-page-title{
-            font-size:18px;
-            font-weight:700;
-            color:#0b1f4d;
+            font-size:20px;
+            font-weight:800;
+            color:var(--text);
+            letter-spacing:.2px;
+            line-height:1.2;
         }
         .dsn-page-sub{
             font-size:13px;
-            color:#6b7280;
+            color:var(--muted);
+            line-height:1.4;
         }
 
         .dsn-add-btn{
             display:inline-flex;
             align-items:center;
             justify-content:center;
-            padding:9px 26px;
+            padding:10px 22px;
             border-radius:999px;
             font-size:14px;
-            font-weight:600;
+            font-weight:700;
             text-decoration:none !important;
-            background:#1554d1;
+            background:var(--primary);
             color:#ffffff !important;
-            border:none;
-            box-shadow:0 4px 12px rgba(21,84,209,.35);
+            border:1px solid rgba(255,255,255,.15);
+            box-shadow:0 10px 20px rgba(21,84,209,.22);
             white-space:nowrap;
-            transition:background .18s ease, box-shadow .18s ease, transform .18s ease;
+            transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
         }
         .dsn-add-btn:hover{
-            background:#0f3fc0;
-            box-shadow:0 6px 18px rgba(21,84,209,.45);
-            transform:translateY(-2px);
+            background:var(--primary-hover);
+            box-shadow:0 14px 26px rgba(21,84,209,.28);
+            transform:translateY(-1px);
+        }
+
+        /* ===== ALERT ===== */
+        .dsn-alert{
+            border-radius:14px;
+            border:1px solid rgba(16,185,129,.25);
+            background:rgba(16,185,129,.08);
+            color:#065f46;
+            padding:10px 14px;
+            font-size:14px;
+            margin-bottom:14px;
         }
 
         /* ===== CARD & TABEL ===== */
         .dsn-card{
             border-radius:18px;
-            background:#ffffff;
-            border:1px solid #e4ebff;
+            background:var(--card);
+            border:1px solid var(--line);
             box-shadow:0 18px 40px rgba(15,23,42,.08);
-            padding:4px 0 4px;
+            overflow:hidden; /* supaya tabel ikut rounded */
+        }
+
+        .table-responsive{
+            margin:0;
         }
 
         .dsn-table{
             width:100%;
-            border-collapse:collapse;
-            table-layout:fixed; /* supaya lebar kolom konsisten */
+            border-collapse:separate;
+            border-spacing:0;
+            table-layout:fixed;
         }
+
         .dsn-table thead{
-            background:#e5edff;
+            background:var(--head);
         }
         .dsn-table thead th{
             font-size:12px;
-            font-weight:800;
+            font-weight:900;
             text-transform:uppercase;
-            letter-spacing:.08em;
-            color:#0b1f4d;
-            padding:10px 18px;
-            border-bottom:1px solid #d4ddff;
+            letter-spacing:.10em;
+            color:var(--text);
+            padding:12px 18px;
+            border-bottom:1px solid rgba(11,31,77,.10);
         }
 
         .dsn-table tbody td{
-            padding:10px 18px;
-            border-bottom:1px solid #f3f4f6;
+            padding:12px 18px;
+            border-bottom:1px solid rgba(17,24,39,.06);
             font-size:14px;
             color:#111827;
+            vertical-align:middle;
+            background:#ffffff;
         }
         .dsn-table tbody tr:last-child td{
             border-bottom:none;
+        }
+
+        .dsn-table tbody tr{
+            transition:background .15s ease;
+        }
+        .dsn-table tbody tr:hover td{
+            background:#f8fbff;
         }
 
         /* lebar & alignment kolom */
@@ -106,18 +147,31 @@
         .col-telp{    width:22%; text-align:left;   }
         .col-aksi{    width:18%; text-align:center; }
 
-        .col-no-cell{     text-align:center; }
-        .col-nama-cell,
+        .col-no-cell{
+            text-align:center;
+            font-weight:700;
+            color:#0f172a;
+        }
+        .col-nama-cell{
+            text-align:left;
+            font-weight:600;
+            color:#0f172a;
+        }
         .col-nip-cell,
-        .col-telp-cell{   text-align:left;   }
-        .col-aksi-cell{   text-align:center; }
+        .col-telp-cell{
+            text-align:left;
+            color:#111827;
+        }
+        .col-aksi-cell{
+            text-align:center;
+        }
 
         /* ===== AKSI BUTTON ===== */
         .dsn-actions{
             display:inline-flex;
             align-items:center;
             justify-content:center;
-            gap:8px;
+            gap:10px;
         }
         .dsn-actions form{
             margin:0;
@@ -127,32 +181,46 @@
             display:inline-flex;
             align-items:center;
             justify-content:center;
-            padding:6px 18px;
+            padding:7px 16px;
             border-radius:999px;
             font-size:12px;
-            font-weight:600;
+            font-weight:800;
             border:1px solid transparent;
             text-decoration:none !important;
             cursor:pointer;
+            transition:transform .12s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
         }
+        .dsn-btn:active{
+            transform:translateY(1px);
+        }
+
         .dsn-btn-edit{
-            background:#1554d1;
-            border-color:#1554d1;
+            background:var(--primary);
+            border-color:var(--primary);
             color:#ffffff;
-            box-shadow:0 3px 8px rgba(21,84,209,.35);
+            box-shadow:0 8px 16px rgba(21,84,209,.18);
         }
         .dsn-btn-edit:hover{
-            background:#0f3fc0;
-            border-color:#0f3fc0;
+            background:var(--primary-hover);
+            border-color:var(--primary-hover);
+            box-shadow:0 10px 20px rgba(21,84,209,.22);
         }
+
         .dsn-btn-delete{
-            background:#ffe8e8;
-            border-color:#dc2626;
-            color:#b91c1c;
+            background:#fff1f1;
+            border-color:rgba(220,38,38,.55);
+            color:var(--danger-text);
         }
         .dsn-btn-delete:hover{
-            background:#ffd4d4;
-            border-color:#b91c1c;
+            background:#ffe1e1;
+            border-color:rgba(185,28,28,.75);
+        }
+
+        /* mobile */
+        @media (max-width:576px){
+            .dsn-header{ align-items:flex-start; }
+            .dsn-add-btn{ padding:10px 16px; font-size:13px; }
+            .dsn-page-title{ font-size:18px; }
         }
     </style>
 
@@ -173,7 +241,7 @@
         </div>
 
         @if (session('success'))
-            <div class="alert alert-success mb-3">
+            <div class="dsn-alert">
                 {{ session('success') }}
             </div>
         @endif
