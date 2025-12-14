@@ -159,7 +159,8 @@
                     <button class="mr-star" type="button" title="Bintang">☆</button>
                 </div>
 
-                <a class="mr-main" href="{{ route('admins.notifikasi.show', $notifikasi->id) }}">
+                {{-- ✅ UBAH MINIMAL: klik baris masuk detail notif yang diklik --}}
+                <a class="mr-main" href="{{ route('admins.notifikasi.detail', $notifikasi->id) }}">
                     <div class="mr-sender">{{ $senderLabel }}</div>
                     <div class="mr-subject">
                         <span class="mr-title">{{ $title }}</span>
@@ -172,20 +173,33 @@
                     <div class="mr-time">{{ $time }}</div>
 
                     <div class="mr-actions">
+                        {{-- ✔ mark read (route lama kamu) --}}
                         @if($isUnread)
                             <a class="mr-act" href="{{ route('admins.notifikasi.read', $notifikasi->id) }}" title="Tandai dibaca">
                                 <i class="fa-solid fa-check"></i>
                             </a>
+                        @else
+                            {{-- ↩ OPTIONAL: mark unread (kalau route+method markUnread sudah kamu tambah) --}}
+                            <form method="POST" action="{{ route('admins.notifikasi.unread', $notifikasi->id) }}" style="margin:0;">
+                                @csrf
+                                @method('PATCH')
+                                <button class="mr-act" type="submit" title="Tandai belum dibaca">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                            </form>
                         @endif
 
-                        <a class="mr-act" href="{{ route('admins.notifikasi.show', $notifikasi->id) }}" title="Detail">
+                        {{-- 👁 detail --}}
+                        <a class="mr-act" href="{{ route('admins.notifikasi.detail', $notifikasi->id) }}" title="Detail">
                             <i class="fa-solid fa-eye"></i>
                         </a>
 
+                        {{-- ✏ edit --}}
                         <a class="mr-act" href="{{ route('admins.notifikasi.edit', $notifikasi->id) }}" title="Edit">
                             <i class="fa-solid fa-pen"></i>
                         </a>
 
+                        {{-- 🗑 delete --}}
                         <form method="POST" action="{{ route('admins.notifikasi.destroy', $notifikasi->id) }}" style="margin:0;">
                             @csrf
                             @method('DELETE')

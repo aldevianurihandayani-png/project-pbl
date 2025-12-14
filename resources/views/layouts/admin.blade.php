@@ -357,7 +357,8 @@
             </div>
 
             @forelse($notifList as $n)
-              <a class="notif-item-link" href="{{ $n->link_url ?? url('/admins/notifikasi') }}">
+              {{-- ✅ FIX: klik item notif masuk ke detail notif yang dipencet --}}
+              <a class="notif-item-link" href="{{ route('admins.notifikasi.detail', $n->id) }}">
                 <div class="notif-item {{ ($n->pivot->is_read ?? 0) ? '' : 'unread' }}">
                   <div class="notif-icon">
                     <i class="fa-solid fa-bell"></i>

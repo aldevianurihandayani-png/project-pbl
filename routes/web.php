@@ -180,6 +180,40 @@ Route::prefix('admins')
             'notifikasi/markAll',
             [NotifikasiController::class, 'markAllRead']
         )->name('notifikasi.markAll');
+
+        // ======================================================
+        // ✅ TAMBAHAN: DETAIL + ICON ACTION (✔ 👁 ✏ 🗑)
+        // ======================================================
+
+        // 👁 detail notifikasi (klik 1 notif masuk ke detail)
+        Route::get(
+            'notifikasi/{notification}/detail',
+            [NotifikasiController::class, 'detail']
+        )->name('notifikasi.detail');
+
+        // ↩ tandai belum dibaca (optional)
+        Route::patch(
+            'notifikasi/{notification}/unread',
+            [NotifikasiController::class, 'markUnread']
+        )->name('notifikasi.unread');
+
+        // ✏ edit (kalau memang kamu pakai halaman edit)
+        Route::get(
+            'notifikasi/{notifikasi}/edit',
+            [NotifikasiController::class, 'edit']
+        )->name('notifikasi.edit');
+
+        // 💾 update (submit edit)
+        Route::put(
+            'notifikasi/{notifikasi}',
+            [NotifikasiController::class, 'update']
+        )->name('notifikasi.update');
+
+        // 🗑 delete
+        Route::delete(
+            'notifikasi/{notifikasi}',
+            [NotifikasiController::class, 'destroy']
+        )->name('notifikasi.destroy');
         // =======================
 
         Route::resource('profile', AdminProfileController::class);
@@ -194,6 +228,7 @@ Route::prefix('admins')
             ->name('akun.index');
     });
 /*
+
 |--------------------------------------------------------------------------
 | Mahasiswa (role: mahasiswa)
 |--------------------------------------------------------------------------
