@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers;
 
@@ -17,7 +17,7 @@ class LoginController extends Controller
      * Ubah berbagai alias role ke bentuk baku (canonical).
      * Baku: admin, mahasiswa, dosen_pembimbing, dosen_penguji, jaminan_mutu, koor_pbl
      */
-    private function normalizeRole(string $role = null): ?string
+    private function normalizeRole(?string $role = null): ?string
     {
         if ($role === null) return null;
 
