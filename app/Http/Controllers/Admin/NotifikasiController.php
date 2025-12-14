@@ -150,4 +150,39 @@ class NotifikasiController extends Controller
 
         return redirect()->back();
     }
+
+    // ======================================================
+    // ✅ TAMBAHAN (TANPA UBAH KODE LAMA)
+    // ======================================================
+
+    /**
+     * 👁 Detail notifikasi khusus route:
+     * admins/notifikasi/{notification}/detail
+     * (dibuat supaya route detail tidak bentrok dengan resource show)
+     */
+    public function detail(Notification $notification)
+    {
+        // panggil show yang sudah ada (tanpa mengubah show)
+        return $this->show($notification);
+    }
+
+    /**
+     * ↩ Tandai BELUM dibaca untuk user yang sedang login (pivot)
+     * route: notifikasi/{notification}/unread
+     */
+    public function markUnread(Notification $notification)
+    {
+        if (!Auth::check()) return redirect()->back();
+
+        DB::table('notification_user')
+            ->where('notification_id', $notification->id)
+            ->where('user_id', Auth::id())
+            ->update([
+                'is_read' => 0,
+                'read_at' => null,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->back();
+    }
 }
