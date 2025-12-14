@@ -17,10 +17,10 @@ class MahasiswaController extends Controller
 
         // ===================== ✅ TAMBAHAN: ambil filter overview =====================
         $filterKelas     = $request->query('filter_kelas');      // dari dropdown overview
-        $filterAngkatan  = $request->query('filter_angkatan');   // ✅ FIX: dari dropdown angkatan
+        $filterAngkatan  = $request->query('filter_angkatan');   // dari dropdown angkatan
         $q               = $request->query('q');                 // dari input cari (nama/nim)
 
-        $hasSearch = $request->filled('q') || $request->filled('filter_kelas') || $request->filled('filter_angkatan'); // ✅ FIX
+        $hasSearch = $request->filled('q') || $request->filled('filter_kelas') || $request->filled('filter_angkatan');
         // ============================================================================
 
         // statistik per kelas (berdasarkan data mahasiswa)
@@ -35,20 +35,24 @@ class MahasiswaController extends Controller
             ->get()
             ->keyBy('kelas');
 
-        // 🔹 daftar kelas master dari tabel `kelas`
+        // daftar kelas master dari tabel `kelas`
         $daftarKelas = Kelas::orderBy('nama_kelas')->get();
 
-        // data mahasiswa kalau user pilih 1 kelas
+        // data mahasiswa
         $mahasiswas = null;
 
+        // ✅ Flag biar blade aman kalau pakai links()
+        $isPaginated = false;
+
         if ($kelasFilter) {
-            // ===================== MODE DETAIL PER KELAS =====================
+            // ===================== ✅ MODE DETAIL PER KELAS (TAMPIL SEMUA) =====================
             $mahasiswas = Mahasiswa::where('kelas', $kelasFilter)
                 ->orderBy('nama')
-                ->paginate(10)
-                ->withQueryString();
+                ->get();
+
+            $isPaginated = false;
         } else {
-            // ===================== ✅ TAMBAHAN: MODE SEARCH DI OVERVIEW =====================
+            // ===================== MODE SEARCH DI OVERVIEW (TETAP PAGINATION 10) =====================
             if ($hasSearch) {
                 $query = Mahasiswa::query();
 
@@ -57,7 +61,7 @@ class MahasiswaController extends Controller
                     $query->where('kelas', $filterKelas);
                 }
 
-                // ✅ FIX: filter angkatan (kolom yang benar di tabel mahasiswas)
+                // filter angkatan
                 if (!empty($filterAngkatan)) {
                     $query->where('angkatan', $filterAngkatan);
                 }
@@ -75,8 +79,9 @@ class MahasiswaController extends Controller
                     ->orderBy('nama')
                     ->paginate(10)
                     ->withQueryString();
+
+                $isPaginated = true;
             }
-            // =======================================================================
         }
 
         return view('admins.mahasiswa.index', [
@@ -84,10 +89,10 @@ class MahasiswaController extends Controller
             'kelasFilter'  => $kelasFilter,
             'mahasiswas'   => $mahasiswas,
             'daftarKelas'  => $daftarKelas,
-
-            // ===================== ✅ TAMBAHAN: flag supaya blade bisa nampilin hasil search =====================
             'hasSearch'    => $hasSearch,
-            // ================================================================================================
+
+            // ✅ TAMBAHAN: dipakai untuk cek links() di blade
+            'isPaginated'  => $isPaginated,
         ]);
     }
 
@@ -95,7 +100,6 @@ class MahasiswaController extends Controller
     {
         $kelas = $request->query('kelas');
 
-        // gunakan get() agar object ->nama_kelas bisa dipakai di view
         $daftarKelas = Kelas::orderBy('nama_kelas')->get();
 
         return view('admins.mahasiswa.create', compact('kelas', 'daftarKelas'));
@@ -103,7 +107,6 @@ class MahasiswaController extends Controller
 
     public function store(Request $request)
     {
-        // validasi harus pakai array string
         $daftarKelas = Kelas::orderBy('nama_kelas')
             ->pluck('nama_kelas')
             ->toArray();

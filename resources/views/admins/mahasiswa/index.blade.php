@@ -599,7 +599,6 @@
                     <span>Kembali ke semua kelas</span>
                 </a>
 
-                {{-- ✅✅✅ PILL DIHILANGKAN TOTAL DI SINI ✅✅✅ --}}
                 <div class="mhs-detail-header">
                     <div>
                         <h2 class="mhs-detail-title">Data Mahasiswa — {{ $kelasFilter }}</h2>
@@ -632,7 +631,8 @@
                                         @foreach ($mahasiswas as $mhs)
                                             <tr>
                                                 <td class="col-no-cell">
-                                                    {{ ($mahasiswas->currentPage() - 1) * $mahasiswas->perPage() + $loop->iteration }}
+                                                    {{-- ✅ PERBAIKAN: mode detail kelas pakai get(), jadi cukup loop->iteration --}}
+                                                    {{ $loop->iteration }}
                                                 </td>
                                                 <td class="col-nim-cell">{{ $mhs->nim }}</td>
                                                 <td class="col-nama-cell">{{ $mhs->nama }}</td>
@@ -662,9 +662,10 @@
                                 </table>
                             </div>
 
-                            <div class="mt-3">
+                            {{-- ✅ PERBAIKAN: detail kelas tidak paginate lagi, jadi links() dihapus --}}
+                            {{-- <div class="mt-3">
                                 {{ $mahasiswas->links() }}
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 @endif
