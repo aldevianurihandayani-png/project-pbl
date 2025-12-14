@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\NotifikasiController;
 // 🔽 TAMBAHAN UNTUK CRUD KELAS
 use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 
@@ -148,7 +149,8 @@ Route::prefix('admins')
     ->middleware(['auth', 'verified', 'role:admin'])
     ->group(function () {
 
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
 
         Route::resource('matakuliah', AdminMataKuliahController::class);
         Route::resource('mahasiswa', AdminMahasiswaController::class);
@@ -156,35 +158,41 @@ Route::prefix('admins')
         Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
         Route::resource('logbook', AdminLogbookController::class)->only(['index']);
 
-        // 🔽 TAMBAHAN: CRUD KELAS UNTUK ADMIN
-        Route::resource('kelas', AdminKelasController::class)
-            ->except(['show']);
+        Route::resource('kelas', AdminKelasController::class)->except(['show']);
 
-        // FEEDBACK (resource) – nama lengkapnya: admins.feedback.index, admins.feedback.store, dst
         Route::resource('feedback', AdminFeedbackController::class);
+        Route::patch(
+            'feedback/{feedback}/status',
+            [AdminFeedbackController::class, 'updateStatus']
+        )->name('feedback.updateStatus');
 
-        // Route khusus untuk update status feedback (baru/diproses/selesai)
-        Route::patch('feedback/{feedback}/status', [AdminFeedbackController::class, 'updateStatus'])
-            ->name('feedback.updateStatus');
+        // =======================
+        // ✅ NOTIFIKASI (PAKAI CONTROLLER YANG KAMU EDIT)
+        // =======================
+        Route::resource('notifikasi', NotifikasiController::class);
 
-        Route::resource('notifikasi', AdminNotifikasiController::class);
-        Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
-        Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
+        Route::get(
+            'notifikasi/{notification}/read',
+            [NotifikasiController::class, 'markRead']
+        )->name('notifikasi.read');
+
+        Route::post(
+            'notifikasi/markAll',
+            [NotifikasiController::class, 'markAllRead']
+        )->name('notifikasi.markAll');
+        // =======================
 
         Route::resource('profile', AdminProfileController::class);
         Route::resource('users', AdminUserController::class);
 
-        // 👇 Tambahan: route approve / reject akun (sistem persetujuan user)
         Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])
             ->name('users.approve');
-
         Route::post('/users/{user}/reject', [AdminUserController::class, 'reject'])
             ->name('users.reject');
 
-        // 👇 route khusus untuk menu "Manajemen Akun" di sidebar
-        Route::get('/akun', [AdminUserController::class, 'index'])->name('akun.index');
+        Route::get('/akun', [AdminUserController::class, 'index'])
+            ->name('akun.index');
     });
-
 /*
 |--------------------------------------------------------------------------
 | Mahasiswa (role: mahasiswa)

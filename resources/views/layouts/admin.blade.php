@@ -96,7 +96,7 @@
       justify-content:space-between;
       position:sticky;
       top:0;
-      z-index:3;
+      z-index:5000; /* penting: dropdown ga ketutup */
       box-shadow:var(--shadow);
     }
     .topbar-left{
@@ -122,24 +122,102 @@
       display:flex;
       align-items:center;
       gap:14px;
+      position:relative; /* dropdown nempel ke kanan */
     }
-    .notif{
+
+    /* ==========================
+       ✅ NOTIF DROPDOWN (CUSTOM)
+       ========================== */
+    .top-actions{display:flex;align-items:center;gap:14px;position:relative}
+
+    .bell-btn{
       position:relative;
-      text-decoration:none;
-      color:#fff;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:36px;height:36px;
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      transition: background .15s ease;
+      z-index:7000;
     }
-    .notif i{ font-size:18px; }
-    .notif .badge{
-      position:absolute;
-      top:-6px;
-      right:-6px;
-      background:#e53935;
-      color:#fff;
-      border-radius:10px;
-      font-size:10px;
-      padding:2px 5px;
-      min-width:16px;
+    .bell-btn:hover{ background: rgba(255,255,255,.16); }
+    .bell-btn i{color:#fff;font-size:16px}
+
+    .bell-btn .badge{
+      position:absolute; top:-6px; right:-6px;
+      background:#e53935; color:#fff;
+      border-radius:999px;
+      font-size:11px;
+      padding:2px 6px;
+      min-width:18px;
+      height:18px;
+      line-height:14px;
       text-align:center;
+      border:2px solid #0a1a54;
+      font-weight:800;
+    }
+
+    .notif-dd{
+      position:absolute;
+      right:0;
+      top:46px;
+      width:360px;
+      max-height:420px;
+      overflow:auto;
+      background:#fff;
+      border:1px solid rgba(13,23,84,.12);
+      border-radius:14px;
+      box-shadow:0 12px 30px rgba(13,23,84,.18);
+      display:none;
+      z-index:9999;
+      pointer-events:auto;
+    }
+    .notif-dd.active{display:block}
+
+    .notif-hd{
+      padding:10px 12px;
+      border-bottom:1px solid #eef1f6;
+      font-weight:900;
+      color:#0e257a;
+      display:flex;
+      justify-content:space-between;
+      align-items:center
+    }
+    .notif-item-link{display:block;text-decoration:none;color:inherit}
+    .notif-item{
+      display:flex;
+      gap:10px;
+      padding:12px;
+      border-bottom:1px solid #f3f5fb;
+      background:#fff;
+    }
+    .notif-item:hover{background:#f7f9ff}
+    .notif-item.unread{background:#f7f9ff}
+    .notif-icon{
+      width:28px;height:28px;
+      border-radius:8px;
+      display:grid;
+      place-items:center;
+      background:#e9efff;
+      color:#1d4ed8;
+      flex:0 0 auto;
+    }
+    .notif-title{font-weight:900;color:#0e257a;font-size:13px;line-height:1.2}
+    .notif-meta{font-size:12px;color:#6c7a8a;margin-top:2px}
+    .notif-empty{padding:18px;text-align:center;color:#6c7a8a}
+    .notif-ft{
+      padding:10px;
+      border-top:1px solid #eef1f6;
+      text-align:center;
+      background:#fff;
+    }
+    .notif-ft a{
+      color:#0e257a;
+      text-decoration:none;
+      font-weight:900;
     }
 
     /* ✅ Profil jadi link */
@@ -242,12 +320,16 @@
         ? Storage::url($user->profile_photo_path)
         : null;
 
-    /* ✅ URL profil (ubah kalau route kamu beda) */
+    /* ✅ URL profil */
     $profileUrl = url('/admins/profile');
+
+    /* ✅ data notif (kalau view composer belum ada, aman: default kosong) */
+    $notifCount = $unreadCount ?? 0;
+    $notifList  = $notifications ?? collect();
   @endphp
 
   <main>
-    {{-- TOPBAR BIRU (header global) --}}
+    {{-- TOPBAR --}}
     <header class="topbar">
       <div class="topbar-left">
         <button class="topbar-btn" onclick="toggleSidebar()">
@@ -259,13 +341,49 @@
       </div>
 
       <div class="userbox">
-        {{-- Lonceng notifikasi --}}
-        <a href="{{ url('/admins/notifikasi') }}" class="notif">
-          <i class="fa-solid fa-bell"></i>
-          <span class="badge">3</span>
-        </a>
+        {{-- ✅ Lonceng Notifikasi (Dropdown Custom) --}}
+        <div class="top-actions" id="topActions">
+          <div class="bell-btn" id="bellBtn" aria-label="Notifikasi">
+            <i class="fa-solid fa-bell"></i>
+            @if($notifCount > 0)
+              <span class="badge" id="notifDot">{{ $notifCount }}</span>
+            @endif
+          </div>
 
-        {{-- ✅ Profil user: klik foto/nama langsung ke profil --}}
+          <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
+            <div class="notif-hd">
+              <span>Notifikasi</span>
+              <small style="color:#6c7a8a;font-weight:800">{{ $notifCount }} baru</small>
+            </div>
+
+            @forelse($notifList as $n)
+              <a class="notif-item-link" href="{{ $n->link_url ?? url('/admins/notifikasi') }}">
+                <div class="notif-item {{ ($n->pivot->is_read ?? 0) ? '' : 'unread' }}">
+                  <div class="notif-icon">
+                    <i class="fa-solid fa-bell"></i>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="notif-title">{{ $n->judul ?? '-' }}</div>
+                    @if(!empty($n->pesan))
+                      <div class="notif-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        {{ $n->pesan }}
+                      </div>
+                    @endif
+                    <div class="notif-meta">{{ $n->created_at?->diffForHumans() }}</div>
+                  </div>
+                </div>
+              </a>
+            @empty
+              <div class="notif-empty">Belum ada notifikasi.</div>
+            @endforelse
+
+            <div class="notif-ft">
+              <a href="{{ url('/admins/notifikasi') }}">Lihat Semua Notifikasi</a>
+            </div>
+          </div>
+        </div>
+
+        {{-- ✅ Profil user --}}
         <a href="{{ $profileUrl }}" class="profile-box">
           <div class="profile-avatar">
             @if($userPhoto)
@@ -305,6 +423,35 @@
       const sidebar = document.querySelector('.sidebar');
       if (sidebar) sidebar.classList.toggle('show');
     }
+  </script>
+
+  {{-- ✅ Script dropdown notif --}}
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const bell = document.getElementById('bellBtn');
+    const dd   = document.getElementById('notifDd');
+    const dot  = document.getElementById('notifDot');
+
+    if(!bell || !dd) return;
+
+    bell.addEventListener('click', function(e){
+      e.stopPropagation();
+      dd.classList.toggle('active');
+      if (dd.classList.contains('active') && dot) dot.style.display = 'none';
+    });
+
+    dd.addEventListener('click', function(e){
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', function(){
+      dd.classList.remove('active');
+    });
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') dd.classList.remove('active');
+    });
+  });
   </script>
 
   @stack('scripts')
