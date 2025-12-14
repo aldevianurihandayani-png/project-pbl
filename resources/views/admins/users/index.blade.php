@@ -179,7 +179,14 @@
 
                         {{-- Role: kalau masih pending, tampilkan role yang diminta --}}
                         <td>
-                            @if($user->status === 'pending')
+                            @php
+                                // ✅ TAMBAHAN: admin khusus jangan pernah tampil "(diminta)"
+                                $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
+                            @endphp
+
+                            @if($isSpecialAdmin)
+                                admin
+                            @elseif($user->status === 'pending')
                                 <strong>{{ $user->requested_role ?? '-' }}</strong>
                                 <span style="font-size:11px;color:#6b7280;">(diminta)</span>
                             @else
@@ -189,7 +196,14 @@
 
                         {{-- Status badge --}}
                         <td>
-                            @if($user->status === 'pending')
+                            @php
+                                // ✅ TAMBAHAN: admin khusus dipaksa tampil Active
+                                $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
+                            @endphp
+
+                            @if($isSpecialAdmin)
+                                <span class="badge-status badge-status-active">Active</span>
+                            @elseif($user->status === 'pending')
                                 <span class="badge-status badge-status-pending">Pending</span>
                             @elseif($user->status === 'active')
                                 <span class="badge-status badge-status-active">Active</span>
@@ -205,7 +219,12 @@
 
                                 {{-- JIKA MASIH PENDING: FORM PERSETUJUAN --}}
                                 {{-- ✅ tambahan: jangan proses admin --}}
-                                @if($user->status === 'pending' && $user->role !== 'admin')
+                                @php
+                                    // ✅ TAMBAHAN: admin khusus jangan ikut pending action
+                                    $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
+                                @endphp
+
+                                @if($user->status === 'pending' && $user->role !== 'admin' && !$isSpecialAdmin)
 
                                     {{-- Setujui + pilih role final --}}
                                     <form action="{{ route('admins.users.approve', $user->id) }}"

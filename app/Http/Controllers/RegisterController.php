@@ -36,7 +36,7 @@ class RegisterController extends Controller
             ],
 
 
-            'rule'     => ['required', Rule::in(['mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','jaminan_mutu','admin'])],
+            'role'     => ['required', Rule::in(['mahasiswa','dosen_pembimbing','dosen_penguji','koor_pbl','jaminan_mutu','admin'])],
             'nim'      => ['nullable','string','max:30'],
             'prodi'    => ['nullable','string','max:100'],
         ]);

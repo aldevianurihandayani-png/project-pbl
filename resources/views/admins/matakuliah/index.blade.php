@@ -1,4 +1,4 @@
-@extends('layouts.admin') 
+@extends('layouts.admin')
 
 @section('title', 'Manajemen Mata Kuliah — Admin')
 @section('page_title', 'Manajemen Mata Kuliah')
@@ -19,13 +19,16 @@
             padding: 10px 0 24px;
         }
 
-        /* ===== CARD PUTIH UTAMA (mirip "Daftar Kelompok") ===== */
+        /* ===== CARD PUTIH UTAMA (mirip halaman Mahasiswa) ===== */
         .mk-page-header {
             background: #ffffff;
             border-radius: 12px;
             border: 1px solid #e4ebff;
             box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+
+            /* ✅ samakan dengan Mahasiswa */
             padding: 12px 18px 16px;
+
             margin-bottom: 18px;
         }
         .mk-page-header-top {
@@ -33,12 +36,17 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
+
+            /* ✅ samakan dengan Mahasiswa */
             margin-bottom: 12px;
         }
+
+        /* ✅✅✅ SAMAKAN DENGAN MAHASISWA (UKURAN + WARNA) ✅✅✅ */
         .mk-page-title {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 700;
-            color: #2563eb;
+            color: #0b1f4d;
+            margin: 0;
         }
 
         .mk-add-btn {
@@ -47,10 +55,13 @@
             gap: 8px;
             background: #1554d1;
             color: #ffffff !important;
-            padding: 7px 18px;
-            border-radius: 999px;
+
+            /* ✅ samakan dengan Mahasiswa */
+            padding: 9px 22px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
+
+            border-radius: 999px;
             text-decoration: none !important;
             box-shadow: 0 4px 10px rgba(21, 84, 209, 0.35);
             transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
@@ -388,9 +399,10 @@
 
             <div class="mk-page-header">
                 <div class="mk-page-header-top">
-                    <div class="mk-page-title">
-                        Daftar Mata Kuliah per Kelas
+                    <div>
+                        <h1 class="mk-page-title">Daftar Mata Kuliah per Kelas</h1>
                     </div>
+
                     <a href="{{ route('admins.matakuliah.create') }}" class="mk-add-btn">
                         Tambah Mata Kuliah
                     </a>

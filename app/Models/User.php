@@ -14,7 +14,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+
+    // ✅ FIX MINIMAL: karena tabel users punya created_at & updated_at (migration timestamps())
+    public $timestamps = true;
+
+    // ✅ opsional tapi aman (tidak mengubah fitur lain)
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     protected $fillable = [
         'nama', 'name',
