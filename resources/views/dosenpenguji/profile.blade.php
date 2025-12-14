@@ -1,96 +1,233 @@
 {{-- resources/views/dosenpenguji/profile.blade.php --}}
 @extends('dosenpenguji.layout')
+
 @section('title', 'Profil — Dosen Penguji')
-@section('header', 'Profil Dosen Penguji') 
+@section('header', 'Profil Dosen Penguji')
 
 @section('content')
+
 <style>
-  .page-header{display:none;}
-  .table th, .table td{padding:10px 12px; border-bottom:1px solid #eef1f6}
-  .table th{color:#0e257a; font-weight:800; background:#f6f8fd}
-  .chip{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#eef2ff; color:#22336b; font-weight:700; font-size:13px}
+/* ====== WRAPPER KHUSUS: CSS HANYA UNTUK HALAMAN INI ====== */
+.page-header{display:none;}
+
+.dp-wrap{ padding: 18px 8px 30px; }
+.dp-grid{
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 18px;
+}
+@media (max-width: 992px){
+    .dp-grid{ grid-template-columns: 1fr; }
+}
+
+/* Card */
+.dp-card{
+    background:#fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    overflow:hidden;
+}
+.dp-card-h{
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    display:flex; align-items:center; justify-content:space-between;
+}
+.dp-title{
+    margin:0;
+    font-weight:800;
+    color:#4e73df;
+    letter-spacing:.2px;
+    font-size:14px;
+}
+.dp-card-b{ padding: 18px; }
+
+/* Avatar */
+.dp-avatar{
+    width:140px; height:140px;
+    border-radius:999px;
+    object-fit:cover;
+    display:block;
+    margin: 0 auto 12px auto;
+    border: 4px solid #fff;
+    box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    background:#f8f9fc;
+}
+.dp-avatar-initial{
+    width:140px; height:140px;
+    border-radius:999px;
+    display:grid;
+    place-items:center;
+    margin: 0 auto 12px auto;
+    border: 4px solid #fff;
+    box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    background:#eef2ff;
+    color:#31408a;
+    font-weight:900;
+    font-size:52px;
+}
+
+/* Text */
+.dp-name{ font-weight:800; font-size:18px; text-align:center; margin:0; color:#0e257a; }
+.dp-email{ text-align:center; color:#858796; font-size:13px; margin:6px 0 14px; }
+
+/* Chip */
+.dp-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#eef2ff;
+    color:#22336b;
+    font-weight:800;
+    font-size:12px;
+    border:1px solid #d7deff;
+}
+.dp-chip-wrap{ display:flex; justify-content:center; }
+
+/* Table info (mirip card admin) */
+.dp-info{
+    width:100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #eef1f6;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.dp-info th{
+    width:240px;
+    background:#f6f8fd;
+    color:#0e257a;
+    font-weight:900;
+    text-align:left;
+    padding:12px 14px;
+    border-bottom:1px solid #eef1f6;
+    font-size:13px;
+}
+.dp-info td{
+    padding:12px 14px;
+    border-bottom:1px solid #eef1f6;
+    font-size:13px;
+}
+.dp-info tr:last-child th,
+.dp-info tr:last-child td{ border-bottom:none; }
+
+.dp-btn{
+    background:#0e257a;
+    color:#fff !important;
+    border-radius:10px;
+    padding:8px 14px;
+    font-weight:800;
+    font-size:13px;
+    text-decoration:none !important;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+}
+.dp-alert{
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #d1fae5;
+    color:#065f46;
+    border: 1px solid rgba(6,95,70,.15);
+    margin-bottom: 12px;
+}
 </style>
 
-<div class="page-header">
-  <h1 class="page-title">Profil Dosen Penguji</h1>
-</div>
+@php
+  $u = auth()->user();
+  $displayName = $u->nama ?? $u->name ?? 'Nama Dosen';
+  $email = $u->email ?? 'email@example.com';
 
-@if (session('success'))
-  <div class="alert alert-success" style="background:#eafbf1;border:1px solid #b7f0cf;color:#11633b;border-radius:10px;padding:10px 12px;margin-bottom:12px">
-    {{ session('success') }}
-  </div>
-@endif
+  // inisial 2 huruf (depan + belakang)
+  $parts = preg_split('/\s+/', trim($displayName));
+  $initials = strtoupper(
+      mb_substr($parts[0] ?? 'D', 0, 1) .
+      mb_substr($parts[1] ?? '', 0, 1)
+  );
+@endphp
 
-<div class="card">
-  <div class="card-hd">
-    <div>Informasi Akun</div>
-    <div class="actions">
-      <a href="{{ route('dosenpenguji.profile.edit') }}" class="btn btn-primary">
-        <i class="fa-solid fa-pen-to-square"></i> Edit Profil
-      </a>
+<div class="dp-wrap">
+
+  @if (session('success'))
+    <div class="dp-alert">
+      {{ session('success') }}
     </div>
-  </div>
+  @endif
 
-  <div class="card-bd">
-    @php
-      $u = auth()->user();
-      $displayName = $u->nama ?? $u->name ?? 'Nama Dosen';
-      $initials = strtoupper(substr($displayName,0,1) . (preg_replace('/.*\s/','',$displayName)[0] ?? ''));
-    @endphp
+  <div class="dp-grid">
 
-    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:flex-start">
+    {{-- ================= KIRI : FOTO PROFIL ================= --}}
+    <div class="dp-card">
+      <div class="dp-card-h">
+        <h6 class="dp-title">Foto Profil</h6>
+      </div>
 
-      {{-- Foto Profil --}}
-      <div style="text-align:center">
+      <div class="dp-card-b">
+
         @if ($u->foto)
-          {{-- Jika user sudah upload foto --}}
-          <img src="{{ asset('storage/'.$u->foto) }}"
-               alt="Foto Profil"
-               style="width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid #e3e9ff">
+          <img
+            src="{{ asset('storage/'.$u->foto) }}"
+            alt="Foto Profil"
+            class="dp-avatar"
+          >
         @else
-          {{-- Jika belum ada foto, tampilkan inisial --}}
-          <div style="width:140px;height:140px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;margin:0 auto 12px;font-size:48px;color:#31408a;font-weight:700">
+          <div class="dp-avatar-initial">
             {{ $initials }}
           </div>
         @endif
 
-        <div style="font-weight:700;color:#0e257a">{{ $displayName }}</div>
-        <div style="font-size:13px;color:#6c7a8a">{{ $u->email ?? 'email@example.com' }}</div>
+        <p class="dp-name">{{ $displayName }}</p>
+        <p class="dp-email">{{ $email }}</p>
+
+        <div class="dp-chip-wrap">
+          <span class="dp-chip">{{ $u->role ?? 'dosen_penguji' }}</span>
+        </div>
+      </div>
+    </div>
+
+    {{-- ================= KANAN : INFORMASI AKUN ================= --}}
+    <div class="dp-card">
+      <div class="dp-card-h">
+        <h6 class="dp-title">Informasi Akun</h6>
+
+        <a href="{{ route('dosenpenguji.profile.edit') }}" class="dp-btn">
+          <i class="fa-solid fa-pen-to-square"></i> Edit Profil
+        </a>
       </div>
 
-      {{-- Detail --}}
-      <div>
-        <table class="table" style="width:100%;border-collapse:collapse">
-          <tbody>
-            <tr>
-              <th style="width:180px;text-align:left">Nama Lengkap</th>
-              <td>{{ $displayName }}</td>
-            </tr>
-            <tr>
-              <th style="text-align:left">Email</th>
-              <td>{{ $u->email ?? '-' }}</td>
-            </tr>
-            <tr>
-              <th style="text-align:left">Role</th>
-              <td><span class="chip">{{ $u->role ?? 'dosen_penguji' }}</span></td>
-            </tr>
-            <tr>
-              <th style="text-align:left">Nomor Induk Dosen</th>
-              <td>{{ $u->nidn ?? 'Belum diisi' }}</td>
-            </tr>
-            <tr>
-              <th style="text-align:left">Program Studi</th>
-              <td>{{ $u->prodi ?? 'Teknologi Informasi' }}</td>
-            </tr>
-            <tr>
-              <th style="text-align:left">Tanggal Bergabung</th>
-              <td>{{ optional($u->created_at)->translatedFormat('d M Y') ?? '-' }}</td>
-            </tr>
-          </tbody>
+      <div class="dp-card-b">
+        <table class="dp-info">
+          <tr>
+            <th>Nama Lengkap</th>
+            <td>{{ $displayName }}</td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td>{{ $email }}</td>
+          </tr>
+          <tr>
+            <th>Role</th>
+            <td><span class="dp-chip">{{ $u->role ?? 'dosen_penguji' }}</span></td>
+          </tr>
+          <tr>
+            <th>Nomor Induk Dosen</th>
+            <td>{{ $u->nidn ?? 'Belum diisi' }}</td>
+          </tr>
+          <tr>
+            <th>Program Studi</th>
+            <td>{{ $u->prodi ?? 'Teknologi Informasi' }}</td>
+          </tr>
+          <tr>
+            <th>Tanggal Bergabung</th>
+            <td>{{ optional($u->created_at)->translatedFormat('d M Y') ?? '-' }}</td>
+          </tr>
         </table>
       </div>
-
     </div>
+
   </div>
 </div>
+
 @endsection

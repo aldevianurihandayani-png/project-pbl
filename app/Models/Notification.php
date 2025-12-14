@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
+use App\Mail\NotifikasiMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-
-// ✅ TAMBAHAN UNTUK EMAIL
 use Illuminate\Support\Facades\Mail;
-use App\Mail\NotifikasiMail;
 use App\Models\User;
 
 class Notification extends Model
@@ -18,10 +16,10 @@ class Notification extends Model
     protected $table = 'notifications';
 
     protected $fillable = [
-        'user_id', // boleh dipakai untuk single-recipient legacy / info "personal vs broadcast"
+        'user_id', // null = broadcast, isi = personal
         'judul',
         'pesan',
-        'is_read', // legacy (untuk record header). status per-user ada di pivot
+        'is_read', // legacy header
     ];
 
     protected $casts = [
@@ -30,34 +28,21 @@ class Notification extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Legacy: relasi single user (kalau user_id terisi)
-     */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * ✅ BARU: relasi penerima banyak user (pivot notification_user)
-     * Pivot kamu saat ini hanya ada: notification_id, user_id, is_read, created_at
-     * ❗ jadi JANGAN pakai withTimestamps() (karena pivot tidak punya updated_at)
-     */
     public function recipients()
     {
         return $this->belongsToMany(User::class, 'notification_user', 'notification_id', 'user_id')
-            ->withPivot(['is_read']); // read_at belum ada di DB kamu
+            ->withPivot(['is_read']);
     }
 
-    /* ======================================
-     * SCOPE (untuk lonceng user)
-     * ====================================== */
-
-    /**
-     * ✅ notif untuk user yang login berdasarkan pivot
-     */
     public function scopeForCurrent($query)
     {
+        if (!Auth::check()) return $query->whereRaw('1=0');
+
         $uid = Auth::id();
 
         return $query->whereHas('recipients', function ($q) use ($uid) {
@@ -65,11 +50,10 @@ class Notification extends Model
         });
     }
 
-    /**
-     * ✅ unread untuk user login berdasarkan pivot
-     */
     public function scopeUnread($query)
     {
+        if (!Auth::check()) return $query->whereRaw('1=0');
+
         $uid = Auth::id();
 
         return $query->whereHas('recipients', function ($q) use ($uid) {
@@ -78,39 +62,24 @@ class Notification extends Model
         });
     }
 
-    /* ======================================
-     * HELPERS (untuk lonceng user)
-     * ====================================== */
-
     public static function getUnreadCount(): int
     {
         if (!Auth::check()) return 0;
 
-        return static::query()
-            ->forCurrent()
-            ->unread()
-            ->count();
+        return static::query()->forCurrent()->unread()->count();
     }
 
     public static function getListForTopbar(int $limit = 10)
     {
         if (!Auth::check()) return collect();
 
-        $uid = Auth::id();
-
         return static::query()
-            ->whereHas('recipients', function ($q) use ($uid) {
-                $q->where('users.id', $uid);
-            })
+            ->forCurrent()
             ->latest()
             ->limit($limit)
-            ->get(['id', 'judul', 'pesan', 'created_at']);
+            ->get(['id', 'judul', 'pesan', 'created_at', 'user_id']);
     }
 
-    /**
-     * ✅ tandai dibaca untuk user yang login (pivot)
-     * Pivot kamu belum ada read_at, jadi update is_read saja
-     */
     public function markAsReadForCurrent(): bool
     {
         if (!Auth::check()) return false;
@@ -124,26 +93,6 @@ class Notification extends Model
         return true;
     }
 
-    /**
-     * Legacy: tandai dibaca global (jangan dipakai untuk lonceng user lagi)
-     * Dipertahankan agar kode lama tidak error.
-     */
-    public function markAsRead(): bool
-    {
-        return $this->update(['is_read' => true]);
-    }
-
-    /* ======================================
-     * PENERIMA (pivot) + EMAIL
-     * ====================================== */
-
-    /**
-     * ✅ generate pivot recipients.
-     * - kalau user_id terisi => hanya user itu
-     * - kalau user_id null   => semua user
-     *
-     * Pivot default is_read = 0
-     */
     public function syncRecipients(): void
     {
         // personal
@@ -153,31 +102,24 @@ class Notification extends Model
         }
 
         // broadcast
-        $ids = User::pluck('id')->toArray();
-        if (count($ids) > 0) {
+        $ids = User::pluck('id')->all();
+        if (!empty($ids)) {
             $this->recipients()->syncWithPivotValues($ids, ['is_read' => 0]);
         }
     }
 
-    /**
-     * Kirim email notifikasi:
-     * - kalau user_id terisi  => kirim ke user itu saja
-     * - kalau user_id null    => kirim ke semua user yang punya email
-     */
     public function sendEmail(): void
     {
-        // ✅ kirim ke 1 user (notif personal)
+        // personal
         if (!empty($this->user_id)) {
             $user = User::find($this->user_id);
-
             if ($user && !empty($user->email)) {
                 Mail::to($user->email)->send(new NotifikasiMail($this));
             }
-
             return;
         }
 
-        // ✅ kirim ke semua user (notif global)
+        // broadcast
         User::whereNotNull('email')->chunk(50, function ($users) {
             foreach ($users as $user) {
                 Mail::to($user->email)->send(new NotifikasiMail($this));
@@ -185,19 +127,12 @@ class Notification extends Model
         });
     }
 
-    /**
-     * Helper cepat: simpan notifikasi + sync pivot + kirim email
-     */
     public static function createAndSend(array $data): self
     {
         $data['is_read'] = $data['is_read'] ?? 0;
 
         $notif = static::create($data);
-
-        // ✅ penting: bikin row pivot untuk setiap penerima
         $notif->syncRecipients();
-
-        // ✅ kirim email
         $notif->sendEmail();
 
         return $notif;
