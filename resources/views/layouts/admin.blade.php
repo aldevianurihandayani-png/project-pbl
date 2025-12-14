@@ -142,11 +142,23 @@
       text-align:center;
     }
 
+    /* ✅ Profil jadi link */
     .profile-box{
       display:flex;
       align-items:center;
       gap:8px;
+      text-decoration:none;
+      color:inherit;
+      cursor:pointer;
+      padding:6px 8px;
+      border-radius:12px;
+      transition:background .18s;
     }
+    .profile-box:hover{
+      background: rgba(255,255,255,.08);
+    }
+
+    /* ✅ avatar bisa isi IMG */
     .profile-avatar{
       width:32px;
       height:32px;
@@ -158,7 +170,16 @@
       color:#fff;
       font-weight:700;
       font-size:13px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.35);
     }
+    .profile-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
     .profile-meta{
       display:flex;
       flex-direction:column;
@@ -178,57 +199,6 @@
       display:grid;
       gap:18px;
     }
-
-    /* Card umum, KPI dll – biarkan seperti semula */
-    .kpi{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
-      gap:16px;
-    }
-    .kpi .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:16px 18px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      border:1px solid var(--ring);
-    }
-    .kpi .icon{
-      width:36px;
-      height:36px;
-      border-radius:10px;
-      background:#eef3ff;
-      display:grid;
-      place-items:center;
-      color:var(--navy-2);
-    }
-    .kpi .meta small{ color:var(--muted) }
-    .kpi .meta b{ font-size:22px; color:var(--navy-2) }
-
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid var(--ring);
-    }
-    .card .card-hd{
-      padding:14px 18px;
-      border-bottom:1px solid #eef1f6;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      color:var(--navy-2);
-      font-weight:700;
-    }
-    .card .card-bd{
-      padding:16px 18px;
-      color:#233042;
-    }
-    .muted{ color:var(--muted) }
-    ul.clean{ margin:8px 0 0 18px }
-    a.card-link{text-decoration:none}
 
     /* RESPONSIVE */
     @media (max-width:980px){
@@ -255,6 +225,8 @@
   @include('admins.partials.sidebar')
 
   @php
+    use Illuminate\Support\Facades\Storage;
+
     $user = auth()->user();
     $userName = $user->nama ?? $user->name ?? 'Administrator';
     $parts = preg_split('/\s+/', trim($userName));
@@ -264,6 +236,14 @@
     );
     $userRole = $user->role ?? 'Admin';
     $userRoleLabel = ucwords(str_replace('_',' ',$userRole));
+
+    /* ✅ Foto topbar */
+    $userPhoto = ($user && $user->profile_photo_path)
+        ? Storage::url($user->profile_photo_path)
+        : null;
+
+    /* ✅ URL profil (ubah kalau route kamu beda) */
+    $profileUrl = url('/admins/profile');
   @endphp
 
   <main>
@@ -274,26 +254,37 @@
           <i class="fa-solid fa-bars"></i>
         </button>
         <div class="welcome">
-          {{-- Judul halaman: bisa di-set di setiap view pakai @section('page_title', 'Manajemen Mata Kuliah') --}}
           <h1>@yield('page_title', 'Manajemen Kelompok')</h1>
         </div>
       </div>
 
       <div class="userbox">
-        {{-- Lonceng notifikasi: arahkan ke halaman notifikasi --}}
+        {{-- Lonceng notifikasi --}}
         <a href="{{ url('/admins/notifikasi') }}" class="notif">
           <i class="fa-solid fa-bell"></i>
-          <span class="badge">3</span> {{-- ganti dengan jumlah notif dinamis kalau sudah siap --}}
+          <span class="badge">3</span>
         </a>
 
-        {{-- Profil user --}}
-        <div class="profile-box">
-          <div class="profile-avatar">{{ $initial }}</div>
+        {{-- ✅ Profil user: klik foto/nama langsung ke profil --}}
+        <a href="{{ $profileUrl }}" class="profile-box">
+          <div class="profile-avatar">
+            @if($userPhoto)
+              <img
+                src="{{ $userPhoto }}"
+                alt="Foto Profil"
+                data-fallback="{{ asset('images/default-profile.png') }}"
+                onerror="this.onerror=null;this.src=this.dataset.fallback;"
+              >
+            @else
+              {{ $initial }}
+            @endif
+          </div>
+
           <div class="profile-meta">
             <span class="profile-name">{{ $userName }}</span>
             <span class="profile-role">{{ $userRoleLabel }}</span>
           </div>
-        </div>
+        </a>
       </div>
     </header>
 
@@ -302,7 +293,7 @@
       @yield('content')
     </div>
 
-    {{-- FOOTER (opsional) --}}
+    {{-- FOOTER --}}
     @include('admins.partials.footer')
   </main>
 
