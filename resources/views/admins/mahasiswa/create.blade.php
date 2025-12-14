@@ -81,7 +81,9 @@
                 </div>
 
                 @php
+                    // default kelas: dari old() -> dari variabel $kelas (kalau ada) -> dari query string ?kelas=
                     $kelasSelected = old('kelas', $kelas ?? request('kelas'));
+                    $opsiKelas = $daftarKelas ?? [];
                 @endphp
 
                 <div class="mk-form-grid">
@@ -115,13 +117,19 @@
                         @error('no_hp') <div class="mk-invalid">{{ $message }}</div> @enderror
                     </div>
 
+                    {{-- ===== DROPDOWN KELAS (DINAMIS DARI TABEL KELAS) ===== --}}
                     <div class="mk-field">
                         <label for="kelas">Kelas</label>
                         <select id="kelas" name="kelas">
                             <option value="">-- Pilih Kelas --</option>
-                            @foreach(['A','B','C','D','E'] as $kls)
-                                <option value="{{ $kls }}" {{ $kelasSelected == $kls ? 'selected' : '' }}>
-                                    {{ $kls }}
+                            @foreach($opsiKelas as $item)
+                                @php
+                                    // dukung: collection model (punya nama_kelas) atau array string biasa
+                                    $namaKelas = is_object($item) ? $item->nama_kelas : $item;
+                                @endphp
+                                <option value="{{ $namaKelas }}"
+                                    {{ $kelasSelected == $namaKelas ? 'selected' : '' }}>
+                                    {{ $namaKelas }}
                                 </option>
                             @endforeach
                         </select>

@@ -1,25 +1,20 @@
-{{-- resources/views/dosen/logbook/table.blade.php --}}
-@extends('layouts.dosen') {{-- ganti jika layout-mu beda --}}
+@extends('layouts.dosen')
 
 @section('title', 'Logbook Mahasiswa')
 
 @section('content')
     <div class="container-fluid px-4 py-4">
+        <h4 class="mb-4 fw-bold text-black">Dashboard Mahasiswa</h4>
 
-        {{-- judul di bagian atas konten --}}
-        <h4 class="mb-4 fw-bold text-white">Dashboard Mahasiswa</h4>
-
-        {{-- pesan sukses kalau ada --}}
         @if (session('success'))
             <div class="alert alert-success border-0 rounded-3 mb-4">
                 {{ session('success') }}
             </div>
         @endif
 
-        {{-- card tabel logbook --}}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-header rounded-top-4"
-                 style="background-color: #002b5b; color: #ffffff;">
+                 style="background-color:#002b5b; color:#ffffff;">
                 <strong>Logbook Mahasiswa</strong>
             </div>
 
@@ -32,6 +27,7 @@
                                 <th class="text-center">MINGGU</th>
                                 <th class="text-center">AKTIVITAS</th>
                                 <th class="text-center">KETERANGAN</th>
+                                <th class="text-center">NILAI</th>
                                 <th class="text-center">AKSI</th>
                             </tr>
                         </thead>
@@ -44,45 +40,27 @@
                                     <td class="text-center">
                                         {{ $logbook->minggu }}
                                     </td>
-                                    <td>
-                                        {{ $logbook->aktivitas }}
-                                    </td>
-                                    <td>
-                                        {{ $logbook->keterangan }}
-                                    </td>
+                                    <td>{{ \Illuminate\Support\Str::limit($logbook->aktivitas, 60) }}</td>
+                                    <td>{{ \Illuminate\Support\Str::limit($logbook->keterangan, 80) }}</td>
+
                                     <td class="text-center">
-                                        {{-- contoh tombol lihat / detail --}}
+                                        @if($logbook->nilai)
+                                            <span class="badge bg-success">{{ $logbook->nilai }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">Belum dinilai</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="text-center">
                                         <a href="{{ route('dosen.logbook.show', $logbook->id) }}"
-                                           class="btn btn-sm"
-                                           style="background-color:#0d6efd; color:#ffffff;">
-                                            <i class="bi bi-eye"></i>
+                                           class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> Detail
                                         </a>
-
-                                        {{-- kalau dosen boleh edit / hapus, buka komen di bawah --}}
-                                        {{-- 
-                                        <a href="{{ route('dosen.logbook.edit', $logbook->id) }}"
-                                           class="btn btn-sm"
-                                           style="background-color:#ffc107; color:#000000;">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-
-                                        <form action="{{ route('dosen.logbook.destroy', $logbook->id) }}"
-                                              method="POST"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Yakin ingin menghapus logbook ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm"
-                                                    style="background-color:#dc3545; color:#ffffff;">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                        --}}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
+                                    <td colspan="6" class="text-center py-4">
                                         Belum ada data logbook.
                                     </td>
                                 </tr>
@@ -91,7 +69,6 @@
                     </table>
                 </div>
 
-                {{-- kalau pakai pagination --}}
                 @if (method_exists($logbooks, 'links'))
                     <div class="p-3">
                         {{ $logbooks->links() }}

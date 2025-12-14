@@ -133,15 +133,33 @@
             <form action="{{ route('login.authenticate') }}" method="POST">
                 @csrf
 
-                <!-- Pilih Role -->
-                <select name="role" required>
-                    <option value="">-- Pilih Jenis User --</option>
-                    <option value="mahasiswa">Mahasiswa</option>
-                    <option value="dosen_pembimbing">Dosen Pembimbing</option>
-                    <option value="dosen_penguji">Dosen Penguji</option>
-                    <option value="koordinator">Koordinator PBL</option>
-                    <option value="jaminan_mutu">Jaminan Mutu</option>
-                    <option value="admin">Admin</option>
+                <!-- Pilih Role (tanpa tulisan opsional, admin boleh tidak memilih) -->
+                <select name="role">
+                    <option value="" disabled selected hidden>Pilih Jenis User</option>
+
+                    <option value="mahasiswa" {{ old('role') == 'mahasiswa' ? 'selected' : '' }}>
+                        Mahasiswa
+                    </option>
+
+                    <option value="dosen_pembimbing" {{ old('role') == 'dosen_pembimbing' ? 'selected' : '' }}>
+                        Dosen Pembimbing
+                    </option>
+
+                    <option value="dosen_penguji" {{ old('role') == 'dosen_penguji' ? 'selected' : '' }}>
+                        Dosen Penguji
+                    </option>
+
+                    <option value="koordinator" {{ old('role') == 'koordinator' ? 'selected' : '' }}>
+                        Koordinator PBL
+                    </option>
+
+                    <option value="jaminan_mutu" {{ old('role') == 'jaminan_mutu' ? 'selected' : '' }}>
+                        Jaminan Mutu
+                    </option>
+
+                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>
+                        Admin
+                    </option>
                 </select>
 
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
@@ -157,7 +175,7 @@
                 <span class="divider-line"></span>
             </div>
 
-            <!-- Tombol Login Dengan Google (pakai logo) -->
+            <!-- Tombol Login Dengan Google -->
             <a href="{{ route('google.redirect') }}" class="google-btn">
                 <img src="{{ asset('assets/google-logo.png') }}" alt="Google Logo">
                 <span>Login dengan Akun Politala (Google)</span>

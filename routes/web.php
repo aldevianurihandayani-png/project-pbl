@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\NotifikasiController;
 // 🔽 TAMBAHAN UNTUK CRUD KELAS
 use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 
@@ -38,6 +39,8 @@ use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\DosenMilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\DosenLogbookController;
+use App\Http\Controllers\Dosen\DosenPembimbingController;
+
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -120,12 +123,21 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| 🔔🔔 NOTIFIKASI – ROUTE
+/*
+|--------------------------------------------------------------------------
+| 🔔 NOTIFIKASI – ROUTE
 |--------------------------------------------------------------------------
 */
+
+// Halaman daftar notifikasi
+Route::get('/notif', [NotificationController::class, 'index'])
+    ->name('notif.index')
+    ->middleware('auth');
+
+// Tandai semua notifikasi sebagai sudah dibaca (POST)
 Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
     ->name('notif.readAll')
-    ->middleware('auth');   // ⬅️ semua user login boleh akses
+    ->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -137,7 +149,8 @@ Route::prefix('admins')
     ->middleware(['auth', 'verified', 'role:admin'])
     ->group(function () {
 
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
 
         Route::resource('matakuliah', AdminMataKuliahController::class);
         Route::resource('mahasiswa', AdminMahasiswaController::class);
@@ -145,40 +158,41 @@ Route::prefix('admins')
         Route::resource('kelompok', AdminKelompokController::class)->only(['index', 'show']);
         Route::resource('logbook', AdminLogbookController::class)->only(['index']);
 
-        // 🔽 TAMBAHAN: CRUD KELAS UNTUK ADMIN
-        Route::resource('kelas', AdminKelasController::class)
-            ->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('kelas', AdminKelasController::class)->except(['show']);
 
-        // 🔽 TAMBAHAN: CRUD KELAS UNTUK ADMIN
-        Route::resource('kelas', AdminKelasController::class)
-            ->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('feedback', AdminFeedbackController::class);
+        Route::patch(
+            'feedback/{feedback}/status',
+            [AdminFeedbackController::class, 'updateStatus']
+        )->name('feedback.updateStatus');
 
-        // FEEDBACK (resource) – nama lengkapnya: admins.feedback.index, admins.feedback.store, dst
-        Route::resource('feedback', AdminFeedbackController::class)
-            ->names('feedback');
+        // =======================
+        // ✅ NOTIFIKASI (PAKAI CONTROLLER YANG KAMU EDIT)
+        // =======================
+        Route::resource('notifikasi', NotifikasiController::class);
 
-        // Route khusus untuk update status feedback (baru/diproses/selesai)
-        Route::patch('feedback/{feedback}/status', [AdminFeedbackController::class, 'updateStatus'])
-            ->name('feedback.updateStatus');
+        Route::get(
+            'notifikasi/{notification}/read',
+            [NotifikasiController::class, 'markRead']
+        )->name('notifikasi.read');
 
-        Route::resource('notifikasi', AdminNotifikasiController::class);
-        Route::post('notifikasi/markAll', [AdminNotifikasiController::class, 'markAllRead'])->name('notifikasi.markAll');
-        Route::get('notifikasi/{notification}/read', [AdminNotifikasiController::class, 'markRead'])->name('notifikasi.read');
+        Route::post(
+            'notifikasi/markAll',
+            [NotifikasiController::class, 'markAllRead']
+        )->name('notifikasi.markAll');
+        // =======================
 
         Route::resource('profile', AdminProfileController::class);
         Route::resource('users', AdminUserController::class);
 
-        // 👇 Tambahan: route approve / reject akun (sistem persetujuan user)
         Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])
             ->name('users.approve');
-
         Route::post('/users/{user}/reject', [AdminUserController::class, 'reject'])
             ->name('users.reject');
 
-        // 👇 route khusus untuk menu "Manajemen Akun" di sidebar
-        Route::get('/akun', [AdminUserController::class, 'index'])->name('akun.index');
+        Route::get('/akun', [AdminUserController::class, 'index'])
+            ->name('akun.index');
     });
-
 /*
 |--------------------------------------------------------------------------
 | Mahasiswa (role: mahasiswa)
@@ -219,15 +233,29 @@ Route::prefix('dosen')
         Route::resource('milestone', DosenMilestoneController::class)
             ->only(['index', 'edit', 'update']);
 
+        // resource utama logbook (index, show, edit, dll)
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
+        // toggle status logbook
         Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
             ->name('logbook.toggleStatus');
+
+        // 🔥 route khusus untuk update nilai logbook
+        Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
+            ->name('logbook.nilai.update');
 
         // Halaman detail kelas (TI-3E, TI-3D, dst)
         Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
             ->name('kelompok.kelas');
     });
+// Halaman daftar mahasiswa bimbingan
+Route::get('/dosen/mahasiswa', [DosenPembimbingController::class, 'index'])
+    ->name('dosen.mahasiswa.index');
+
+// Halaman detail mahasiswa
+Route::get('/dosen/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
+    ->name('dosen.mahasiswa.show');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -427,11 +455,9 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
 
-use App\Http\Controllers\TPK\TPKKelompokController;
+Route::resource('logbooks', LogbookController::class);
 
-Route::prefix('tpk/kelompok')->name('tpk.kelompok.')->group(function () {
-    Route::get('/',        [TPKKelompokController::class, 'index'])->name('index');
-    Route::get('/create',  [TPKKelompokController::class, 'create'])->name('create');
-    Route::post('/store',  [TPKKelompokController::class, 'store'])->name('store');
-    Route::get('/hitung',  [TPKKelompokController::class, 'calculate'])->name('calculate');
-});
+// 🔥 route kirim komentar dari mahasiswa
+Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
+    ->name('logbooks.feedback.store');
+

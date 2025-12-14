@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers;
 
@@ -17,7 +17,7 @@ class LoginController extends Controller
      * Ubah berbagai alias role ke bentuk baku (canonical).
      * Baku: admin, mahasiswa, dosen_pembimbing, dosen_penguji, jaminan_mutu, koor_pbl
      */
-    private function normalizeRole(string $role = null): ?string
+    private function normalizeRole(?string $role = null): ?string
     {
         if ($role === null) return null;
 
@@ -54,33 +54,52 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
-        // Normalisasi role dari request (jaga-jaga jika datang sebagai alias)
+        // Role dari form sekarang OPTIONAL (boleh ada, boleh tidak)
         $inputRole = $this->normalizeRole($request->input('role'));
         $request->merge(['role' => $inputRole]);
 
-        // Validasi
+        // Validasi (role optional)
         $data = $request->validate([
-            'email'    => ['required','email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
-            'role'     => ['required', Rule::in([
+            'role'     => ['nullable', Rule::in([
                 'admin','mahasiswa','dosen_pembimbing','dosen_penguji','jaminan_mutu','koor_pbl'
             ])],
         ]);
 
-        // Coba login
-        if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']], true)) {
+        // Coba login (email+password)
+        if (!Auth::attempt(['email' => $data['email'], 'password' => $data['password']], true)) {
             return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
-        // Login sukses → kunci session
         $request->session()->regenerate();
 
-        // Ambil role user di DB dan normalisasi agar legacy tetap cocok
+        // Role user dari DB (source of truth)
         $user = Auth::user();
         $userRoleCanonical = $this->normalizeRole($user->role);
 
-        // Cek kecocokan role yang dipilih di form vs role akun
-        if ($userRoleCanonical !== $data['role']) {
+        // =========================================================
+        // ✅ TAMBAHAN: BLOKIR LOGIN JIKA AKUN MASIH PENDING
+        //    - admin tetap boleh masuk
+        //    - user lain kalau pending → ditolak
+        // =========================================================
+        $userStatus = $user->status ?? null; // aman walau kolom status belum ada
+        if ($userRoleCanonical !== 'admin' && $userStatus === 'pending') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['email' => 'Akun masih menunggu persetujuan admin.'])
+                ->withInput();
+        }
+        // =========================================================
+        // ✅ END TAMBAHAN
+        // =========================================================
+
+        // ✅ Jika user memilih role di form, kita cek kecocokan
+        // ✅ Tapi kalau role tidak dikirim (admin masuk tanpa pilih role), skip cek ini
+        if (!empty($data['role']) && $userRoleCanonical !== $data['role']) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -90,13 +109,13 @@ class LoginController extends Controller
                 ->withInput();
         }
 
-        // Peta role → route dashboard (pakai nama route yang saat ini ada di project-mu)
+        // Redirect sesuai role DB
         $routeMap = [
-            'admin'            => 'admins.dashboard',        // kamu saat ini pakai "admins.dashboard"
+            'admin'            => 'admins.dashboard',
             'dosen_pembimbing' => 'dosen.dashboard',
             'dosen_penguji'    => 'dosenpenguji.dashboard',
             'jaminan_mutu'     => 'jaminanmutu.dashboard',
-            'koor_pbl'         => 'koordinator.dashboard',   // kamu namai route "koordinator"
+            'koor_pbl'         => 'koordinator.dashboard',
             'mahasiswa'        => 'mahasiswa.dashboard',
         ];
 

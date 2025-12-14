@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Logbook;
+use App\Models\Feedback; // 🔥 DITAMBAHKAN
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -79,7 +80,7 @@ class LogbookController extends Controller
             'user_id'    => Auth::id(),
         ]);
 
-        // kirim email
+        // Kirim email
         try {
             Mail::to(Auth::user()->email)->send(new LogbookSubmittedMail(Auth::user(), $logbook));
         } catch (\Throwable $e) {
@@ -94,7 +95,12 @@ class LogbookController extends Controller
     /** GET /logbooks/{logbook} */
     public function show(Logbook $logbook)
     {
-        return view('logbooks.show', compact('logbook'));
+        // 🔥 AMBIL KOMENTAR DOSEN UNTUK LOGBOOK INI
+        $feedback = Feedback::where('id_notifikasi', $logbook->id)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('logbooks.show', compact('logbook', 'feedback'));
     }
 
     /** GET /logbooks/{logbook}/edit */
@@ -156,4 +162,23 @@ class LogbookController extends Controller
     {
         return Auth::check() && in_array(Auth::user()->role, ['mahasiswa', 'admin'], true);
     }
+
+    /** POST /logbooks/{logbook}/feedback */
+public function storeFeedback(Request $request, Logbook $logbook)
+{
+    $data = $request->validate([
+        'isi' => ['required', 'string'],
+    ]);
+
+    \App\Models\Feedback::create([
+        'id_user'       => Auth::id(),      // yang komentar (mahasiswa atau dosen)
+        'id_notifikasi' => $logbook->id,    // kita anggap ini id logbook
+        'isi'           => $data['isi'],
+        'status'        => 'baru',
+        'tanggal'       => now(),
+    ]);
+
+    return back()->with('success', 'Komentar berhasil dikirim.');
+}
+
 }

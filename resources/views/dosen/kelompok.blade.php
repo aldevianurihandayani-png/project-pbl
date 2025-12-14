@@ -185,7 +185,7 @@
       <a href="{{ url('/dosen/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
       <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
       <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
-      <a href="{{ url('/dosen/penilaian') }}"><i class="fa-solid fa-book"></i>PenilaianS</a>
+
       
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>

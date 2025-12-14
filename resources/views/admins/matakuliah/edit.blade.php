@@ -1,20 +1,50 @@
-{{-- beri tahu editor bahwa $matakuliah adalah model, supaya warning hilang --}}
-<?php /** @var \App\Models\Matakuliah $matakuliah */ ?>
-
 @extends('layouts.admin')
+
 {{-- judul di bar biru atas --}}
 @section('page_title', 'Manajemen Mata Kuliah')
 
 @section('content')
 <div class="container-fluid">
 
-    {{-- ========= STYLE FORM & BUTTON (selaras dengan Tambah) ========= --}}
-    <style>
-        .mk-page {
-            max-width: 960px;
-            margin: 0 auto 16px auto;
-        }
+    @php
+        // ✅ biar aman kalau $matakuliah dianggap array oleh analyzer
+        $mkKelas    = data_get($matakuliah, 'kelas');
+        $mkKode     = data_get($matakuliah, 'kode_mk');
+        $mkNama     = data_get($matakuliah, 'nama_mk');
+        $mkSks      = data_get($matakuliah, 'sks');
+        $mkSemester = data_get($matakuliah, 'semester');
+        $mkIdDosen  = data_get($matakuliah, 'id_dosen');
 
+        // ✅ hilangkan warning foreach (anggap bisa null)
+        $opsiKelas = collect($daftarKelas ?? []);
+        $opsiDosen = collect($dosens ?? []);
+    @endphp
+
+    {{-- HEADER: KEMBALI + JUDUL --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('admins.matakuliah.index', ['kelas' => request('kelas', $mkKelas)]) }}"
+               class="mk-back-link">
+                <span class="mk-back-icon">←</span>
+                <span>Kembali</span>
+            </a>
+            <h4 class="mb-0">Edit Mata Kuliah</h4>
+        </div>
+    </div>
+
+    @if ($errors->any())
+        <div class="alert alert-danger mb-3">
+            <strong>Terjadi kesalahan.</strong>
+            <ul class="mb-0 mt-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- ========= STYLE FORM & BUTTON (SAMA SEPERTI CREATE) ========= --}}
+    <style>
         .mk-form-card {
             border-radius: 18px;
             background: #ffffff;
@@ -41,9 +71,7 @@
             gap: 16px 24px;
         }
         @media (max-width: 768px) {
-            .mk-form-grid {
-                grid-template-columns: 1fr;
-            }
+            .mk-form-grid { grid-template-columns: 1fr; }
         }
         .mk-field label {
             display: block;
@@ -93,37 +121,35 @@
         }
         .mk-btn {
             padding-inline: 22px;
-            padding-block: 10px;
+            padding-block: 8px;
             border-radius: 999px;
             font-size: 14px;
             font-weight: 600;
             text-decoration: none !important;
-            transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+            color: inherit !important;
         }
 
-        /* Batal */
+        /* tombol Batal (outline) */
         .btn-outline-secondary.mk-btn {
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
-            color: #475569;
+            color: #374151 !important;
+            border-color: #cbd5e1 !important;
+            background: #ffffff !important;
         }
         .btn-outline-secondary.mk-btn:hover {
-            background: #e2e8f0;
-            border-color: #94a3b8;
-            color: #1e293b;
+            background: #f3f4f6 !important;
+            color: #111827 !important;
+            border-color: #94a3b8 !important;
         }
 
-        /* Simpan Perubahan */
+        /* tombol Simpan (primary) */
         .btn-primary.mk-btn {
-            border: 1px solid #2563eb;
-            background: #2563eb;
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            background: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #ffffff !important;
         }
         .btn-primary.mk-btn:hover {
-            background: #1d4ed8;
-            border-color: #1d4ed8;
-            color: #ffffff;
+            background: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
         }
 
         /* link kembali di atas */
@@ -132,195 +158,150 @@
             align-items: center;
             gap: 6px;
             font-size: 14px;
-            text-decoration: none;
+            font-weight: 600;
+            text-decoration: none !important;
             color: #4b5563;
-            padding: 4px 10px;
+            padding: 6px 14px;
             border-radius: 999px;
+            background: #f3f4f6;
             transition: background-color .15s ease, color .15s ease;
         }
-        .mk-back-icon {
-            font-size: 14px;
-        }
+        .mk-back-icon { font-size: 14px; }
         .mk-back-link:hover {
-            background-color: #e5edff;
+            background-color: #e5e7eb;
             color: #111827;
         }
     </style>
 
-    <div class="mk-page">
+    <div class="mk-form-card">
+        <form action="{{ route('admins.matakuliah.update', $mkKode) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-        {{-- HEADER: KEMBALI + JUDUL --}}
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('admins.matakuliah.index', ['kelas' => $matakuliah->kelas]) }}"
-                   class="mk-back-link">
-                    <span class="mk-back-icon">←</span>
-                    <span>Kembali</span>
+            {{-- ====== SECTION 1: MATA KULIAH ====== --}}
+            <div class="mb-3">
+                <div class="mk-section-title">Informasi Mata Kuliah</div>
+                <div class="mk-section-sub">
+                    Perbarui nama mata kuliah, SKS, semester, dan kelas.
+                </div>
+
+                <div class="mk-form-grid">
+                    <div class="mk-field">
+                        <label for="kode_mk">Kode Mata Kuliah</label>
+                        <input type="text" id="kode_mk" name="kode_mk"
+                               value="{{ $mkKode }}"
+                               disabled>
+                        <small>Kode tidak dapat diubah.</small>
+                    </div>
+
+                    <div class="mk-field">
+                        <label for="nama_mk">Nama Mata Kuliah</label>
+                        <input type="text" id="nama_mk" name="nama_mk"
+                               class="@error('nama_mk') is-invalid @enderror"
+                               value="{{ old('nama_mk', $mkNama) }}">
+                        @error('nama_mk')
+                            <div class="mk-invalid">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mk-field">
+                        <label for="sks">SKS</label>
+                        <input type="number" id="sks" name="sks" min="1"
+                               class="@error('sks') is-invalid @enderror"
+                               value="{{ old('sks', $mkSks) }}">
+                        @error('sks')
+                            <div class="mk-invalid">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mk-field">
+                        <label for="semester">Semester</label>
+                        <input type="number" id="semester" name="semester" min="1"
+                               class="@error('semester') is-invalid @enderror"
+                               value="{{ old('semester', $mkSemester) }}">
+                        @error('semester')
+                            <div class="mk-invalid">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- ==== DROPDOWN KELAS DINAMIS DARI TABEL KELAS ==== --}}
+                    @php
+                        $kelasSelected = old('kelas', $mkKelas);
+                    @endphp
+                    <div class="mk-field">
+                        <label for="kelas">Kelas</label>
+                        <select id="kelas" name="kelas"
+                                class="@error('kelas') is-invalid @enderror">
+                            <option value="">-- Pilih Kelas --</option>
+
+                            @foreach ($opsiKelas as $item)
+                                @php
+                                    $namaKelas = is_object($item) ? data_get($item, 'nama_kelas') : $item;
+                                @endphp
+                                <option value="{{ $namaKelas }}"
+                                    {{ $kelasSelected == $namaKelas ? 'selected' : '' }}>
+                                    {{ $namaKelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('kelas')
+                            <div class="mk-invalid">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            {{-- ====== SECTION 2: DOSEN PENGAMPU (DROPDOWN) ====== --}}
+            <div class="mb-2">
+                <div class="mk-section-title">Dosen Pengampu</div>
+
+                <div class="mk-form-grid">
+                    @php
+                        $dosenSelected = old('id_dosen', $mkIdDosen);
+                    @endphp
+
+                    <div class="mk-field" style="grid-column: 1 / -1;">
+                        <label for="id_dosen">Pilih Dosen</label>
+                        <select id="id_dosen" name="id_dosen"
+                                class="@error('id_dosen') is-invalid @enderror" required>
+                            <option value="" disabled {{ $dosenSelected ? '' : 'selected' }}>
+                                -- Pilih Dosen --
+                            </option>
+
+                            @foreach ($opsiDosen as $dosen)
+                                @php
+                                    $idDosen  = data_get($dosen, 'id_dosen');
+                                    $nama     = data_get($dosen, 'nama_dosen');
+                                    $nip      = data_get($dosen, 'nip');
+                                @endphp
+                                <option value="{{ $idDosen }}"
+                                    {{ (string)$dosenSelected === (string)$idDosen ? 'selected' : '' }}>
+                                    {{ $nama }}{{ $nip ? ' ('.$nip.')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('id_dosen')
+                            <div class="mk-invalid">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            {{-- TOMBOL AKSI --}}
+            <div class="mk-actions">
+                <a href="{{ route('admins.matakuliah.index', ['kelas' => $mkKelas]) }}"
+                   class="btn btn-outline-secondary mk-btn">
+                    Batal
                 </a>
-                <h4 class="mb-0">
-                    Edit Mata Kuliah
-                    <span class="text-muted" style="font-size: 14px;">
-                        ({{ $matakuliah->kode_mk }})
-                    </span>
-                </h4>
+                <button type="submit" class="btn btn-primary mk-btn">
+                    Simpan Perubahan
+                </button>
             </div>
-        </div>
 
-        {{-- ERROR VALIDATION --}}
-        @if ($errors->any())
-            <div class="alert alert-danger mb-3">
-                <strong>Terjadi kesalahan.</strong>
-                <ul class="mb-0 mt-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <div class="mk-form-card">
-            <form action="{{ route('admins.matakuliah.update', $matakuliah->kode_mk) }}" method="POST">
-                @csrf
-                @method('PUT')
-
-                {{-- ====== SECTION 1: MATA KULIAH ====== --}}
-                <div class="mb-3">
-                    <div class="mk-section-title">Informasi Mata Kuliah</div>
-                    <div class="mk-section-sub">
-                        Perbarui kode, nama mata kuliah, SKS, semester, dan kelas.
-                    </div>
-
-                    <div class="mk-form-grid">
-                        <div class="mk-field">
-                            <label for="kode_mk">Kode Mata Kuliah</label>
-                            <input type="text" id="kode_mk" name="kode_mk"
-                                   class="@error('kode_mk') is-invalid @enderror"
-                                   value="{{ old('kode_mk', $matakuliah->kode_mk) }}"
-                                   readonly>
-                            <small>Kode tidak dapat diubah.</small>
-                            @error('kode_mk')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="nama_mk">Nama Mata Kuliah</label>
-                            <input type="text" id="nama_mk" name="nama_mk"
-                                   class="@error('nama_mk') is-invalid @enderror"
-                                   value="{{ old('nama_mk', $matakuliah->nama_mk) }}">
-                            @error('nama_mk')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="sks">SKS</label>
-                            <input type="number" id="sks" name="sks" min="1"
-                                   class="@error('sks') is-invalid @enderror"
-                                   value="{{ old('sks', $matakuliah->sks) }}">
-                            @error('sks')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="semester">Semester</label>
-                            <input type="number" id="semester" name="semester" min="1"
-                                   class="@error('semester') is-invalid @enderror"
-                                   value="{{ old('semester', $matakuliah->semester) }}">
-                            @error('semester')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="kelas">Kelas</label>
-                            @php
-                                $kelasSelected = old('kelas', $matakuliah->kelas);
-                            @endphp
-                            <select id="kelas" name="kelas"
-                                    class="@error('kelas') is-invalid @enderror">
-                                <option value="">-- Pilih Kelas --</option>
-                                @foreach (['A','B','C','D','E'] as $kls)
-                                    <option value="{{ $kls }}"
-                                        {{ $kelasSelected == $kls ? 'selected' : '' }}>
-                                        {{ $kls }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('kelas')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                {{-- ====== SECTION 2: DOSEN PENGAMPU ====== --}}
-                <div class="mb-2">
-                    <div class="mk-section-title">Informasi Dosen Pengampu</div>
-                    <div class="mk-section-sub">
-                        Perbarui data dosen pengampu untuk mata kuliah ini.
-                    </div>
-
-                    <div class="mk-form-grid">
-                        <div class="mk-field">
-                            <label for="nama_dosen">Nama Dosen Pengampu</label>
-                            <input type="text" id="nama_dosen" name="nama_dosen"
-                                   class="@error('nama_dosen') is-invalid @enderror"
-                                   value="{{ old('nama_dosen', $matakuliah->nama_dosen) }}">
-                            @error('nama_dosen')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="jabatan">Jabatan</label>
-                            <input type="text" id="jabatan" name="jabatan"
-                                   class="@error('jabatan') is-invalid @enderror"
-                                   value="{{ old('jabatan', $matakuliah->jabatan) }}">
-                            @error('jabatan')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="nip">NIP</label>
-                            <input type="text" id="nip" name="nip"
-                                   class="@error('nip') is-invalid @enderror"
-                                   value="{{ old('nip', $matakuliah->nip) }}">
-                            @error('nip')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mk-field">
-                            <label for="no_telp">No. Telepon</label>
-                            <input type="text" id="no_telp" name="no_telp"
-                                   class="@error('no_telp') is-invalid @enderror"
-                                   value="{{ old('no_telp', $matakuliah->no_telp) }}">
-                            @error('no_telp')
-                                <div class="mk-invalid">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                {{-- TOMBOL AKSI --}}
-                <div class="mk-actions">
-                    <a href="{{ route('admins.matakuliah.index', ['kelas' => $matakuliah->kelas]) }}"
-                       class="btn btn-outline-secondary mk-btn">
-                        Batal
-                    </a>
-                    <button type="submit" class="btn btn-primary mk-btn">
-                        Simpan Perubahan
-                    </button>
-                </div>
-
-            </form>
-        </div>
-
+        </form>
     </div>
 
 </div>

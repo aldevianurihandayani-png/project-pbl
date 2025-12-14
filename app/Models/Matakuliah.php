@@ -21,11 +21,7 @@ class Matakuliah extends Model
         'sks',
         'semester',
         'kelas',
-        'nama_dosen',
-        'jabatan',
-        'nip',
-        'no_telp',
-        'id_dosen',
+        'id_dosen', // ✅ cukup simpan id_dosen untuk relasi dropdown
     ];
 
     protected $casts = [
@@ -39,10 +35,10 @@ class Matakuliah extends Model
         return 'kode_mk';
     }
 
+    // ✅ RELASI: Mata Kuliah dimiliki 1 Dosen (Pengampu)
     public function dosen()
     {
-        // kalau pakai model User bawaan Laravel
-        return $this->belongsTo(User::class, 'id_dosen', 'id');
+        return $this->belongsTo(Dosen::class, 'id_dosen', 'id_dosen');
     }
 
     protected static function booted()

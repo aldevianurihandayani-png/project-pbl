@@ -1,4 +1,4 @@
-@extends('layouts.admin') 
+@extends('layouts.admin')
 
 @section('title', 'Manajemen Mata Kuliah — Admin')
 @section('page_title', 'Manajemen Mata Kuliah')
@@ -19,13 +19,16 @@
             padding: 10px 0 24px;
         }
 
-        /* ===== CARD PUTIH UTAMA (mirip "Daftar Kelompok") ===== */
+        /* ===== CARD PUTIH UTAMA (mirip halaman Mahasiswa) ===== */
         .mk-page-header {
             background: #ffffff;
             border-radius: 12px;
             border: 1px solid #e4ebff;
             box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+
+            /* ✅ samakan dengan Mahasiswa */
             padding: 12px 18px 16px;
+
             margin-bottom: 18px;
         }
         .mk-page-header-top {
@@ -33,12 +36,17 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
+
+            /* ✅ samakan dengan Mahasiswa */
             margin-bottom: 12px;
         }
+
+        /* ✅✅✅ SAMAKAN DENGAN MAHASISWA (UKURAN + WARNA) ✅✅✅ */
         .mk-page-title {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 700;
-            color: #2563eb;
+            color: #0b1f4d;
+            margin: 0;
         }
 
         .mk-add-btn {
@@ -47,10 +55,13 @@
             gap: 8px;
             background: #1554d1;
             color: #ffffff !important;
-            padding: 7px 18px;
-            border-radius: 999px;
+
+            /* ✅ samakan dengan Mahasiswa */
+            padding: 9px 22px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
+
+            border-radius: 999px;
             text-decoration: none !important;
             box-shadow: 0 4px 10px rgba(21, 84, 209, 0.35);
             transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
@@ -114,7 +125,6 @@
             background: #0f3fc0;
         }
 
-        /* ikon kaca pembesar di tombol Cari */
         .mk-search-icon {
             display: inline-flex;
             align-items: center;
@@ -216,7 +226,7 @@
             border-color: #1554d1;
         }
 
-        /* ===== DETAIL PER KELAS (kartu menyamping) ===== */
+        /* ===== DETAIL PER KELAS ===== */
         .mk-detail-wrap {
             max-width: 1120px;
             margin: 0 auto;
@@ -308,32 +318,77 @@
             padding: 5px 14px;
             font-size: 12px;
             font-weight: 600;
-            text-decoration: none !important; /* supaya "Edit" tidak bergaris bawah */
+            text-decoration: none !important;
         }
 
-        /* ========== STYLE BARU: EDIT & HAPUS ala SIMAP ========== */
+        /* tombol Edit / Hapus ala SIMAP */
         .btn-edit {
-            background: #e9f0ff;
-            border: 1px solid #1d4ed8;
-            color: #1d4ed8;
+            background: #1554d1;
+            border: 1px solid #1554d1;
+            color: #ffffff !important;
         }
         .btn-edit:hover {
-            background: #dbe8ff;
+            background: #0f3fc0;
+            border-color: #0f3fc0;
+            color: #ffffff !important;
         }
 
         .btn-hapus {
-            background: #ffe8e8;
+            background: #ffffff;
             border: 1px solid #dc2626;
-            color: #b91c1c;
+            color: #dc2626 !important;
         }
         .btn-hapus:hover {
-            background: #ffd4d4;
+            background: rgba(220, 38, 38, 0.08);
+            color: #dc2626 !important;
         }
-        /* (optional) kalau masih ada class bootstrap lama, biarkan saja tidak dipakai */
+
+        /* ================== RAPIN HASIL PENCARIAN (TAMBAHAN) ================== */
+        .mk-search-wrap {
+            margin-top: 14px;
+            padding: 14px 16px 16px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #dde5ff;
+            box-shadow: 0 14px 32px rgba(15,23,42,.05);
+        }
+        .mk-search-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .mk-search-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0b1f4d;
+            margin: 0;
+        }
+        .mk-search-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1554d1;
+            background: #edf2ff;
+            border: 1px solid #cfd7ff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .mk-search-note {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .mk-search-pagination {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+        }
+        /* ================== END TAMBAHAN ================== */
     </style>
 
     @php
-        // kalau controller belum kirim, ini backup
         $kelasFilter = $kelasFilter ?? request('kelas');
     @endphp
 
@@ -344,9 +399,10 @@
 
             <div class="mk-page-header">
                 <div class="mk-page-header-top">
-                    <div class="mk-page-title">
-                        Daftar Mata Kuliah per Kelas
+                    <div>
+                        <h1 class="mk-page-title">Daftar Mata Kuliah per Kelas</h1>
                     </div>
+
                     <a href="{{ route('admins.matakuliah.create') }}" class="mk-add-btn">
                         Tambah Mata Kuliah
                     </a>
@@ -357,9 +413,11 @@
                         <label class="mk-filter-label">Kelas</label>
                         <select name="filter_kelas" class="mk-filter-select">
                             <option value="">Semua</option>
-                            @foreach (['A','B','C','D','E'] as $k)
-                                <option value="{{ $k }}" {{ request('filter_kelas') == $k ? 'selected' : '' }}>
-                                    Kelas {{ $k }}
+                            {{-- 🔹 kelas diambil dari tabel `kelas` --}}
+                            @foreach ($daftarKelas as $row)
+                                <option value="{{ $row->nama_kelas }}"
+                                    {{ request('filter_kelas') == $row->nama_kelas ? 'selected' : '' }}>
+                                    {{ $row->nama_kelas }}
                                 </option>
                             @endforeach
                         </select>
@@ -390,7 +448,6 @@
                     <div class="mk-filter-group" style="min-width:auto;">
                         <button type="submit" class="mk-filter-search-btn">
                             <span class="mk-search-icon">
-                                {{-- ikon kaca pembesar --}}
                                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                                     <circle cx="11" cy="11" r="6" fill="none" stroke="white" stroke-width="2" />
                                     <line x1="16" y1="16" x2="20" y2="20" stroke="white" stroke-width="2" stroke-linecap="round" />
@@ -409,12 +466,12 @@
             <div class="kelas-section-title">Ringkasan per Kelas</div>
 
             <div class="kelas-grid mb-4">
-                @php $daftarKelas = ['A','B','C','D','E']; @endphp
-
-                @foreach ($daftarKelas as $kls)
+                {{-- 🔹 kartu kelas juga dari tabel `kelas` --}}
+                @foreach ($daftarKelas as $row)
                     @php
-                        $stat = $kelasStats[$kls] ?? null;
-                        $total = $stat->total ?? 0;
+                        $namaKelas    = $row->nama_kelas;
+                        $stat         = $kelasStats[$namaKelas] ?? null;
+                        $total        = $stat->total ?? 0;
                         $rangeSemester = $stat
                             ? ($stat->min_semester == $stat->max_semester
                                 ? 'Semester '.$stat->min_semester
@@ -422,10 +479,10 @@
                             : '-';
                     @endphp
 
-                    <a href="{{ route('admins.matakuliah.index', ['kelas' => $kls]) }}" class="kelas-card-link">
+                    <a href="{{ route('admins.matakuliah.index', ['kelas' => $namaKelas]) }}" class="kelas-card-link">
                         <div class="kelas-card">
                             <div class="kelas-card-inner">
-                                <div class="kelas-name mb-1">Kelas {{ $kls }}</div>
+                                <div class="kelas-name mb-1">{{ $namaKelas }}</div>
 
                                 <div class="kelas-meta mb-1">
                                     Jumlah mata kuliah:
@@ -449,6 +506,79 @@
                 @endforeach
             </div>
 
+            {{-- ✅✅✅ TAMBAHAN: HASIL PENCARIAN MATA KULIAH (DIRAPIKAN) ✅✅✅ --}}
+            @if(isset($hasSearch) && $hasSearch)
+
+                <div class="mk-search-wrap">
+                    <div class="mk-search-head">
+                        <h3 class="mk-search-title">Hasil Pencarian Mata Kuliah</h3>
+                        <div class="mk-search-badge">
+                            {{ $matakuliahs->total() ?? $matakuliahs->count() }} data
+                        </div>
+                    </div>
+
+                    <div class="mk-search-note">
+                        Kata kunci: <strong>{{ request('q') }}</strong>
+                        @if(request('filter_kelas')) • Kelas: <strong>{{ request('filter_kelas') }}</strong> @endif
+                        @if(request('filter_semester')) • Semester: <strong>{{ request('filter_semester') }}</strong> @endif
+                    </div>
+
+                    @if($matakuliahs->count() == 0)
+                        <div class="alert alert-info mt-3 mb-0">
+                            Tidak ada mata kuliah yang cocok dengan pencarian.
+                        </div>
+                    @else
+                        <div class="mk-mk-grid mt-3">
+                            @foreach ($matakuliahs as $mk)
+                                <div class="mk-mk-card">
+                                    <div class="mk-mk-inner">
+                                        <div class="mk-mk-code">{{ $mk->kode_mk }}</div>
+                                        <div class="mk-mk-name">{{ $mk->nama_mk }}</div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            <span>Kelas: <strong>{{ $mk->kelas ?? '-' }}</strong></span>
+                                        </div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            <span>SKS: {{ $mk->sks }}</span>
+                                            <span>Semester: {{ $mk->semester }}</span>
+                                        </div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            Dosen pengampu:
+                                            <strong>{{ $mk->nama_dosen ?? '-' }}</strong>
+                                        </div>
+
+                                        <div class="mk-mk-footer">
+                                            <a href="{{ route('admins.matakuliah.edit', $mk->kode_mk) }}"
+                                               class="mk-btn-sm btn-edit">
+                                                Edit
+                                            </a>
+
+                                            <form action="{{ route('admins.matakuliah.destroy', $mk->kode_mk) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Yakin ingin menghapus mata kuliah ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="mk-btn-sm btn-hapus">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mk-search-pagination">
+                            {{ $matakuliahs->withQueryString()->links() }}
+                        </div>
+                    @endif
+                </div>
+
+            @endif
+            {{-- ✅✅✅ END TAMBAHAN ✅✅✅ --}}
+
         {{-- ================== MODE 2: DETAIL PER KELAS ================== --}}
         @else
 
@@ -462,11 +592,10 @@
                 <div class="d-flex justify-content-between align-items-end mb-3 mt-1">
                     <div>
                         <h2 class="mk-page-title mb-1" style="font-size:18px; color:#0b1f4d;">
-                            Daftar Mata Kuliah — Kelas {{ $kelasFilter }}
+                            Daftar Mata Kuliah — {{ $kelasFilter }}
                         </h2>
-                        {{-- hanya teks deskripsi, TIDAK ada link "Kelas B" biru lagi --}}
-                        <p class="mk-filter-label mb-0" style="margin-bottom:0;">
-                            Data mata kuliah terdaftar di kelas {{ $kelasFilter }}.
+                        <p class="mk-filter-label mb-0">
+                            Data mata kuliah terdaftar di {{ $kelasFilter }}.
                         </p>
                     </div>
                     <div class="mk-class-pill">
@@ -479,7 +608,7 @@
 
                 @if ($matakuliahs->count() == 0)
                     <div class="alert alert-info mt-3">
-                        Belum ada data mata kuliah untuk kelas {{ $kelasFilter }}.
+                        Belum ada data mata kuliah untuk {{ $kelasFilter }}.
                     </div>
                 @else
                     <div class="mk-mk-grid">

@@ -96,7 +96,7 @@
       justify-content:space-between;
       position:sticky;
       top:0;
-      z-index:3;
+      z-index:5000; /* penting: dropdown ga ketutup */
       box-shadow:var(--shadow);
     }
     .topbar-left{
@@ -122,31 +122,121 @@
       display:flex;
       align-items:center;
       gap:14px;
-    }
-    .notif{
-      position:relative;
-      text-decoration:none;
-      color:#fff;
-    }
-    .notif i{ font-size:18px; }
-    .notif .badge{
-      position:absolute;
-      top:-6px;
-      right:-6px;
-      background:#e53935;
-      color:#fff;
-      border-radius:10px;
-      font-size:10px;
-      padding:2px 5px;
-      min-width:16px;
-      text-align:center;
+      position:relative; /* dropdown nempel ke kanan */
     }
 
+    /* ==========================
+       ✅ NOTIF DROPDOWN (CUSTOM)
+       ========================== */
+    .top-actions{display:flex;align-items:center;gap:14px;position:relative}
+
+    .bell-btn{
+      position:relative;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:36px;height:36px;
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      transition: background .15s ease;
+      z-index:7000;
+    }
+    .bell-btn:hover{ background: rgba(255,255,255,.16); }
+    .bell-btn i{color:#fff;font-size:16px}
+
+    .bell-btn .badge{
+      position:absolute; top:-6px; right:-6px;
+      background:#e53935; color:#fff;
+      border-radius:999px;
+      font-size:11px;
+      padding:2px 6px;
+      min-width:18px;
+      height:18px;
+      line-height:14px;
+      text-align:center;
+      border:2px solid #0a1a54;
+      font-weight:800;
+    }
+
+    .notif-dd{
+      position:absolute;
+      right:0;
+      top:46px;
+      width:360px;
+      max-height:420px;
+      overflow:auto;
+      background:#fff;
+      border:1px solid rgba(13,23,84,.12);
+      border-radius:14px;
+      box-shadow:0 12px 30px rgba(13,23,84,.18);
+      display:none;
+      z-index:9999;
+      pointer-events:auto;
+    }
+    .notif-dd.active{display:block}
+
+    .notif-hd{
+      padding:10px 12px;
+      border-bottom:1px solid #eef1f6;
+      font-weight:900;
+      color:#0e257a;
+      display:flex;
+      justify-content:space-between;
+      align-items:center
+    }
+    .notif-item-link{display:block;text-decoration:none;color:inherit}
+    .notif-item{
+      display:flex;
+      gap:10px;
+      padding:12px;
+      border-bottom:1px solid #f3f5fb;
+      background:#fff;
+    }
+    .notif-item:hover{background:#f7f9ff}
+    .notif-item.unread{background:#f7f9ff}
+    .notif-icon{
+      width:28px;height:28px;
+      border-radius:8px;
+      display:grid;
+      place-items:center;
+      background:#e9efff;
+      color:#1d4ed8;
+      flex:0 0 auto;
+    }
+    .notif-title{font-weight:900;color:#0e257a;font-size:13px;line-height:1.2}
+    .notif-meta{font-size:12px;color:#6c7a8a;margin-top:2px}
+    .notif-empty{padding:18px;text-align:center;color:#6c7a8a}
+    .notif-ft{
+      padding:10px;
+      border-top:1px solid #eef1f6;
+      text-align:center;
+      background:#fff;
+    }
+    .notif-ft a{
+      color:#0e257a;
+      text-decoration:none;
+      font-weight:900;
+    }
+
+    /* ✅ Profil jadi link */
     .profile-box{
       display:flex;
       align-items:center;
       gap:8px;
+      text-decoration:none;
+      color:inherit;
+      cursor:pointer;
+      padding:6px 8px;
+      border-radius:12px;
+      transition:background .18s;
     }
+    .profile-box:hover{
+      background: rgba(255,255,255,.08);
+    }
+
+    /* ✅ avatar bisa isi IMG */
     .profile-avatar{
       width:32px;
       height:32px;
@@ -158,7 +248,16 @@
       color:#fff;
       font-weight:700;
       font-size:13px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.35);
     }
+    .profile-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
     .profile-meta{
       display:flex;
       flex-direction:column;
@@ -178,57 +277,6 @@
       display:grid;
       gap:18px;
     }
-
-    /* Card umum, KPI dll – biarkan seperti semula */
-    .kpi{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
-      gap:16px;
-    }
-    .kpi .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:16px 18px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      border:1px solid var(--ring);
-    }
-    .kpi .icon{
-      width:36px;
-      height:36px;
-      border-radius:10px;
-      background:#eef3ff;
-      display:grid;
-      place-items:center;
-      color:var(--navy-2);
-    }
-    .kpi .meta small{ color:var(--muted) }
-    .kpi .meta b{ font-size:22px; color:var(--navy-2) }
-
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid var(--ring);
-    }
-    .card .card-hd{
-      padding:14px 18px;
-      border-bottom:1px solid #eef1f6;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      color:var(--navy-2);
-      font-weight:700;
-    }
-    .card .card-bd{
-      padding:16px 18px;
-      color:#233042;
-    }
-    .muted{ color:var(--muted) }
-    ul.clean{ margin:8px 0 0 18px }
-    a.card-link{text-decoration:none}
 
     /* RESPONSIVE */
     @media (max-width:980px){
@@ -255,6 +303,8 @@
   @include('admins.partials.sidebar')
 
   @php
+    use Illuminate\Support\Facades\Storage;
+
     $user = auth()->user();
     $userName = $user->nama ?? $user->name ?? 'Administrator';
     $parts = preg_split('/\s+/', trim($userName));
@@ -264,36 +314,95 @@
     );
     $userRole = $user->role ?? 'Admin';
     $userRoleLabel = ucwords(str_replace('_',' ',$userRole));
+
+    /* ✅ Foto topbar */
+    $userPhoto = ($user && $user->profile_photo_path)
+        ? Storage::url($user->profile_photo_path)
+        : null;
+
+    /* ✅ URL profil */
+    $profileUrl = url('/admins/profile');
+
+    /* ✅ data notif (kalau view composer belum ada, aman: default kosong) */
+    $notifCount = $unreadCount ?? 0;
+    $notifList  = $notifications ?? collect();
   @endphp
 
   <main>
-    {{-- TOPBAR BIRU (header global) --}}
+    {{-- TOPBAR --}}
     <header class="topbar">
       <div class="topbar-left">
         <button class="topbar-btn" onclick="toggleSidebar()">
           <i class="fa-solid fa-bars"></i>
         </button>
         <div class="welcome">
-          {{-- Judul halaman: bisa di-set di setiap view pakai @section('page_title', 'Manajemen Mata Kuliah') --}}
           <h1>@yield('page_title', 'Manajemen Kelompok')</h1>
         </div>
       </div>
 
       <div class="userbox">
-        {{-- Lonceng notifikasi: arahkan ke halaman notifikasi --}}
-        <a href="{{ url('/admins/notifikasi') }}" class="notif">
-          <i class="fa-solid fa-bell"></i>
-          <span class="badge">3</span> {{-- ganti dengan jumlah notif dinamis kalau sudah siap --}}
-        </a>
+        {{-- ✅ Lonceng Notifikasi (Dropdown Custom) --}}
+        <div class="top-actions" id="topActions">
+          <div class="bell-btn" id="bellBtn" aria-label="Notifikasi">
+            <i class="fa-solid fa-bell"></i>
+            @if($notifCount > 0)
+              <span class="badge" id="notifDot">{{ $notifCount }}</span>
+            @endif
+          </div>
 
-        {{-- Profil user --}}
-        <div class="profile-box">
-          <div class="profile-avatar">{{ $initial }}</div>
+          <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
+            <div class="notif-hd">
+              <span>Notifikasi</span>
+              <small style="color:#6c7a8a;font-weight:800">{{ $notifCount }} baru</small>
+            </div>
+
+            @forelse($notifList as $n)
+              <a class="notif-item-link" href="{{ $n->link_url ?? url('/admins/notifikasi') }}">
+                <div class="notif-item {{ ($n->pivot->is_read ?? 0) ? '' : 'unread' }}">
+                  <div class="notif-icon">
+                    <i class="fa-solid fa-bell"></i>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="notif-title">{{ $n->judul ?? '-' }}</div>
+                    @if(!empty($n->pesan))
+                      <div class="notif-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        {{ $n->pesan }}
+                      </div>
+                    @endif
+                    <div class="notif-meta">{{ $n->created_at?->diffForHumans() }}</div>
+                  </div>
+                </div>
+              </a>
+            @empty
+              <div class="notif-empty">Belum ada notifikasi.</div>
+            @endforelse
+
+            <div class="notif-ft">
+              <a href="{{ url('/admins/notifikasi') }}">Lihat Semua Notifikasi</a>
+            </div>
+          </div>
+        </div>
+
+        {{-- ✅ Profil user --}}
+        <a href="{{ $profileUrl }}" class="profile-box">
+          <div class="profile-avatar">
+            @if($userPhoto)
+              <img
+                src="{{ $userPhoto }}"
+                alt="Foto Profil"
+                data-fallback="{{ asset('images/default-profile.png') }}"
+                onerror="this.onerror=null;this.src=this.dataset.fallback;"
+              >
+            @else
+              {{ $initial }}
+            @endif
+          </div>
+
           <div class="profile-meta">
             <span class="profile-name">{{ $userName }}</span>
             <span class="profile-role">{{ $userRoleLabel }}</span>
           </div>
-        </div>
+        </a>
       </div>
     </header>
 
@@ -302,7 +411,7 @@
       @yield('content')
     </div>
 
-    {{-- FOOTER (opsional) --}}
+    {{-- FOOTER --}}
     @include('admins.partials.footer')
   </main>
 
@@ -314,6 +423,35 @@
       const sidebar = document.querySelector('.sidebar');
       if (sidebar) sidebar.classList.toggle('show');
     }
+  </script>
+
+  {{-- ✅ Script dropdown notif --}}
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const bell = document.getElementById('bellBtn');
+    const dd   = document.getElementById('notifDd');
+    const dot  = document.getElementById('notifDot');
+
+    if(!bell || !dd) return;
+
+    bell.addEventListener('click', function(e){
+      e.stopPropagation();
+      dd.classList.toggle('active');
+      if (dd.classList.contains('active') && dot) dot.style.display = 'none';
+    });
+
+    dd.addEventListener('click', function(e){
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', function(){
+      dd.classList.remove('active');
+    });
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') dd.classList.remove('active');
+    });
+  });
   </script>
 
   @stack('scripts')
