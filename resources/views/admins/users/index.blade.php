@@ -7,6 +7,42 @@
 
 {{-- Styling khusus halaman ini saja --}}
 <style>
+    /* ===== CARD WRAPPER (biar cantik) ===== */
+    .card{
+        background: #ffffff;
+        border: 1px solid #e6eaf8;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(11, 29, 84, 0.06);
+        overflow: hidden; /* biar radius rapi */
+    }
+    .card-hd{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: nowrap;
+        padding: 14px 16px;
+        background: #f7f9ff;
+        border-bottom: 1px solid #e6eaf8;
+    }
+    .card-hd span{
+        white-space: nowrap;
+        font-weight: 700;
+        color: #0b1d54;
+        font-size: 15px;
+    }
+    .card-bd{
+        padding: 14px 16px 16px;
+    }
+
+    /* ===== TABLE LOOK (modern) ===== */
+    .table-card{
+        border: 1px solid #e6eaf8;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #fff;
+    }
+
     .user-table {
         width: 100%;
         border-collapse: collapse;
@@ -19,25 +55,32 @@
 
     .user-table th,
     .user-table td {
-        padding: 8px 12px;
+        padding: 10px 12px;
         border-bottom: 1px solid #e3e7f5;
+        vertical-align: middle;
     }
 
     .user-table th {
         text-align: left;
-        font-weight: 600;
+        font-weight: 700;
         color: #0b1d54;
+        font-size: 13px;
     }
 
     .user-table tbody tr:hover {
         background: #f8f9ff;
     }
 
+    .user-table tbody tr:last-child td{
+        border-bottom: none;
+    }
+
+    /* ===== BUTTONS ===== */
     .btn-pill {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 4px 10px;
+        padding: 6px 12px;
         border-radius: 999px;
         font-size: 12px;
         border: 1px solid transparent;
@@ -45,6 +88,7 @@
         cursor: pointer;
         transition: 0.15s;
         white-space: nowrap;
+        line-height: 1;
     }
 
     .btn-pill-primary {
@@ -84,11 +128,12 @@
         flex-wrap: wrap;
     }
 
+    /* ===== ALERT ===== */
     .alert-soft {
-        padding: 8px 12px;
-        border-radius: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
         font-size: 13px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
     .alert-soft-success {
@@ -103,12 +148,13 @@
         color: #b42020;
     }
 
+    /* ===== BADGE ===== */
     .badge-status {
         display: inline-flex;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 999px;
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
     }
     .badge-status-pending {
         background: #fff7e6;
@@ -127,15 +173,21 @@
     }
 
     .role-select-sm {
-        padding: 3px 6px;
+        padding: 5px 8px;
         font-size: 12px;
         border-radius: 999px;
         border: 1px solid #cfd5f0;
+        background: #fff;
+    }
+
+    /* biar tabel bisa scroll horizontal kalau layar kecil */
+    .table-scroll{
+        overflow-x: auto;
     }
 </style>
 
 <div class="card">
-    <div class="card-hd" style="justify-content: space-between;">
+    <div class="card-hd">
         <span>Daftar Akun Pengguna</span>
 
         <a href="{{ route('admins.users.create') }}" class="btn-pill btn-pill-primary">
@@ -157,153 +209,142 @@
             </div>
         @endif
 
-        <table class="user-table">
-            <thead>
-                <tr>
-                    <th style="width: 60px;">ID</th>
-                    <th style="width: 220px;">Nama</th>
-                    <th>Email</th>
-                    <th style="width: 160px;">Role</th>
-                    <th style="width: 120px;">Status</th>
-                    <th style="width: 260px;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($users as $user)
-                    <tr>
-                        {{-- ID berurutan 1,2,3... --}}
-                        <td>{{ $loop->iteration }}</td>
+        {{-- ✅ Table dibungkus card biar cantik --}}
+        <div class="table-card">
+            <div class="table-scroll">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th style="width: 220px;">Nama</th>
+                            <th>Email</th>
+                            <th style="width: 160px;">Role</th>
+                            <th style="width: 120px;">Status</th>
+                            <th style="width: 260px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($users as $user)
+                            <tr>
+                                {{-- ID berurutan 1,2,3... --}}
+                                <td>{{ $loop->iteration }}</td>
 
-                        <td>{{ $user->nama ?? $user->name ?? '-' }}</td>
-                        <td>{{ $user->email }}</td>
+                                <td>{{ $user->nama ?? $user->name ?? '-' }}</td>
+                                <td>{{ $user->email }}</td>
 
-                        {{-- Role: kalau masih pending, tampilkan role yang diminta --}}
-                        <td>
-                            @php
-                                // ✅ TAMBAHAN: admin khusus jangan pernah tampil "(diminta)"
-                                $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
-                            @endphp
+                                {{-- Role: kalau masih pending, tampilkan role yang diminta --}}
+                                <td>
+                                    @php
+                                        $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
+                                    @endphp
 
-                            @if($isSpecialAdmin)
-                                admin
-                            @elseif($user->status === 'pending')
-                                <strong>{{ $user->requested_role ?? '-' }}</strong>
-                                <span style="font-size:11px;color:#6b7280;">(diminta)</span>
-                            @else
-                                {{ $user->role ?? '-' }}
-                            @endif
-                        </td>
-
-                        {{-- Status badge --}}
-                        <td>
-                            @php
-                                // ✅ TAMBAHAN: admin khusus dipaksa tampil Active
-                                $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
-                            @endphp
-
-                            @if($isSpecialAdmin)
-                                <span class="badge-status badge-status-active">Active</span>
-                            @elseif($user->status === 'pending')
-                                <span class="badge-status badge-status-pending">Pending</span>
-                            @elseif($user->status === 'active')
-                                <span class="badge-status badge-status-active">Active</span>
-                            @elseif($user->status === 'rejected')
-                                <span class="badge-status badge-status-rejected">Rejected</span>
-                            @else
-                                <span class="badge-status">{{ $user->status ?? '-' }}</span>
-                            @endif
-                        </td>
-
-                        <td>
-                            <div class="actions">
-
-                                {{-- JIKA MASIH PENDING: FORM PERSETUJUAN --}}
-                                {{-- ✅ tambahan: jangan proses admin --}}
-                                @php
-                                    // ✅ TAMBAHAN: admin khusus jangan ikut pending action
-                                    $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
-                                @endphp
-
-                                @if($user->status === 'pending' && $user->role !== 'admin' && !$isSpecialAdmin)
-
-                                    {{-- Setujui + pilih role final --}}
-                                    <form action="{{ route('admins.users.approve', $user->id) }}"
-                                          method="POST"
-                                          class="d-flex align-items-center"
-                                          style="gap:6px;">
-                                        @csrf
-                                        <select name="role" class="role-select-sm" required>
-                                            <option value="">Pilih role…</option>
-                                            <option value="mahasiswa"        {{ $user->requested_role == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                                            <option value="dosen_pembimbing" {{ $user->requested_role == 'dosen_pembimbing' ? 'selected' : '' }}>Dosen Pembimbing</option>
-                                            <option value="dosen_penguji"    {{ $user->requested_role == 'dosen_penguji' ? 'selected' : '' }}>Dosen Penguji</option>
-                                            <option value="koordinator"      {{ $user->requested_role == 'koordinator' ? 'selected' : '' }}>Koordinator PBL</option>
-                                            <option value="jaminan_mutu"     {{ $user->requested_role == 'jaminan_mutu' ? 'selected' : '' }}>Jaminan Mutu</option>
-                                            {{-- kalau admin tidak boleh diminta, jangan tampilkan di sini --}}
-                                            {{-- <option value="admin">Admin</option> --}}
-                                        </select>
-
-                                        <button type="submit" class="btn-pill btn-pill-primary">
-                                            Setujui
-                                        </button>
-                                    </form>
-
-                                    {{-- Tolak akun --}}
-                                    <form action="{{ route('admins.users.reject', $user->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Tolak akun ini?');">
-                                        @csrf
-                                        <button type="submit"
-                                                class="btn-pill btn-pill-danger">
-                                            Tolak
-                                        </button>
-                                    </form>
-
-                                    {{-- Opsional: tetap bisa lihat detail --}}
-                                    <a href="{{ route('admins.users.show', $user->id) }}"
-                                       class="btn-pill btn-pill-ghost">
-                                        Detail
-                                    </a>
-
-                                @else
-                                    {{-- SUDAH ACTIVE / REJECTED: tombol normal --}}
-                                    <a href="{{ route('admins.users.show', $user->id) }}"
-                                       class="btn-pill btn-pill-ghost">
-                                        Detail
-                                    </a>
-
-                                    <a href="{{ route('admins.users.edit', $user->id) }}"
-                                       class="btn-pill btn-pill-ghost">
-                                        Edit
-                                    </a>
-
-                                    {{-- ✅ tambahan: jangan tampilkan tombol HAPUS untuk akun yang sedang login --}}
-                                    @if(auth()->id() !== $user->id)
-                                        <form action="{{ route('admins.users.destroy', $user->id) }}"
-                                              method="POST"
-                                              onsubmit="return confirm('Yakin ingin menghapus akun ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="btn-pill btn-pill-danger">
-                                                Hapus
-                                            </button>
-                                        </form>
+                                    @if($isSpecialAdmin)
+                                        admin
+                                    @elseif($user->status === 'pending')
+                                        <strong>{{ $user->requested_role ?? '-' }}</strong>
+                                        <span style="font-size:11px;color:#6b7280;">(diminta)</span>
+                                    @else
+                                        {{ $user->role ?? '-' }}
                                     @endif
-                                @endif
+                                </td>
 
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" style="text-align:center; padding:16px;">
-                            Tidak ada data akun pengguna.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                                {{-- Status badge --}}
+                                <td>
+                                    @php
+                                        $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
+                                    @endphp
+
+                                    @if($isSpecialAdmin)
+                                        <span class="badge-status badge-status-active">Active</span>
+                                    @elseif($user->status === 'pending')
+                                        <span class="badge-status badge-status-pending">Pending</span>
+                                    @elseif($user->status === 'active')
+                                        <span class="badge-status badge-status-active">Active</span>
+                                    @elseif($user->status === 'rejected')
+                                        <span class="badge-status badge-status-rejected">Rejected</span>
+                                    @else
+                                        <span class="badge-status">{{ $user->status ?? '-' }}</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <div class="actions">
+                                        @php
+                                            $isSpecialAdmin = ($user->email === 'noorma@mhs.politala.ac.id');
+                                        @endphp
+
+                                        @if($user->status === 'pending' && $user->role !== 'admin' && !$isSpecialAdmin)
+
+                                            <form action="{{ route('admins.users.approve', $user->id) }}"
+                                                  method="POST"
+                                                  class="d-flex align-items-center"
+                                                  style="gap:6px;">
+                                                @csrf
+                                                <select name="role" class="role-select-sm" required>
+                                                    <option value="">Pilih role…</option>
+                                                    <option value="mahasiswa"        {{ $user->requested_role == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                                                    <option value="dosen_pembimbing" {{ $user->requested_role == 'dosen_pembimbing' ? 'selected' : '' }}>Dosen Pembimbing</option>
+                                                    <option value="dosen_penguji"    {{ $user->requested_role == 'dosen_penguji' ? 'selected' : '' }}>Dosen Penguji</option>
+                                                    <option value="koordinator"      {{ $user->requested_role == 'koordinator' ? 'selected' : '' }}>Koordinator PBL</option>
+                                                    <option value="jaminan_mutu"     {{ $user->requested_role == 'jaminan_mutu' ? 'selected' : '' }}>Jaminan Mutu</option>
+                                                </select>
+
+                                                <button type="submit" class="btn-pill btn-pill-primary">
+                                                    Setujui
+                                                </button>
+                                            </form>
+
+                                            <form action="{{ route('admins.users.reject', $user->id) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Tolak akun ini?');">
+                                                @csrf
+                                                <button type="submit" class="btn-pill btn-pill-danger">
+                                                    Tolak
+                                                </button>
+                                            </form>
+
+                                            <a href="{{ route('admins.users.show', $user->id) }}"
+                                               class="btn-pill btn-pill-ghost">
+                                                Detail
+                                            </a>
+
+                                        @else
+                                            <a href="{{ route('admins.users.show', $user->id) }}"
+                                               class="btn-pill btn-pill-ghost">
+                                                Detail
+                                            </a>
+
+                                            <a href="{{ route('admins.users.edit', $user->id) }}"
+                                               class="btn-pill btn-pill-ghost">
+                                                Edit
+                                            </a>
+
+                                            @if(auth()->id() !== $user->id)
+                                                <form action="{{ route('admins.users.destroy', $user->id) }}"
+                                                      method="POST"
+                                                      onsubmit="return confirm('Yakin ingin menghapus akun ini?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-pill btn-pill-danger">
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:16px;">
+                                    Tidak ada data akun pengguna.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
     </div>
 </div>
