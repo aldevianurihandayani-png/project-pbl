@@ -146,20 +146,55 @@
     .user-dd .item:hover{ background:#f4f7ff }
     .user-dd .item i{ width:18px; text-align:center; color:#0e257a }
     .user-dd .logout{ color:#b42318 }
+
+    /* ===== FIX TAMPILAN TOMBOL "TANDAI SEMUA SUDAH DIBACA" ===== */
+.notif-ft{
+  padding:14px;
+  border-top:1px solid #eef1f6;
+  background:#fafcff;
+  display:flex;
+  justify-content:center;
+}
+
+.notif-ft form{
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+.notif-ft button{
+  background:#eef3ff;
+  color:#0e257a;
+  border:none;
+  border-radius:999px;
+  padding:8px 18px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.notif-ft button:hover{
+  background:#dbe7ff;
+}
+
   </style>
 </head>
 <body>
 
-  {{-- Notifikasi dummy (aman kalau nanti diganti dari controller) --}}
-  @php
-    $notifications = $notifications ?? [
-      ['icon'=>'fa-bell', 'title'=>'Milestone baru dibuka', 'meta'=>'2 jam lalu'],
-      ['icon'=>'fa-clipboard-check', 'title'=>'Logbook Minggu 3 disetujui', 'meta'=>'Kemarin'],
-      ['icon'=>'fa-star', 'title'=>'Nilai Pemweb Lanjut dirilis', 'meta'=>'3 hari lalu'],
-    ];
-    $notifCount = count($notifications ?? []);
-  @endphp
-
+{{-- ========================================================= --}}
+{{-- ✅ FIX UTAMA: FALLBACK VARIABEL (WAJIB ADA) --}}
+{{-- ========================================================= --}}
+@php
+  /**
+   * Pengaman agar dashboard tidak error
+   * walaupun controller belum kirim data notifikasi
+   */
+  $notifications = $notifications ?? collect();
+  $notifCount = $notifCount ?? $notifications->where('is_read', false)->count();
+@endphp
+{{-- ========================================================= --}}
+  
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
@@ -211,39 +246,56 @@
 
       {{-- ====== Actions: Lonceng + User Menu (baru) ====== --}}
       <div class="top-actions" id="topActions">
+
         {{-- Bell --}}
         <div class="bell" id="bellBtn" aria-label="Notifikasi">
-          <i class="fa-solid fa-bell"></i>
-          @if($notifCount>0)
-            <span class="dot" id="notifDot">{{ $notifCount }}</span>
-          @endif
-        </div>
+      <i class="fa-solid fa-bell"></i>
 
-        {{-- Dropdown Notifikasi --}}
-        <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
-          <div class="notif-hd">
-            <span>Notifikasi</span>
-            <small style="color:#6c7a8a">{{ $notifCount }} baru</small>
+      @if($notifCount > 0)
+        <span class="dot" id="notifDot">{{ $notifCount }}</span>
+      @endif
+    </div>
+
+        {{-- 🔔 Dropdown Notifikasi --}}
+    <div class="notif-dd" id="notifDd" role="menu" aria-hidden="true">
+      <div class="notif-hd">
+        <span>Notifikasi</span>
+        <small style="color:#6c7a8a">{{ $notifCount }} baru</small>
+      </div>
+
+      @forelse($notifications as $n)
+        <div class="notif-item {{ $n->is_read ? '' : 'unread' }}">
+          <div class="notif-icon">
+            <i class="fa-solid fa-bell"></i>
           </div>
 
-          @if($notifCount>0)
-            <div class="notif-list" id="notifList">
-              @foreach($notifications as $n)
-                <div class="notif-item">
-                  <div class="notif-icon"><i class="fa-solid {{ $n['icon'] }}"></i></div>
-                  <div>
-                    <div style="font-weight:700;color:#0e257a">{{ $n['title'] }}</div>
-                    <div class="notif-meta">{{ $n['meta'] }}</div>
-                  </div>
-                </div>
-              @endforeach
+          <div>
+            <div style="font-weight:700;color:#0e257a">
+              {{ $n->judul }}
             </div>
-          @else
-            <div class="notif-empty">Belum ada notifikasi.</div>
-          @endif
 
-          <div class="notif-ft"><a href="#">Lihat semua pemberitahuan</a></div>
+            @if($n->pesan)
+              <div class="notif-meta">{{ $n->pesan }}</div>
+            @endif
+
+            <div class="notif-meta">
+              {{ $n->created_at?->diffForHumans() }}
+            </div>
+          </div>
         </div>
+      @empty
+        <div class="notif-empty">Belum ada notifikasi.</div>
+      @endforelse
+
+      <div class="notif-ft">
+        <form action="{{ route('notif.readAll') }}" method="POST" style="margin:0">
+          @csrf
+          <button type="submit" class="btn btn-secondary" style="font-size:12px;padding:6px 12px">
+            Tandai semua sudah dibaca
+          </button>
+        </form>
+      </div>
+    </div>
 
         {{-- User Menu --}}
         <div class="userbox">
@@ -508,23 +560,7 @@
         </div>
       </section>
 
-      <!-- Notifikasi -->
-      <section class="card" style="margin-bottom:28px">
-        <div class="card-hd">
-          <i class="fa-regular fa-bell"></i>
-          Notifikasi Dosen Penguji
-        </div>
-        <div class="card-bd">
-          <ul class="clean">
-            <li>✔️ <strong>12</strong> mahasiswa telah mengajukan revisi laporan.</li>
-            <li>✔️ Penilaian ujian progress harus diselesaikan sebelum <strong>15 Oktober 2025</strong>.</li>
-            <li>✔️ Dosen pembimbing menambahkan catatan baru pada <strong>Kelompok 1</strong>.</li>
-            <li>✔️ Jadwal presentasi final telah diperbarui oleh koordinator PBL.</li>
-          </ul>
-        </div>
-      </section>
-    </div>
-  </main>
+      
 
   <script>
     // Tutup sidebar ketika klik di luar (mobile)
