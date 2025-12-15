@@ -383,105 +383,82 @@ Route::prefix('dosenpenguji')
     });
 
 /*
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
 | Koordinator PBL (role: koor_pbl)
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
 */
+
 
 Route::prefix('koordinator')
     ->name('koordinator.')
     ->middleware(['auth', 'verified', 'role:koor_pbl'])
     ->group(function () {
 
-        /* ================= DASHBOARD ================= */
-        Route::view('/dashboard', 'koordinator.dashboard')
-            ->name('dashboard');
+       // ====== ATUR BOBOT ======
+Route::get('peringkat/bobot', [PeringkatController::class, 'bobot'])
+    ->name('peringkat.bobot');
 
-        /* =================================================
-        | 🔥 PERINGKAT – INPUT NILAI (TPK)
-        ================================================= */
+Route::post('peringkat/bobot', [PeringkatController::class, 'storeBobot'])
+    ->name('peringkat.bobot.store');
 
-        // ➕ FORM INPUT NILAI
-        Route::get('peringkat/mahasiswa/create',
-            [PeringkatController::class, 'createMahasiswa']
-        )->name('peringkat.createMahasiswa');
 
-        Route::get('peringkat/kelompok/create',
-            [PeringkatController::class, 'createKelompok']
-        )->name('peringkat.createKelompok');
+        // ================= DASHBOARD =================
+        Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
 
-        // 💾 SIMPAN NILAI TPK
-        Route::post('peringkat/mahasiswa/store',
-            [PeringkatController::class, 'storeMahasiswa']
-        )->name('peringkat.storeMahasiswa');
+        // ================= PERINGKAT (INDEX) =================
+        Route::get('peringkat', [PeringkatController::class, 'index'])
+            ->name('peringkat.index');
 
-        Route::post('peringkat/kelompok/store',
-            [PeringkatController::class, 'storeKelompok']
-        )->name('peringkat.storeKelompok');
+        // ================= CREATE FORM =================
+        Route::get('peringkat/mahasiswa/create', [PeringkatController::class, 'createMahasiswa'])
+            ->name('peringkat.createMahasiswa');
 
-        /* =================================================
-        | 🧮 HITUNG ULANG PERINGKAT
-        ================================================= */
-        Route::get('peringkat/calculate',
-            [PeringkatController::class, 'calculate']
-        )->name('peringkat.calculate');
+        Route::get('peringkat/kelompok/create', [PeringkatController::class, 'createKelompok'])
+            ->name('peringkat.createKelompok');
 
-        /* =================================================
-        | ✏ EDIT / UPDATE PERINGKAT
-        ================================================= */
-        Route::get('peringkat/{peringkat}/edit',
-            [PeringkatController::class, 'edit']
-        )->name('peringkat.edit');
+        // ================= STORE =================
+        Route::post('peringkat/mahasiswa', [PeringkatController::class, 'storeMahasiswa'])
+            ->name('peringkat.storeMahasiswa');
 
-        Route::put('peringkat/{peringkat}',
-            [PeringkatController::class, 'update']
-        )->name('peringkat.update');
+        Route::post('peringkat/kelompok', [PeringkatController::class, 'storeKelompok'])
+            ->name('peringkat.storeKelompok');
 
-        /* =================================================
-        | 🗑 DELETE & ↩ UNDO DELETE
-        ================================================= */
-        Route::delete('peringkat/{peringkat}',
-            [PeringkatController::class, 'destroy']
-        )->name('peringkat.destroy');
+        // ================= HITUNG ULANG =================
+        Route::get('peringkat/calculate', [PeringkatController::class, 'calculate'])
+            ->name('peringkat.calculate');
 
-        Route::post('peringkat/{id}/restore',
-            [PeringkatController::class, 'restore']
-        )->name('peringkat.restore');
+        // ================= EDIT (GENERIC – 1 VIEW) =================
+        // dipakai di index.blade:
+        // route('koordinator.peringkat.edit', ['type'=>'kelompok|mahasiswa','id'=>...])
+        Route::get('peringkat/{type}/{id}/edit', [PeringkatController::class, 'edit'])
+            ->whereIn('type', ['mahasiswa', 'kelompok'])
+            ->whereNumber('id')
+            ->name('peringkat.edit');
 
-        /* =================================================
-        | 📋 LIST PERINGKAT (INDEX ONLY)
-        ================================================= */
-        Route::get('peringkat',
-            [PeringkatController::class, 'index']
-        )->name('peringkat.index');
-        // Dashboard Koordinator
-        Route::view('/dashboard', 'koordinator.dashboard')
-            ->name('dashboard');
+        // ================= UPDATE (GENERIC – FIX ERROR) =================
+        // 🔥 INI YANG WAJIB ADA, kalau ini ga ada → edit ga bisa submit
+        Route::put('peringkat/{type}/{id}', [PeringkatController::class, 'update'])
+            ->whereIn('type', ['mahasiswa', 'kelompok'])
+            ->whereNumber('id')
+            ->name('peringkat.update');
 
-        // ===============================
-        // KELOMPOK (READ ONLY – KOORDINATOR)
-        // ===============================
+        // ================= DELETE TPK (HARD DELETE) =================
+        Route::post('peringkat/tpk/destroy', [PeringkatController::class, 'destroyTpk'])
+            ->name('peringkat.destroyTpk');
+
+        // ================= READ ONLY LAINNYA =================
         Route::get('/kelompok', [KoordinatorKelompokController::class, 'index'])
             ->name('kelompok');
 
         Route::get('/kelompok/{kelompok}', [KoordinatorKelompokController::class, 'show'])
             ->name('kelompok.detail');
 
-        // ===============================
-        // MAHASISWA (READ ONLY – KOORDINATOR)
-        // ===============================
         Route::get('/mahasiswa', [KoordinatorMahasiswaController::class, 'index'])
             ->name('mahasiswa.index');
 
         Route::get('/mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
-
-        // ===============================
-        // PERINGKAT (CRUD)
-        // ===============================
-        Route::resource('peringkat', PeringkatController::class);
     });
-
 
 /*
 |--------------------------------------------------------------------------
