@@ -256,6 +256,7 @@ Route::prefix('mahasiswa')
 | Dosen Pembimbing (role: dosen_pembimbing)
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('dosen')
     ->name('dosen.')
     ->middleware(['auth', 'role:dosen_pembimbing'])
@@ -263,35 +264,38 @@ Route::prefix('dosen')
 
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
 
+        // ================== KELOMPOK ==================
         Route::resource('kelompok', DosenKelompokController::class)->names('kelompok');
+        Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
+            ->name('kelompok.kelas');
 
-        Route::view('/mahasiswa', 'dosen.mahasiswa')->name('mahasiswa');
+        // ================== MAHASISWA ==================
+        Route::get('/mahasiswa', [DosenPembimbingController::class, 'index'])
+            ->name('mahasiswa.index');
+        Route::get('/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
+            ->name('mahasiswa.show');
 
+        // ================== MILESTONE ==================
         Route::resource('milestone', DosenMilestoneController::class)
-            ->only(['index', 'edit', 'update']);
+            ->only(['index', 'show', 'edit', 'update'])
+            ->names('milestone');
 
-        // resource utama logbook (index, show, edit, dll)
+        Route::patch('milestone/{milestone}/approve', [DosenMilestoneController::class, 'approve'])
+            ->name('milestone.approve');
+
+        Route::patch('milestone/{milestone}/reject', [DosenMilestoneController::class, 'reject'])
+            ->name('milestone.reject');
+
+        // ================== LOGBOOK ==================
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
-        // toggle status logbook
         Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
             ->name('logbook.toggleStatus');
 
-        // 🔥 route khusus untuk update nilai logbook
         Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
             ->name('logbook.nilai.update');
-
-        // Halaman detail kelas (TI-3E, TI-3D, dst)
-        Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
-            ->name('kelompok.kelas');
     });
-// Halaman daftar mahasiswa bimbingan
-Route::get('/dosen/mahasiswa', [DosenPembimbingController::class, 'index'])
-    ->name('dosen.mahasiswa.index');
 
-// Halaman detail mahasiswa
-Route::get('/dosen/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
-    ->name('dosen.mahasiswa.show');
 
 
 /*

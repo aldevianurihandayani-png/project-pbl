@@ -3,42 +3,96 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Milestone;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class DosenMilestoneController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Milestone::query();
+        $q = $request->string('q')->toString();
+        $status = $request->string('status')->toString(); // menunggu|disetujui|ditolak
 
-        // filter cari deskripsi
-        if ($request->filled('search')) {
-            $query->where('deskripsi', 'like', '%'.$request->search.'%');
-        }
+        $milestones = Milestone::query()
+            // sesuaikan relasi kalau ada:
+            // ->with(['mahasiswa', 'kelompok', 'proyek'])
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('judul', 'like', "%{$q}%")
+                        ->orWhere('deskripsi', 'like', "%{$q}%");
+                });
+            })
+            ->when(in_array($status, ['menunggu', 'disetujui', 'ditolak'], true), function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->orderByDesc('tanggal')
+            ->paginate(10)
+            ->withQueryString();
 
-        // urutkan terbaru dulu
-        $milestones = $query->orderByDesc('tanggal')->paginate(10);
-
-        return view('dosen.milestone.table', compact('milestones'));
+        return view('dosen.milestone.index', compact('milestones', 'q', 'status'));
     }
 
-    public function edit(Milestone $milestone)
+    public function edit(Milestone $milestone): View
     {
         return view('dosen.milestone.edit', compact('milestone'));
     }
 
-    public function update(Request $request, Milestone $milestone)
+    public function update(Request $request, Milestone $milestone): RedirectResponse
     {
-        $request->validate([
-            'status' => 'required|in:Belum,Sedang,Berhasil', // sesuaikan dengan enum/status di DB
+        $data = $request->validate([
+            'judul'     => ['required', 'string', 'max:255'],
+            'deskripsi' => ['nullable', 'string'],
+            'tanggal'   => ['required', 'date'],
+            // kalau ada field lain, tambahkan di sini
+            // 'link'   => ['nullable','url'],
+            // 'nilai'  => ['nullable','numeric','min:0','max:100'],
         ]);
 
-        $milestone->status = $request->status;
-        $milestone->save();
+        $milestone->update($data);
 
         return redirect()
             ->route('dosen.milestone.index')
-            ->with('success', 'Status milestone berhasil diperbarui.');
+            ->with('success', 'Milestone berhasil diperbarui.');
     }
+
+    public function approve(Milestone $milestone): RedirectResponse
+    {
+        // opsional: cegah approve kalau sudah bukan menunggu
+        if ($milestone->status !== 'menunggu') {
+            return back()->with('error', 'Milestone sudah diproses.');
+        }
+
+        $milestone->update([
+            'status' => 'disetujui',
+        ]);
+
+        return back()->with('success', 'Milestone berhasil disetujui.');
+    }
+
+    public function reject(Request $request, Milestone $milestone): RedirectResponse
+    {
+        // opsional: bisa terima alasan ditolak
+        // $request->validate(['alasan' => ['nullable','string','max:500']]);
+
+        if ($milestone->status !== 'menunggu') {
+            return back()->with('error', 'Milestone sudah diproses.');
+        }
+
+        $milestone->update([
+            'status' => 'ditolak',
+            // 'catatan_dosen' => $request->alasan ?? null, // kalau kamu punya kolom ini
+        ]);
+
+        return back()->with('success', 'Milestone berhasil ditolak.');
+    }
+    public function show(Milestone $milestone)
+{
+    // kalau ada relasi, boleh tambahin ->load()
+    // $milestone->load(['mahasiswa','kelompok']);
+
+    return view('dosen.milestone.show', compact('milestone'));
+}
+
 }
