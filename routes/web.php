@@ -497,3 +497,6 @@ Route::resource('logbooks', LogbookController::class);
 Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
     ->name('logbooks.feedback.store');
 
+use App\Http\Controllers\TPK\TPKController;
+
+Route::get('/tpk', [TPKController::class, 'index'])->name('tpk.index');
