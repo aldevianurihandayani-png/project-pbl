@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\User;
+use Illuminate\Auth\Events\Verified;
+
 
 // Controllers umum
 use App\Http\Controllers\LoginController;
@@ -18,6 +21,9 @@ use App\Http\Controllers\NotificationController;
 
 // Koordinator
 use App\Http\Controllers\Koordinator\PeringkatController;
+use App\Http\Controllers\Koordinator\KelompokController as KoordinatorKelompokController;
+use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswaController;
+
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -67,6 +73,11 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
 |--------------------------------------------------------------------------
 | Autentikasi
 |--------------------------------------------------------------------------
+*
+/*
+|--------------------------------------------------------------------------
+| Verifikasi Email (AKTIF)
+|--------------------------------------------------------------------------
 */
 // REGISTER
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -93,6 +104,56 @@ Route::get('/notif', [NotificationController::class, 'index'])
 Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
     ->name('notif.readAll')
     ->middleware('auth');
+
+
+/*
+|--------------------------------------------------------------------------
+| Verifikasi Email
+|--------------------------------------------------------------------------
+*/
+
+// ✅ Halaman "Cek Email"
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->name('verification.notice');
+
+// ✅ Link verifikasi yang diklik user (TIDAK PERLU LOGIN)
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+
+    // pastikan link signed & belum expired
+    if (! $request->hasValidSignature()) {
+        abort(403, 'Link verifikasi tidak valid atau sudah kadaluarsa.');
+    }
+
+    $user = User::findOrFail($id);
+
+    // pastikan hash sesuai email user
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        abort(403, 'Hash verifikasi tidak cocok.');
+    }
+
+    // tandai email sebagai terverifikasi
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+    }
+
+    // setelah verifikasi → ke login
+    return redirect()->route('login')
+        ->with('success', 'Email berhasil diverifikasi. Silakan login.');
+})->name('verification.verify');
+
+// (opsional) Kirim ulang link verifikasi
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->validate(['email' => ['required', 'email']]);
+
+    $user = User::where('email', $request->email)->firstOrFail();
+    $user->sendEmailVerificationNotification();
+
+    return back()->with('success', 'Link verifikasi berhasil dikirim ulang.');
+})->name('verification.send');
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -329,7 +390,7 @@ Route::prefix('dosenpenguji')
 
 Route::prefix('koordinator')
     ->name('koordinator.')
-    ->middleware(['auth', 'role:koor_pbl'])
+    ->middleware(['auth', 'verified', 'role:koor_pbl'])
     ->group(function () {
 
         /* ================= DASHBOARD ================= */
@@ -393,7 +454,34 @@ Route::prefix('koordinator')
         Route::get('peringkat',
             [PeringkatController::class, 'index']
         )->name('peringkat.index');
+        // Dashboard Koordinator
+        Route::view('/dashboard', 'koordinator.dashboard')
+            ->name('dashboard');
+
+        // ===============================
+        // KELOMPOK (READ ONLY – KOORDINATOR)
+        // ===============================
+        Route::get('/kelompok', [KoordinatorKelompokController::class, 'index'])
+            ->name('kelompok');
+
+        Route::get('/kelompok/{kelompok}', [KoordinatorKelompokController::class, 'show'])
+            ->name('kelompok.detail');
+
+        // ===============================
+        // MAHASISWA (READ ONLY – KOORDINATOR)
+        // ===============================
+        Route::get('/mahasiswa', [KoordinatorMahasiswaController::class, 'index'])
+            ->name('mahasiswa.index');
+
+        Route::get('/mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
+            ->name('mahasiswa.show');
+
+        // ===============================
+        // PERINGKAT (CRUD)
+        // ===============================
+        Route::resource('peringkat', PeringkatController::class);
     });
+
 
 /*
 |--------------------------------------------------------------------------
