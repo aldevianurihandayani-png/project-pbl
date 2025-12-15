@@ -7,7 +7,7 @@
   <title>Register - SIMAP Politala</title>
   <style>
     :root { --navy:#001744; --navy-2:#001133; --bg:#f4f7fb; }
-    *{box-sizing:border-box} 
+    *{box-sizing:border-box}
     body{background:var(--bg);font-family:Arial, sans-serif;margin:0;min-height:100vh;display:flex;flex-direction:column}
     .navbar{background:var(--navy);color:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center}
     .brand{font-weight:700}
@@ -29,6 +29,9 @@
     .alert-success{background:#e7f7ee;color:#087443}
     .alert-error{background:#fdecea;color:#b81d24}
     footer{background:var(--navy);color:#fff;text-align:center;padding:14px}
+
+    /* tambahan kecil biar field admin_key rapi */
+    .hint{font-size:12px;color:#667085;margin-top:6px}
   </style>
 </head>
 <body>
@@ -75,10 +78,11 @@
       <form action="{{ url('/register') }}" method="POST" novalidate>
         @csrf
 
+        {{-- ✅ GANTI: name="nama" (bukan name="name") --}}
         <div class="row">
-          <label for="name">Nama Lengkap</label>
-          <input id="name" type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required>
-          @error('name') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
+          <label for="nama">Nama Lengkap</label>
+          <input id="nama" type="text" name="nama" placeholder="Nama Lengkap" value="{{ old('nama') }}" required>
+          @error('nama') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
@@ -107,15 +111,23 @@
             <option value="dosen_pembimbing" {{ old('role')=='dosen_pembimbing' ? 'selected' : '' }}>Dosen Pembimbing</option>
             <option value="dosen_penguji"    {{ old('role')=='dosen_penguji' ? 'selected' : '' }}>Dosen Penguji</option>
 
-            {{-- ✔ Koordinator PBL pakai value koor_pbl --}}
-            <option value="koor_pbl"         {{ old('role')=='koor_pbl' ? 'selected' : '' }}>Koordinator PBL</option>
+            {{-- ⚠️ PENTING: samakan value dengan controller.
+                 kalau controller kamu pakai "koordinator_pbl", ubah value ini juga. --}}
+            <option value="koordinator_pbl"  {{ old('role')=='koordinator_pbl' ? 'selected' : '' }}>Koordinator PBL</option>
 
             <option value="jaminan_mutu"     {{ old('role')=='jaminan_mutu' ? 'selected' : '' }}>Jaminan Mutu</option>
 
-            {{-- ✔ Admin juga disamakan dengan canonical role "admin" --}}
             <option value="admin"            {{ old('role')=='admin' ? 'selected' : '' }}>Admin</option>
           </select>
           @error('role') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
+        </div>
+
+        {{-- ✅ TAMBAHAN: Kode Admin (muncul kalau role=admin) --}}
+        <div class="row" id="adminKeyRow" style="display:none;">
+          <label for="admin_key">Kode Admin</label>
+          <input id="admin_key" type="password" name="admin_key" placeholder="Masukkan kode admin" value="{{ old('admin_key') }}">
+          <div class="hint">Wajib diisi jika memilih role Admin.</div>
+          @error('admin_key') <div class="alert alert-error" style="margin-top:6px">{{ $message }}</div> @enderror
         </div>
 
         <div class="row">
@@ -139,5 +151,23 @@
   <footer>
     © 2025 SIMAP Politala — Jurusan Teknologi Informasi.
   </footer>
+
+  {{-- ✅ SCRIPT: tampilkan field admin_key hanya saat role admin --}}
+  <script>
+    (function () {
+      const roleEl = document.getElementById('role');
+      const adminRow = document.getElementById('adminKeyRow');
+      const adminKeyInput = document.getElementById('admin_key');
+
+      function toggleAdminKey() {
+        const isAdmin = roleEl.value === 'admin';
+        adminRow.style.display = isAdmin ? 'block' : 'none';
+        if (!isAdmin && adminKeyInput) adminKeyInput.value = '';
+      }
+
+      roleEl.addEventListener('change', toggleAdminKey);
+      toggleAdminKey(); // initial load (biar old('role') kebaca)
+    })();
+  </script>
 </body>
 </html>
