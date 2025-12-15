@@ -18,6 +18,9 @@ use App\Http\Controllers\NotificationController;
 
 // Koordinator
 use App\Http\Controllers\Koordinator\PeringkatController;
+use App\Http\Controllers\Koordinator\KelompokController as KoordinatorKelompokController;
+use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswaController;
+
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -409,13 +412,37 @@ Route::prefix('dosenpenguji')
 */
 Route::prefix('koordinator')
     ->name('koordinator.')
-    ->middleware(['auth', 'role:koor_pbl'])
+    ->middleware(['auth', 'verified', 'role:koor_pbl'])
     ->group(function () {
-        Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
 
-        // CRUD Kelola Peringkat (Koordinator)
+        // Dashboard Koordinator
+        Route::view('/dashboard', 'koordinator.dashboard')
+            ->name('dashboard');
+
+        // ===============================
+        // KELOMPOK (READ ONLY – KOORDINATOR)
+        // ===============================
+        Route::get('/kelompok', [KoordinatorKelompokController::class, 'index'])
+            ->name('kelompok');
+
+        Route::get('/kelompok/{kelompok}', [KoordinatorKelompokController::class, 'show'])
+            ->name('kelompok.detail');
+
+        // ===============================
+        // MAHASISWA (READ ONLY – KOORDINATOR)
+        // ===============================
+        Route::get('/mahasiswa', [KoordinatorMahasiswaController::class, 'index'])
+            ->name('mahasiswa.index');
+
+        Route::get('/mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
+            ->name('mahasiswa.show');
+
+        // ===============================
+        // PERINGKAT (CRUD)
+        // ===============================
         Route::resource('peringkat', PeringkatController::class);
     });
+
 
 /*
 |--------------------------------------------------------------------------
