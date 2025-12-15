@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 
 class Notification extends Model
 {
@@ -67,14 +68,18 @@ class Notification extends Model
 
     public static function getUnreadCount(): int
     {
-        if (!Auth::check()) return 0;
+        if (!Auth::check()) {
+            return 0;
+        }
 
-        return static::query()->forCurrent()->unread()->count();
+        return static::query()->unread()->count();
     }
 
     public static function getListForTopbar(int $limit = 10)
     {
-        if (!Auth::check()) return collect();
+        if (!Auth::check()) {
+            return collect();
+        }
 
         return static::query()
             ->forCurrent()
@@ -85,7 +90,9 @@ class Notification extends Model
 
     public function markAsReadForCurrent(): bool
     {
-        if (!Auth::check()) return false;
+        if (!Auth::check()) {
+            return false;
+        }
 
         $uid = Auth::id();
 
@@ -116,7 +123,6 @@ class Notification extends Model
         // personal
         if (!empty($this->user_id)) {
             $user = User::find($this->user_id);
-
             if ($user && !empty($user->email)) {
                 Mail::to($user->email)->send(new NotifikasiMail($this));
             }
@@ -139,6 +145,6 @@ class Notification extends Model
         $notif->syncRecipients();
         $notif->sendEmail();
 
-        return $notif; // <-- spasi normal (bukan karakter aneh)
+        return $notif;
     }
 }

@@ -2,19 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TpkKelompok extends Model
 {
     use HasFactory;
 
-    // Nama tabel, silakan sesuaikan dengan migration kamu
     protected $table = 'tpk_kelompoks';
 
     protected $fillable = [
-        'nama',        // nama kelompok
+        'nama',
         'review_uts',
         'review_uas',
+    ];
+
+    protected $casts = [
+        'review_uts' => 'float',
+        'review_uas' => 'float',
     ];
 }
