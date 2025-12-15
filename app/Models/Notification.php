@@ -135,6 +135,6 @@ class Notification extends Model
         $notif->syncRecipients();
         $notif->sendEmail();
 
-        return $notif;
-    }
+        return $notif;
+    }
 }
