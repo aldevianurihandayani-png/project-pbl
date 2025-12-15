@@ -2,27 +2,53 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Mahasiswa;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Peringkat extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'peringkats';
 
     protected $fillable = [
-        'mahasiswa_id',
+        'jenis',          // mahasiswa | kelompok
+        'mahasiswa_id',   // nullable (kalau kelompok)
+        'nama_tpk',       // nama mahasiswa / kelompok (hasil TPK)
         'mata_kuliah',
-        'nilai_total',
+        'nilai_total',    // 0–1 (ditampilkan persen)
         'peringkat',
         'semester',
         'tahun_ajaran',
     ];
 
+    protected $casts = [
+        'nilai_total' => 'float',
+        'peringkat'   => 'integer',
+    ];
+
+    /* ===================== RELATION ===================== */
+
+    // optional, kalau suatu saat mau mapping ke mahasiswa asli
     public function mahasiswa()
     {
-        // foreign key di peringkats = mahasiswa_id
-        // owner key di mahasiswas  = nim
-        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id', 'nim');
+        return $this->belongsTo(
+            Mahasiswa::class,
+            'mahasiswa_id',
+            'nim'
+        );
+    }
+
+    /* ===================== SCOPES ===================== */
+
+    public function scopeMahasiswa($query)
+    {
+        return $query->where('jenis', 'mahasiswa');
+    }
+
+    public function scopeKelompok($query)
+    {
+        return $query->where('jenis', 'kelompok');
     }
 }

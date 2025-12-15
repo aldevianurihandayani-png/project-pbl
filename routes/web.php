@@ -26,12 +26,11 @@ use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\DosenController;
 use App\Http\Controllers\Admin\KelompokController as AdminKelompokController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
-use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
-use App\Http\Controllers\Admin\NotifikasiController as AdminNotifikasiController;
+use App\Http\Controllers\Admin\NotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\NotifikasiController;
+
 // 🔽 TAMBAHAN UNTUK CRUD KELAS
 use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 
@@ -40,7 +39,6 @@ use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\DosenMilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\DosenLogbookController;
 use App\Http\Controllers\Dosen\DosenPembimbingController;
-
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -82,60 +80,16 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // LOGIN GOOGLE (SSO POLITALA)
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
-/*
-|--------------------------------------------------------------------------
-| Verifikasi Email (NONAKTIF)
-|--------------------------------------------------------------------------
-*/
-/*
-// Notice "cek email"
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
 
-// Link verifikasi yang diklik user → redirect sesuai role
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); // set users.email_verified_at
-    $user = Auth::user();
-
-    switch ($user->role) {
-        case 'admin':
-            return redirect()->route('admins.dashboard')->with('verified', true);
-        case 'mahasiswa':
-            return redirect()->route('mahasiswa.dashboard')->with('verified', true);
-        case 'dosen_pembimbing':
-            return redirect()->route('dosen.dashboard')->with('verified', true);
-        case 'dosen_penguji':
-            return redirect()->route('dosenpenguji.dashboard')->with('verified', true);
-        case 'koordinator':
-        case 'jaminan_mutu':
-            return redirect()->route('admins.dashboard')->with('verified', true);
-        default:
-            return redirect()->route('home')->with('verified', true);
-    }
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-// Kirim ulang link verifikasi
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('status', 'verification-link-sent');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-*/
-
-/*
-|--------------------------------------------------------------------------
 /*
 |--------------------------------------------------------------------------
 | 🔔 NOTIFIKASI – ROUTE
 |--------------------------------------------------------------------------
 */
-
-// Halaman daftar notifikasi
 Route::get('/notif', [NotificationController::class, 'index'])
     ->name('notif.index')
     ->middleware('auth');
 
-// Tandai semua notifikasi sebagai sudah dibaca (POST)
 Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
     ->name('notif.readAll')
     ->middleware('auth');
@@ -167,69 +121,44 @@ Route::prefix('admins')
             [AdminFeedbackController::class, 'updateStatus']
         )->name('feedback.updateStatus');
 
-        // =======================
-        // ✅ NOTIFIKASI (PAKAI CONTROLLER YANG KAMU EDIT)
-        // =======================
+        // NOTIFIKASI
         Route::resource('notifikasi', NotifikasiController::class);
 
-        Route::get(
-            'notifikasi/{notification}/read',
-            [NotifikasiController::class, 'markRead']
-        )->name('notifikasi.read');
+        Route::get('notifikasi/{notification}/read', [NotifikasiController::class, 'markRead'])
+            ->name('notifikasi.read');
 
-        Route::post(
-            'notifikasi/markAll',
-            [NotifikasiController::class, 'markAllRead']
-        )->name('notifikasi.markAll');
+        Route::post('notifikasi/markAll', [NotifikasiController::class, 'markAllRead'])
+            ->name('notifikasi.markAll');
 
-        // ======================================================
-        // ✅ TAMBAHAN: DETAIL + ICON ACTION (✔ 👁 ✏ 🗑)
-        // ======================================================
+        Route::get('notifikasi/{notification}/detail', [NotifikasiController::class, 'detail'])
+            ->name('notifikasi.detail');
 
-        // 👁 detail notifikasi (klik 1 notif masuk ke detail)
-        Route::get(
-            'notifikasi/{notification}/detail',
-            [NotifikasiController::class, 'detail']
-        )->name('notifikasi.detail');
+        Route::patch('notifikasi/{notification}/unread', [NotifikasiController::class, 'markUnread'])
+            ->name('notifikasi.unread');
 
-        // ↩ tandai belum dibaca (optional)
-        Route::patch(
-            'notifikasi/{notification}/unread',
-            [NotifikasiController::class, 'markUnread']
-        )->name('notifikasi.unread');
+        Route::get('notifikasi/{notifikasi}/edit', [NotifikasiController::class, 'edit'])
+            ->name('notifikasi.edit');
 
-        // ✏ edit (kalau memang kamu pakai halaman edit)
-        Route::get(
-            'notifikasi/{notifikasi}/edit',
-            [NotifikasiController::class, 'edit']
-        )->name('notifikasi.edit');
+        Route::put('notifikasi/{notifikasi}', [NotifikasiController::class, 'update'])
+            ->name('notifikasi.update');
 
-        // 💾 update (submit edit)
-        Route::put(
-            'notifikasi/{notifikasi}',
-            [NotifikasiController::class, 'update']
-        )->name('notifikasi.update');
-
-        // 🗑 delete
-        Route::delete(
-            'notifikasi/{notifikasi}',
-            [NotifikasiController::class, 'destroy']
-        )->name('notifikasi.destroy');
-        // =======================
+        Route::delete('notifikasi/{notifikasi}', [NotifikasiController::class, 'destroy'])
+            ->name('notifikasi.destroy');
 
         Route::resource('profile', AdminProfileController::class);
         Route::resource('users', AdminUserController::class);
 
         Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])
             ->name('users.approve');
+
         Route::post('/users/{user}/reject', [AdminUserController::class, 'reject'])
             ->name('users.reject');
 
         Route::get('/akun', [AdminUserController::class, 'index'])
             ->name('akun.index');
     });
-/*
 
+/*
 |--------------------------------------------------------------------------
 | Mahasiswa (role: mahasiswa)
 |--------------------------------------------------------------------------
@@ -269,21 +198,18 @@ Route::prefix('dosen')
         Route::resource('milestone', DosenMilestoneController::class)
             ->only(['index', 'edit', 'update']);
 
-        // resource utama logbook (index, show, edit, dll)
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
-        // toggle status logbook
         Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
             ->name('logbook.toggleStatus');
 
-        // 🔥 route khusus untuk update nilai logbook
         Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
             ->name('logbook.nilai.update');
 
-        // Halaman detail kelas (TI-3E, TI-3D, dst)
         Route::get('kelompok/kelas/{kelas}', [DosenKelompokController::class, 'kelas'])
             ->name('kelompok.kelas');
     });
+
 // Halaman daftar mahasiswa bimbingan
 Route::get('/dosen/mahasiswa', [DosenPembimbingController::class, 'index'])
     ->name('dosen.mahasiswa.index');
@@ -291,7 +217,6 @@ Route::get('/dosen/mahasiswa', [DosenPembimbingController::class, 'index'])
 // Halaman detail mahasiswa
 Route::get('/dosen/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
     ->name('dosen.mahasiswa.show');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -303,18 +228,15 @@ Route::prefix('dosenpenguji')
     ->middleware(['auth', 'role:dosen_penguji'])
     ->group(function () {
 
-        // Dashboard
         Route::redirect('/', '/dosenpenguji/dashboard');
         Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
 
-        // MAHASISWA
         Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])
             ->name('mahasiswa');
 
         Route::get('/mahasiswa/kelas/{kelas}', [DPMahasiswaController::class, 'showByKelas'])
             ->name('mahasiswa.kelas');
 
-        // PENILAIAN (Gradebook + CRUD + Import/Export)
         Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
         Route::post('/penilaian', [PenilaianController::class, 'store'])->name('penilaian.store');
         Route::put('/penilaian/{penilaian}', [PenilaianController::class, 'update'])->name('penilaian.update');
@@ -324,25 +246,26 @@ Route::prefix('dosenpenguji')
         Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])
             ->name('penilaian.deleteGrade');
 
-        // Export / Import
         Route::get('/penilaian/export/excel', [PenilaianController::class, 'exportExcelBaru'])
             ->name('penilaian.export.excel');
+
         Route::get('/penilaian/export/pdf', [PenilaianController::class, 'exportPdfBaru'])
             ->name('penilaian.export.pdf');
+
         Route::get('/penilaian/template', [PenilaianController::class, 'downloadTemplateBaru'])
             ->name('penilaian.template');
+
         Route::post('/penilaian/import', [PenilaianController::class, 'importExcelBaru'])
             ->name('penilaian.import');
+
         Route::get('/penilaian/export', [PenilaianController::class, 'exportExcelBaru'])
             ->name('penilaian.export');
 
-        // RUBRIK
         Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
         Route::post('/rubrik', [RubrikController::class, 'store'])->name('rubrik.store');
         Route::put('/rubrik/{rubrik}', [RubrikController::class, 'update'])->name('rubrik.update');
         Route::delete('/rubrik/{rubrik}', [RubrikController::class, 'destroy'])->name('rubrik.destroy');
 
-        // Item Penilaian
         Route::prefix('penilaian-item')->name('penilaian.item.')->group(function () {
             Route::get('/create', [PenilaianItemController::class, 'create'])->name('create');
             Route::post('/', [PenilaianItemController::class, 'store'])->name('store');
@@ -351,18 +274,15 @@ Route::prefix('dosenpenguji')
             Route::delete('/{item}', [PenilaianItemController::class, 'destroy'])->name('destroy');
         });
 
-        /// Master data – Kelompok (dosen penguji)
         Route::get('/kelompok', [DPKelompokController::class, 'index'])
             ->name('kelompok');
 
-        // detail satu kelompok (pakai controller::show yang sudah kamu buat)
         Route::get('/kelompok/{id}', [DPKelompokController::class, 'show'])
             ->name('kelompok.show');
 
         Route::get('/matakuliah', [DPMatakuliahController::class, 'index'])
             ->name('matakuliah');
 
-        // CPMK
         Route::get('/cpmk', [CpmkController::class, 'index'])->name('cpmk.index');
         Route::post('/cpmk', [CpmkController::class, 'store'])->name('cpmk.store');
         Route::put('/cpmk/{kode_mk}/{kode}', [CpmkController::class, 'quickUpdate'])
@@ -370,7 +290,6 @@ Route::prefix('dosenpenguji')
         Route::delete('/cpmk/{cpmk}', [CpmkController::class, 'destroy'])
             ->name('cpmk.destroy');
 
-        // PROFIL DOSEN PENGUJI (prefix /dosenpenguji)
         Route::view('/profile', 'dosenpenguji.profile')->name('profile');
         Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
 
@@ -394,7 +313,6 @@ Route::prefix('dosenpenguji')
                 $data['password'] = Hash::make($validated['password']);
             }
 
-            // update sekali saja
             $user->update($data);
 
             return redirect()
@@ -404,18 +322,77 @@ Route::prefix('dosenpenguji')
     });
 
 /*
-|--------------------------------------------------------------------------
-| Koordinator PBL
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------|
+| Koordinator PBL (role: koor_pbl)
+|--------------------------------------------------------------------------|
 */
+
 Route::prefix('koordinator')
     ->name('koordinator.')
     ->middleware(['auth', 'role:koor_pbl'])
     ->group(function () {
-        Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
 
-        // CRUD Kelola Peringkat (Koordinator)
-        Route::resource('peringkat', PeringkatController::class);
+        /* ================= DASHBOARD ================= */
+        Route::view('/dashboard', 'koordinator.dashboard')
+            ->name('dashboard');
+
+        /* =================================================
+        | 🔥 PERINGKAT – INPUT NILAI (TPK)
+        ================================================= */
+
+        // ➕ FORM INPUT NILAI
+        Route::get('peringkat/mahasiswa/create',
+            [PeringkatController::class, 'createMahasiswa']
+        )->name('peringkat.createMahasiswa');
+
+        Route::get('peringkat/kelompok/create',
+            [PeringkatController::class, 'createKelompok']
+        )->name('peringkat.createKelompok');
+
+        // 💾 SIMPAN NILAI TPK
+        Route::post('peringkat/mahasiswa/store',
+            [PeringkatController::class, 'storeMahasiswa']
+        )->name('peringkat.storeMahasiswa');
+
+        Route::post('peringkat/kelompok/store',
+            [PeringkatController::class, 'storeKelompok']
+        )->name('peringkat.storeKelompok');
+
+        /* =================================================
+        | 🧮 HITUNG ULANG PERINGKAT
+        ================================================= */
+        Route::get('peringkat/calculate',
+            [PeringkatController::class, 'calculate']
+        )->name('peringkat.calculate');
+
+        /* =================================================
+        | ✏ EDIT / UPDATE PERINGKAT
+        ================================================= */
+        Route::get('peringkat/{peringkat}/edit',
+            [PeringkatController::class, 'edit']
+        )->name('peringkat.edit');
+
+        Route::put('peringkat/{peringkat}',
+            [PeringkatController::class, 'update']
+        )->name('peringkat.update');
+
+        /* =================================================
+        | 🗑 DELETE & ↩ UNDO DELETE
+        ================================================= */
+        Route::delete('peringkat/{peringkat}',
+            [PeringkatController::class, 'destroy']
+        )->name('peringkat.destroy');
+
+        Route::post('peringkat/{id}/restore',
+            [PeringkatController::class, 'restore']
+        )->name('peringkat.restore');
+
+        /* =================================================
+        | 📋 LIST PERINGKAT (INDEX ONLY)
+        ================================================= */
+        Route::get('peringkat',
+            [PeringkatController::class, 'index']
+        )->name('peringkat.index');
     });
 
 /*
@@ -438,6 +415,7 @@ Route::prefix('jaminanmutu')
 Route::view('/profile', 'dosenpenguji.profile')->name('profile');
 Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
 Route::put('/profile', function (Request $request) {
+
     $user = Auth::user();
 
     $validated = $request->validate([
@@ -455,9 +433,6 @@ Route::put('/profile', function (Request $request) {
     if (!empty($validated['password'])) {
         $data['password'] = Hash::make($validated['password']);
     }
-
-    // kalau mau benar-benar menyimpan perubahan global:
-    // $user->update($data);
 
     return redirect()
         ->route('dosenpenguji.profile')
@@ -491,12 +466,31 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
     Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
 });
 
-Route::resource('logbooks', LogbookController::class);
-
 // 🔥 route kirim komentar dari mahasiswa
 Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
     ->name('logbooks.feedback.store');
 
+use App\Http\Controllers\TPK\TPKKelompokController;
 use App\Http\Controllers\TPK\TPKController;
 
 Route::get('/tpk', [TPKController::class, 'index'])->name('tpk.index');
+
+Route::prefix('tpk')->name('tpk.')->group(function () {
+
+    // ===== KELOMPOK =====
+    Route::prefix('kelompok')->name('kelompok.')->group(function () {
+        Route::get('/', [TPKKelompokController::class, 'index'])->name('index');
+        Route::get('/create', [TPKKelompokController::class, 'create'])->name('create');
+        Route::post('/store', [TPKKelompokController::class, 'store'])->name('store');
+        Route::get('/calculate', [TPKKelompokController::class, 'calculate'])->name('calculate');
+    });
+
+    // ===== MAHASISWA =====
+    Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/', [TPKMahasiswaController::class, 'index'])->name('index');
+        Route::get('/create', [TPKMahasiswaController::class, 'create'])->name('create');
+        Route::post('/store', [TPKMahasiswaController::class, 'store'])->name('store');
+        Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
+    });
+
+});
