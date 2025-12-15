@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\User;
+use Illuminate\Auth\Events\Verified;
+
 
 // Controllers umum
 use App\Http\Controllers\LoginController;
@@ -72,6 +75,11 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
 |--------------------------------------------------------------------------
 | Autentikasi
 |--------------------------------------------------------------------------
+*
+/*
+|--------------------------------------------------------------------------
+| Verifikasi Email (AKTIF)
+|--------------------------------------------------------------------------
 */
 // REGISTER
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -86,61 +94,55 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
+
 /*
 |--------------------------------------------------------------------------
 | Verifikasi Email
 |--------------------------------------------------------------------------
 */
-// Notice "cek email"
+
+// ✅ Halaman "Cek Email"
 Route::get('/email/verify', function () {
     return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
+})->name('verification.notice');
 
-// Link verifikasi yang diklik user → redirect sesuai role
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); // set users.email_verified_at
-    $user = Auth::user();
+// ✅ Link verifikasi yang diklik user (TIDAK PERLU LOGIN)
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
 
-    switch ($user->role) {
-        case 'admin':
-            return redirect()->route('admins.dashboard')->with('verified', true);
-        case 'mahasiswa':
-            return redirect()->route('mahasiswa.dashboard')->with('verified', true);
-        case 'dosen_pembimbing':
-            return redirect()->route('dosen.dashboard')->with('verified', true);
-        case 'dosen_penguji':
-            return redirect()->route('dosenpenguji.dashboard')->with('verified', true);
-        case 'koordinator':
-        case 'jaminan_mutu':
-            return redirect()->route('admins.dashboard')->with('verified', true);
-        default:
-            return redirect()->route('home')->with('verified', true);
+    // pastikan link signed & belum expired
+    if (! $request->hasValidSignature()) {
+        abort(403, 'Link verifikasi tidak valid atau sudah kadaluarsa.');
     }
-})->middleware(['auth', 'signed'])->name('verification.verify');
 
-// Kirim ulang link verifikasi
+    $user = User::findOrFail($id);
+
+    // pastikan hash sesuai email user
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        abort(403, 'Hash verifikasi tidak cocok.');
+    }
+
+    // tandai email sebagai terverifikasi
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+    }
+
+    // setelah verifikasi → ke login
+    return redirect()->route('login')
+        ->with('success', 'Email berhasil diverifikasi. Silakan login.');
+})->name('verification.verify');
+
+// (opsional) Kirim ulang link verifikasi
 Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('status', 'verification-link-sent');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+    $request->validate(['email' => ['required', 'email']]);
 
-/*
-|--------------------------------------------------------------------------
-/*
-|--------------------------------------------------------------------------
-| 🔔 NOTIFIKASI – ROUTE
-|--------------------------------------------------------------------------
-*/
+    $user = User::where('email', $request->email)->firstOrFail();
+    $user->sendEmailVerificationNotification();
 
-// Halaman daftar notifikasi
-Route::get('/notif', [NotificationController::class, 'index'])
-    ->name('notif.index')
-    ->middleware('auth');
+    return back()->with('success', 'Link verifikasi berhasil dikirim ulang.');
+})->name('verification.send');
 
-// Tandai semua notifikasi sebagai sudah dibaca (POST)
-Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
-    ->name('notif.readAll')
-    ->middleware('auth');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -149,7 +151,7 @@ Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
 */
 Route::prefix('admins')
     ->name('admins.')
-    ->middleware(['auth', 'verified', 'role:admin'])
+    ->middleware(['auth', 'role:admin'])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
@@ -238,7 +240,7 @@ Route::prefix('admins')
 */
 Route::prefix('mahasiswa')
     ->name('mahasiswa.')
-    ->middleware(['auth', 'verified', 'role:mahasiswa'])
+    ->middleware(['auth', 'role:mahasiswa'])
     ->group(function () {
         Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
         Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
@@ -259,7 +261,7 @@ Route::prefix('mahasiswa')
 */
 Route::prefix('dosen')
     ->name('dosen.')
-    ->middleware(['auth', 'verified', 'role:dosen_pembimbing'])
+    ->middleware(['auth', 'role:dosen_pembimbing'])
     ->group(function () {
 
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
@@ -302,7 +304,7 @@ Route::get('/dosen/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
 */
 Route::prefix('dosenpenguji')
     ->name('dosenpenguji.')
-    ->middleware(['auth', 'verified', 'role:dosen_penguji'])
+    ->middleware(['auth', 'role:dosen_penguji'])
     ->group(function () {
 
         // Dashboard
@@ -523,3 +525,6 @@ Route::resource('logbooks', LogbookController::class);
 Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
     ->name('logbooks.feedback.store');
 
+use App\Http\Controllers\TPK\TPKController;
+
+Route::get('/tpk', [TPKController::class, 'index'])->name('tpk.index');

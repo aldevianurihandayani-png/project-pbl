@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Models\User;
 
 class Notification extends Model
 {
@@ -41,7 +40,9 @@ class Notification extends Model
 
     public function scopeForCurrent($query)
     {
-        if (!Auth::check()) return $query->whereRaw('1=0');
+        if (!Auth::check()) {
+            return $query->whereRaw('1=0');
+        }
 
         $uid = Auth::id();
 
@@ -52,7 +53,9 @@ class Notification extends Model
 
     public function scopeUnread($query)
     {
-        if (!Auth::check()) return $query->whereRaw('1=0');
+        if (!Auth::check()) {
+            return $query->whereRaw('1=0');
+        }
 
         $uid = Auth::id();
 
@@ -113,6 +116,7 @@ class Notification extends Model
         // personal
         if (!empty($this->user_id)) {
             $user = User::find($this->user_id);
+
             if ($user && !empty($user->email)) {
                 Mail::to($user->email)->send(new NotifikasiMail($this));
             }
@@ -135,6 +139,6 @@ class Notification extends Model
         $notif->syncRecipients();
         $notif->sendEmail();
 
-        return $notif;
+        return $notif; // <-- spasi normal (bukan karakter aneh)
     }
 }
