@@ -3,28 +3,57 @@
 @section('title', 'Edit Peringkat')
 
 @section('content')
-<div class="page">
-    <section class="card">
-        <div class="card-hd">
-            <i class="fa-solid fa-pen-to-square"></i> Edit Peringkat
-        </div>
-        <div class="card-bd">
-            @if($errors->any())
-                <div style="padding:8px 12px;border-radius:8px;background:#ffebee;color:#b71c1c;margin-bottom:10px;">
-                    <strong>Terjadi kesalahan:</strong>
-                    <ul style="margin:4px 0 0 18px;">
-                        @foreach($errors->all() as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
-            <form action="{{ route('koordinator.peringkat.update', $peringkat->id) }}" method="POST">
-                @method('PUT')
-                @include('koordinator.peringkat._form', ['peringkat' => $peringkat])
-            </form>
+<div class="page">
+    <div class="card" style="max-width:520px;margin:auto;">
+        <div class="card-hd">
+            <i class="fa-solid fa-pen"></i>
+            Edit Peringkat {{ $peringkat->jenis === 'kelompok' ? 'Kelompok' : 'Mahasiswa' }}
         </div>
-    </section>
+
+        <div class="card-bd">
+
+            <form method="POST" action="{{ route('koordinator.peringkat.update', $peringkat->id) }}">
+                @csrf
+                @method('PUT')
+
+                {{-- NAMA --}}
+                <div style="margin-bottom:12px;">
+                    <label>Nama</label>
+                    <input type="text" class="form-control" disabled
+                        value="{{ $peringkat->nama_tpk ?? $peringkat->mahasiswa->nama ?? '-' }}">
+                </div>
+
+                {{-- NILAI --}}
+                <div style="margin-bottom:12px;">
+                    <label>Nilai Total (0 – 1)</label>
+                    <input type="number" step="0.0001" name="nilai_total"
+                        class="form-control" required
+                        value="{{ $peringkat->nilai_total }}">
+                </div>
+
+                {{-- PERINGKAT --}}
+                <div style="margin-bottom:16px;">
+                    <label>Peringkat</label>
+                    <input type="number" name="peringkat"
+                        class="form-control" required
+                        value="{{ $peringkat->peringkat }}">
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-primary">
+                        <i class="fa-solid fa-save"></i> Simpan
+                    </button>
+
+                    <a href="{{ route('koordinator.peringkat.index') }}"
+                       class="btn btn-secondary">
+                        Kembali
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
 </div>
+
 @endsection
