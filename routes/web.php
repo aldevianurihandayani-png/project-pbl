@@ -82,12 +82,12 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // LOGIN GOOGLE (SSO POLITALA)
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
-
 /*
 |--------------------------------------------------------------------------
-| Verifikasi Email
+| Verifikasi Email (NONAKTIF)
 |--------------------------------------------------------------------------
 */
+/*
 // Notice "cek email"
 Route::get('/email/verify', function () {
     return view('auth.verify-email');
@@ -120,6 +120,7 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+*/
 
 /*
 |--------------------------------------------------------------------------
@@ -146,7 +147,7 @@ Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
 */
 Route::prefix('admins')
     ->name('admins.')
-    ->middleware(['auth', 'verified', 'role:admin'])
+    ->middleware(['auth', 'role:admin'])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
@@ -235,7 +236,7 @@ Route::prefix('admins')
 */
 Route::prefix('mahasiswa')
     ->name('mahasiswa.')
-    ->middleware(['auth', 'verified', 'role:mahasiswa'])
+    ->middleware(['auth', 'role:mahasiswa'])
     ->group(function () {
         Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
         Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
@@ -256,7 +257,7 @@ Route::prefix('mahasiswa')
 */
 Route::prefix('dosen')
     ->name('dosen.')
-    ->middleware(['auth', 'verified', 'role:dosen_pembimbing'])
+    ->middleware(['auth', 'role:dosen_pembimbing'])
     ->group(function () {
 
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
@@ -299,7 +300,7 @@ Route::get('/dosen/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
 */
 Route::prefix('dosenpenguji')
     ->name('dosenpenguji.')
-    ->middleware(['auth', 'verified', 'role:dosen_penguji'])
+    ->middleware(['auth', 'role:dosen_penguji'])
     ->group(function () {
 
         // Dashboard

@@ -33,12 +33,7 @@ class Notification extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /* ======================================
-     * SCOPE
-     * ====================================== */
-
-    // WAJIB: notif global + notif user
-    public function scopeForCurrent($query)
+    public function recipients()
     {
         return $this->belongsToMany(User::class, 'notification_user', 'notification_id', 'user_id')
             ->withPivot(['is_read']);
@@ -57,12 +52,15 @@ class Notification extends Model
 
     public function scopeUnread($query)
     {
-        return $query->where('is_read', false);
-    }
+        if (!Auth::check()) return $query->whereRaw('1=0');
 
-    /* ======================================
-     * HELPERS
-     * ====================================== */
+        $uid = Auth::id();
+
+        return $query->whereHas('recipients', function ($q) use ($uid) {
+            $q->where('users.id', $uid)
+              ->where('notification_user.is_read', 0);
+        });
+    }
 
     public static function getUnreadCount(): int
     {
@@ -82,7 +80,7 @@ class Notification extends Model
             ->get(['id', 'judul', 'pesan', 'created_at', 'user_id']);
     }
 
-    public function markAsRead(): bool
+    public function markAsReadForCurrent(): bool
     {
         if (!Auth::check()) return false;
 
@@ -137,6 +135,6 @@ class Notification extends Model
         $notif->syncRecipients();
         $notif->sendEmail();
 
-        return $notif;
-    }
+        return $notif;
+    }
 }
