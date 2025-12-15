@@ -1,4 +1,4 @@
-@extends('layouts.dosen')  {{-- kalau kamu pakai layout, kalau tidak hapus saja --}}
+@extends('partials.sidebar')  {{-- kalau kamu pakai layout, kalau tidak hapus saja --}}
 
 @section('content')
 <div class="page">
