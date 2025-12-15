@@ -1,4 +1,4 @@
-@extends('layouts.admin') 
+@extends('layouts.admin')
 
 @section('title', 'Manajemen Mata Kuliah — Admin')
 @section('page_title', 'Manajemen Mata Kuliah')
@@ -19,13 +19,16 @@
             padding: 10px 0 24px;
         }
 
-        /* ===== CARD PUTIH UTAMA (mirip "Daftar Kelompok") ===== */
+        /* ===== CARD PUTIH UTAMA (mirip halaman Mahasiswa) ===== */
         .mk-page-header {
             background: #ffffff;
             border-radius: 12px;
             border: 1px solid #e4ebff;
             box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+
+            /* ✅ samakan dengan Mahasiswa */
             padding: 12px 18px 16px;
+
             margin-bottom: 18px;
         }
         .mk-page-header-top {
@@ -33,12 +36,17 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
+
+            /* ✅ samakan dengan Mahasiswa */
             margin-bottom: 12px;
         }
+
+        /* ✅✅✅ SAMAKAN DENGAN MAHASISWA (UKURAN + WARNA) ✅✅✅ */
         .mk-page-title {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: 700;
-            color: #2563eb;
+            color: #0b1f4d;
+            margin: 0;
         }
 
         .mk-add-btn {
@@ -47,10 +55,13 @@
             gap: 8px;
             background: #1554d1;
             color: #ffffff !important;
-            padding: 7px 18px;
-            border-radius: 999px;
+
+            /* ✅ samakan dengan Mahasiswa */
+            padding: 9px 22px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
+
+            border-radius: 999px;
             text-decoration: none !important;
             box-shadow: 0 4px 10px rgba(21, 84, 209, 0.35);
             transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
@@ -312,22 +323,69 @@
 
         /* tombol Edit / Hapus ala SIMAP */
         .btn-edit {
-            background: #e9f0ff;
-            border: 1px solid #1d4ed8;
-            color: #1d4ed8;
+            background: #1554d1;
+            border: 1px solid #1554d1;
+            color: #ffffff !important;
         }
         .btn-edit:hover {
-            background: #dbe8ff;
+            background: #0f3fc0;
+            border-color: #0f3fc0;
+            color: #ffffff !important;
         }
 
         .btn-hapus {
-            background: #ffe8e8;
+            background: #ffffff;
             border: 1px solid #dc2626;
-            color: #b91c1c;
+            color: #dc2626 !important;
         }
         .btn-hapus:hover {
-            background: #ffd4d4;
+            background: rgba(220, 38, 38, 0.08);
+            color: #dc2626 !important;
         }
+
+        /* ================== RAPIN HASIL PENCARIAN (TAMBAHAN) ================== */
+        .mk-search-wrap {
+            margin-top: 14px;
+            padding: 14px 16px 16px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #dde5ff;
+            box-shadow: 0 14px 32px rgba(15,23,42,.05);
+        }
+        .mk-search-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .mk-search-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0b1f4d;
+            margin: 0;
+        }
+        .mk-search-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1554d1;
+            background: #edf2ff;
+            border: 1px solid #cfd7ff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .mk-search-note {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .mk-search-pagination {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+        }
+        /* ================== END TAMBAHAN ================== */
     </style>
 
     @php
@@ -341,9 +399,10 @@
 
             <div class="mk-page-header">
                 <div class="mk-page-header-top">
-                    <div class="mk-page-title">
-                        Daftar Mata Kuliah per Kelas
+                    <div>
+                        <h1 class="mk-page-title">Daftar Mata Kuliah per Kelas</h1>
                     </div>
+
                     <a href="{{ route('admins.matakuliah.create') }}" class="mk-add-btn">
                         Tambah Mata Kuliah
                     </a>
@@ -446,6 +505,79 @@
                     </a>
                 @endforeach
             </div>
+
+            {{-- ✅✅✅ TAMBAHAN: HASIL PENCARIAN MATA KULIAH (DIRAPIKAN) ✅✅✅ --}}
+            @if(isset($hasSearch) && $hasSearch)
+
+                <div class="mk-search-wrap">
+                    <div class="mk-search-head">
+                        <h3 class="mk-search-title">Hasil Pencarian Mata Kuliah</h3>
+                        <div class="mk-search-badge">
+                            {{ $matakuliahs->total() ?? $matakuliahs->count() }} data
+                        </div>
+                    </div>
+
+                    <div class="mk-search-note">
+                        Kata kunci: <strong>{{ request('q') }}</strong>
+                        @if(request('filter_kelas')) • Kelas: <strong>{{ request('filter_kelas') }}</strong> @endif
+                        @if(request('filter_semester')) • Semester: <strong>{{ request('filter_semester') }}</strong> @endif
+                    </div>
+
+                    @if($matakuliahs->count() == 0)
+                        <div class="alert alert-info mt-3 mb-0">
+                            Tidak ada mata kuliah yang cocok dengan pencarian.
+                        </div>
+                    @else
+                        <div class="mk-mk-grid mt-3">
+                            @foreach ($matakuliahs as $mk)
+                                <div class="mk-mk-card">
+                                    <div class="mk-mk-inner">
+                                        <div class="mk-mk-code">{{ $mk->kode_mk }}</div>
+                                        <div class="mk-mk-name">{{ $mk->nama_mk }}</div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            <span>Kelas: <strong>{{ $mk->kelas ?? '-' }}</strong></span>
+                                        </div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            <span>SKS: {{ $mk->sks }}</span>
+                                            <span>Semester: {{ $mk->semester }}</span>
+                                        </div>
+
+                                        <div class="mk-mk-meta mb-1">
+                                            Dosen pengampu:
+                                            <strong>{{ $mk->nama_dosen ?? '-' }}</strong>
+                                        </div>
+
+                                        <div class="mk-mk-footer">
+                                            <a href="{{ route('admins.matakuliah.edit', $mk->kode_mk) }}"
+                                               class="mk-btn-sm btn-edit">
+                                                Edit
+                                            </a>
+
+                                            <form action="{{ route('admins.matakuliah.destroy', $mk->kode_mk) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Yakin ingin menghapus mata kuliah ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="mk-btn-sm btn-hapus">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mk-search-pagination">
+                            {{ $matakuliahs->withQueryString()->links() }}
+                        </div>
+                    @endif
+                </div>
+
+            @endif
+            {{-- ✅✅✅ END TAMBAHAN ✅✅✅ --}}
 
         {{-- ================== MODE 2: DETAIL PER KELAS ================== --}}
         @else

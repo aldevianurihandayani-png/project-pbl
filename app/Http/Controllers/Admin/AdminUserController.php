@@ -33,18 +33,24 @@ class AdminUserController extends Controller
 
     public function store(Request $request)
     {
+        // ✅ support form lama yang masih pakai "nama"
+        $request->merge([
+            'name' => $request->input('name') ?? $request->input('nama'),
+        ]);
+
         $validated = $request->validate([
-            'nama'     => 'nullable|string|max:255',
+            'name'     => 'nullable|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'role'     => 'required|in:admin,mahasiswa,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu',
             'password' => 'required|min:6',
         ]);
 
         User::create([
-            'nama'           => $validated['nama'] ?? null,
-            'email'          => $validated['email'],
-            'role'           => $validated['role'],
-            'password'       => Hash::make($validated['password']),
+            // ✅ sesuai migration: kolomnya "name"
+            'name'     => $validated['name'] ?? null,
+            'email'    => $validated['email'],
+            'role'     => $validated['role'],
+            'password' => Hash::make($validated['password']),
 
             // akun yang dibuat langsung oleh admin dianggap sudah aktif
             'status'         => 'active',
@@ -78,14 +84,20 @@ class AdminUserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // ✅ support form lama yang masih pakai "nama"
+        $request->merge([
+            'name' => $request->input('name') ?? $request->input('nama'),
+        ]);
+
         $validated = $request->validate([
-            'nama'     => 'nullable|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $user->id . ',id',
+            'name'     => 'nullable|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
             'role'     => 'required|in:admin,mahasiswa,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu',
             'password' => 'nullable|min:6',
         ]);
 
-        $user->nama  = $validated['nama'] ?? null;
+        // ✅ sesuai migration: kolomnya "name"
+        $user->name  = $validated['name'] ?? null;
         $user->email = $validated['email'];
         $user->role  = $validated['role'];
 
@@ -128,22 +140,16 @@ class AdminUserController extends Controller
         // role final dari admin
         $user->role           = $request->role;
         $user->status         = 'active';
-        $user->requested_role = null;   // opsional: reset karena sudah diputuskan
+        $user->requested_role = null;   // reset karena sudah diputuskan
         $user->save();
-
-        // TODO: bisa tambahkan notifikasi / email ke user di sini
 
         return back()->with('success', 'Akun disetujui dan role sudah ditetapkan.');
     }
 
     public function reject(User $user)
     {
-        $user->status         = 'rejected';
-        // opsional: kosongkan role juga
-        // $user->role           = null;
+        $user->status = 'rejected';
         $user->save();
-
-        // TODO: bisa tambahkan notifikasi / email penolakan di sini
 
         return back()->with('success', 'Akun ditolak.');
     }

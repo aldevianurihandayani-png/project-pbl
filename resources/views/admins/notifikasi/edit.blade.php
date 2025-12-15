@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Buat Notifikasi Baru')
+@section('page_title', 'Edit Notifikasi')
 
 @section('content')
 
@@ -153,8 +153,9 @@
         </div>
       @endif
 
-      <form action="{{ route('admins.notifikasi.store') }}" method="POST" id="notifForm">
+      <form action="{{ route('admins.notifikasi.update', $notifikasi) }}" method="POST" id="notifForm">
         @csrf
+        @method('PUT')
 
         <div class="nf-grid">
           <div>
@@ -166,7 +167,7 @@
               id="judul"
               name="judul"
               class="nf-input @error('judul') is-invalid @enderror"
-              value="{{ old('judul') }}"
+              value="{{ old('judul', $notifikasi->judul) }}"
               placeholder="Contoh: Pengumpulan Laporan PBL"
               required
             >
@@ -183,7 +184,7 @@
               name="pesan"
               class="nf-textarea @error('pesan') is-invalid @enderror"
               placeholder="Isi pesan notifikasi (opsional)…"
-            >{{ old('pesan') }}</textarea>
+            >{{ old('pesan', $notifikasi->pesan) }}</textarea>
             @error('pesan') <div class="invalid-feedback">{{ $message }}</div> @enderror
             <div class="nf-help">Opsional. Jika diisi, tampil di bawah judul.</div>
           </div>
@@ -197,9 +198,9 @@
               <i class="fa-solid fa-tag"></i> Tipe
             </label>
             <select id="type" name="type" class="nf-select @error('type') is-invalid @enderror">
-              <option value="info"   {{ old('type','info') == 'info' ? 'selected' : '' }}>Informasi</option>
-              <option value="materi" {{ old('type') == 'materi' ? 'selected' : '' }}>Materi</option>
-              <option value="tugas"  {{ old('type') == 'tugas' ? 'selected' : '' }}>Tugas</option>
+              <option value="info"   {{ old('type', $notifikasi->type) == 'info' ? 'selected' : '' }}>Informasi</option>
+              <option value="materi" {{ old('type', $notifikasi->type) == 'materi' ? 'selected' : '' }}>Materi</option>
+              <option value="tugas"  {{ old('type', 'info') == 'tugas' ? 'selected' : '' }}>Tugas</option>
             </select>
             @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
           </div>
@@ -213,7 +214,7 @@
               id="link_url"
               name="link_url"
               class="nf-input @error('link_url') is-invalid @enderror"
-              value="{{ old('link_url') }}"
+              value="{{ old('link_url', $notifikasi->link_url) }}"
               placeholder="https://example.com (opsional)"
             >
             @error('link_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -230,7 +231,7 @@
           <select id="user_id" name="user_id" class="nf-select @error('user_id') is-invalid @enderror">
             <option value="">— Kirim ke Semua Pengguna —</option>
             @foreach ($users as $user)
-              <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
+              <option value="{{ $user->id }}" {{ old('user_id', $notifikasi->user_id) == $user->id ? 'selected' : '' }}>
                 {{ $user->nama ?? $user->name }} ({{ $user->role ?? '-' }})
               </option>
             @endforeach
@@ -248,8 +249,8 @@
             </span>
           </div>
           <div class="nf-preview-bd">
-            <p class="nf-p-title" id="previewTitle">{{ old('judul') ?: 'Judul notifikasi akan tampil di sini' }}</p>
-            <p class="nf-p-msg" id="previewMsg">{{ old('pesan') ?: 'Pesan (opsional) akan tampil di sini.' }}</p>
+            <p class="nf-p-title" id="previewTitle">{{ old('judul', $notifikasi->judul) ?: 'Judul notifikasi akan tampil di sini' }}</p>
+            <p class="nf-p-msg" id="previewMsg">{{ old('pesan', $notifikasi->pesan) ?: 'Pesan (opsional) akan tampil di sini.' }}</p>
             <div class="nf-p-meta">
               <span id="previewUrl" style="display:none;">
                 <i class="fa-solid fa-link"></i> <span id="previewUrlText"></span>
@@ -263,7 +264,7 @@
             <i class="fa-solid fa-arrow-left"></i> Batal
           </a>
           <button type="submit" class="btn-nf primary">
-            <i class="fa-solid fa-paper-plane"></i> Kirim Notifikasi
+            <i class="fa-solid fa-save"></i> Simpan Perubahan
           </button>
         </div>
 
@@ -322,6 +323,7 @@
       user.addEventListener(evt, update);
     });
 
+    // Initial call to populate preview
     update();
   })();
 </script>

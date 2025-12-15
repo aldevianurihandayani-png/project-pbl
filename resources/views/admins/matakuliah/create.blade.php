@@ -57,9 +57,7 @@
             gap: 16px 24px;
         }
         @media (max-width: 768px) {
-            .mk-form-grid {
-                grid-template-columns: 1fr;
-            }
+            .mk-form-grid { grid-template-columns: 1fr; }
         }
         .mk-field label {
             display: block;
@@ -154,9 +152,7 @@
             background: #f3f4f6;
             transition: background-color .15s ease, color .15s ease;
         }
-        .mk-back-icon {
-            font-size: 14px;
-        }
+        .mk-back-icon { font-size: 14px; }
         .mk-back-link:hover {
             background-color: #e5e7eb;
             color: #111827;
@@ -219,7 +215,7 @@
                     @php
                         $kelasFromQuery = request('kelas');
                         $kelasSelected = old('kelas', $kelasFromQuery);
-                        $opsiKelas = $daftarKelas ?? [];
+                        $opsiKelas = collect($daftarKelas ?? []);
                     @endphp
                     <div class="mk-field">
                         <label for="kelas">Kelas</label>
@@ -229,7 +225,6 @@
 
                             @foreach ($opsiKelas as $item)
                                 @php
-                                    // dukung dua bentuk: collection model atau array string
                                     $namaKelas = is_object($item) ? $item->nama_kelas : $item;
                                 @endphp
                                 <option value="{{ $namaKelas }}"
@@ -248,50 +243,33 @@
 
             <hr class="my-4">
 
-            {{-- ====== SECTION 2: DOSEN PENGAMPU ====== --}}
+            {{-- ====== SECTION 2: DOSEN PENGAMPU (DROPDOWN) ====== --}}
             <div class="mb-2">
-                <div class="mk-section-title">Informasi Dosen Pengampu</div>
-                <div class="mk-section-sub">
-                    Data ini membantu menampilkan dosen pengampu di halaman lain.
-                </div>
+                <div class="mk-section-title">Dosen Pengampu</div>
 
                 <div class="mk-form-grid">
-                    <div class="mk-field">
-                        <label for="nama_dosen">Nama Dosen Pengampu</label>
-                        <input type="text" id="nama_dosen" name="nama_dosen"
-                               class="@error('nama_dosen') is-invalid @enderror"
-                               value="{{ old('nama_dosen') }}">
-                        @error('nama_dosen')
-                            <div class="mk-invalid">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @php
+                        $dosenSelected = old('id_dosen');
+                        $opsiDosen = collect($dosens ?? []);
+                    @endphp
 
-                    <div class="mk-field">
-                        <label for="jabatan">Jabatan</label>
-                        <input type="text" id="jabatan" name="jabatan"
-                               class="@error('jabatan') is-invalid @enderror"
-                               value="{{ old('jabatan') }}">
-                        @error('jabatan')
-                            <div class="mk-invalid">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <div class="mk-field" style="grid-column: 1 / -1;">
+                        <label for="id_dosen">Pilih Dosen</label>
+                        <select id="id_dosen" name="id_dosen"
+                                class="@error('id_dosen') is-invalid @enderror" required>
+                            <option value="" disabled {{ $dosenSelected ? '' : 'selected' }}>
+                                -- Pilih Dosen --
+                            </option>
 
-                    <div class="mk-field">
-                        <label for="nip">NIP</label>
-                        <input type="text" id="nip" name="nip"
-                               class="@error('nip') is-invalid @enderror"
-                               value="{{ old('nip') }}">
-                        @error('nip')
-                            <div class="mk-invalid">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            @foreach ($opsiDosen as $dosen)
+                                <option value="{{ $dosen->id_dosen }}"
+                                    {{ (string)$dosenSelected === (string)$dosen->id_dosen ? 'selected' : '' }}>
+                                    {{ $dosen->nama_dosen }}{{ $dosen->nip ? ' ('.$dosen->nip.')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
 
-                    <div class="mk-field">
-                        <label for="no_telp">No. Telepon</label>
-                        <input type="text" id="no_telp" name="no_telp"
-                               class="@error('no_telp') is-invalid @enderror"
-                               value="{{ old('no_telp') }}">
-                        @error('no_telp')
+                        @error('id_dosen')
                             <div class="mk-invalid">{{ $message }}</div>
                         @enderror
                     </div>

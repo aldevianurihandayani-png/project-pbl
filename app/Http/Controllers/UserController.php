@@ -25,6 +25,10 @@ class UserController extends Authenticatable
         'role',
         'foto',
         'email_verified_at',
+
+        // ✅ supaya pending kebaca
+        'status',
+        'requested_role',
     ];
 
     protected $hidden = [
@@ -37,16 +41,34 @@ class UserController extends Authenticatable
         $data = $request->validate([
             'name'     => ['required','string','max:255'],
             'email'    => ['required','email','unique:users,email'],
+
+            // ✅ role dirapikan (admins/koor_pbl tetap diterima tapi dinormalisasi)
             'role'     => ['required', Rule::in([
-                'dosen_pembimbing','admins','mahasiswa','jaminan_mutu','koor_pbl','dosen_penguji',
+                'dosen_pembimbing','admins','admin','mahasiswa','jaminan_mutu','koor_pbl','koordinator','dosen_penguji',
             ])],
+
             'password' => ['required','min:6','confirmed'],
         ]);
+
+        // ✅ NORMALISASI ROLE agar konsisten ke sistem (admin/koordinator)
+        $requestedRole = $data['role'];
+        if ($requestedRole === 'admins') $requestedRole = 'admin';
+        if ($requestedRole === 'koor_pbl') $requestedRole = 'koordinator';
 
         $user = self::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
-            'role'     => $data['role'],
+
+            // ✅ role final jangan langsung ikut "diminta" → biar admin yang set
+            // aman: default mahasiswa
+            'role'     => 'mahasiswa',
+
+            // ✅ simpan role yang diminta user
+            'requested_role' => $requestedRole,
+
+            // ✅ pending dulu
+            'status'   => 'pending',
+
             'password' => Hash::make($data['password']),
         ]);
 
@@ -56,17 +78,12 @@ class UserController extends Authenticatable
             Log::error('Gagal kirim email register: '.$e->getMessage());
         }
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        // Redirect sesuai role
-        if ($user->role === 'mahasiswa') {
-            return redirect()->route('mahasiswa.dashboard')
-                ->with('success', 'Registrasi berhasil. Email konfirmasi telah dikirim.');
-        }
+        // ✅ JANGAN AUTO LOGIN karena masih pending (harus disetujui admin)
+        // Auth::login($user);
+        // $request->session()->regenerate();
 
         return redirect()->route('home')
-            ->with('success', 'Registrasi berhasil. Email konfirmasi telah dikirim.');
+            ->with('success', 'Registrasi berhasil. Email konfirmasi telah dikirim. Akun menunggu persetujuan admin.');
     }
 }
 
@@ -87,39 +104,47 @@ class UserController extends Controller
             'name' => $request->input('name') ?? $request->input('nama'),
         ]);
 
+        // ✅ Normalisasi role input (admins/koor_pbl -> admin/koordinator)
+        $roleInput = $request->input('role');
+        if ($roleInput === 'admins') $roleInput = 'admin';
+        if ($roleInput === 'koor_pbl') $roleInput = 'koordinator';
+        $request->merge(['role' => $roleInput]);
+
         // Validasi
         $data = $request->validate([
             'name'                  => ['required','string','max:100'],
             'email'                 => ['required','email','max:150','unique:users,email'],
             'password'              => ['required','min:6','confirmed'],
-            'role'                  => ['required','in:admins,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu,mahasiswa'],
+
+            // ✅ izinkan variasi yang kamu pakai tapi diarahkan jadi baku
+            'role'                  => ['required','in:admin,dosen_pembimbing,dosen_penguji,koordinator,jaminan_mutu,mahasiswa'],
+
             // nim/prodi opsional (belum disimpan ke tabel users)
             'nim'                   => ['nullable','string','max:50'],
             'prodi'                 => ['nullable','string','max:100'],
         ]);
 
-        // Simpan user (hanya kolom yang memang ada di tabel users)
+        // ✅ REGISTER USER BIASA = PENDING, role final ditentukan admin
         $user = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
             'password' => Hash::make($data['password']),
-            'role'     => $data['role'],
+
+            // role final default dulu
+            'role'     => 'mahasiswa',
+
+            // simpan role yang diminta
+            'requested_role' => $data['role'],
+
+            // pending
+            'status' => 'pending',
         ]);
 
-        // Auto login
-        Auth::login($user);
+        // ✅ JANGAN AUTO LOGIN (pending harus disetujui admin)
+        // Auth::login($user);
 
-        // Redirect per-role
-        $route = match ($user->role) {
-            'admin'            => 'admins.dashboard',
-            'dosen_pembimbing'  => 'dosen.dashboard',
-            'dosen_penguji'     => 'dosenpenguji.dashboard',
-            'koordinator'       => 'koordinator.dashboard',
-            'jaminan_mutu'      => 'jaminanmutu.dashboard',
-            'mahasiswa'         =>  'mahasiswa.dashboard',
-            default             => 'mhs.dashboard',
-        };
-
-        return redirect()->route($route)->with('success','Registrasi berhasil. Selamat datang!');
+        return redirect()
+            ->route('home')
+            ->with('success', 'Registrasi berhasil. Akun menunggu persetujuan admin.');
     }
 }

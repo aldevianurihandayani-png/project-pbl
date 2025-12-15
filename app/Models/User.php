@@ -8,23 +8,28 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\VerifyEmailCustom;
 
+// ✅ TAMBAHAN (relasi notifikasi)
+use App\Models\Notification;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+
+    public $timestamps = true;
+
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     protected $fillable = [
         'nama', 'name',
         'email',
         'password',
 
-        // ✔ role final setelah disetujui admin
         'role',
 
-        // ✔ data tambahan
         'nim',
         'nidn',
         'prodi',
@@ -33,11 +38,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at',
         'avatar_url',
 
-        // ============================
-        // ✔ Tambahan baru untuk sistem approval
-        // ============================
-        'status',          // pending | active | rejected
-        'requested_role',  // role yang diminta user saat register
+        'status',
+        'requested_role',
     ];
 
     protected $hidden = [
@@ -49,7 +51,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
 
-        // opsional, tetapi rapi — cast jadi string
         'status'            => 'string',
         'requested_role'    => 'string',
     ];
@@ -59,6 +60,19 @@ class User extends Authenticatable implements MustVerifyEmail
     public function mahasiswa()
     {
         return $this->hasOne(Mahasiswa::class, 'nim', 'nim');
+    }
+
+    // ✅ TAMBAHAN: Relasi notifikasi untuk lonceng (pivot notification_user)
+    public function notifications()
+    {
+        return $this->belongsToMany(
+            Notification::class,
+            'notification_user',
+            'user_id',
+            'notification_id'
+        )
+        ->withPivot(['is_read', 'read_at'])
+        ->withTimestamps();
     }
 
     // name -> baca dari kolom 'nama'

@@ -231,7 +231,7 @@
             font-size: 13px;
             text-decoration: none;
             color: #4b5563;
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-radius: 999px;
             border: 1px solid #e5e7eb;
             background: #ffffff;
@@ -244,6 +244,28 @@
             box-shadow: 0 2px 6px rgba(148, 163, 184, 0.4);
         }
 
+        /* ✅ header detail dibuat lebih rapi (tanpa pill) */
+        .mhs-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            margin: 10px 0 10px;
+        }
+        .mhs-detail-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0b1f4d;
+            margin: 0;
+            line-height: 1.15;
+        }
+        .mhs-detail-sub {
+            margin: 6px 0 0;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
         .mhs-detail-card {
             border-radius: 18px;
             border: 1px solid #e4ebff;
@@ -252,11 +274,13 @@
             overflow: hidden;
         }
 
-        /* ===== TABEL (model garis klasik) ===== */
+        /* ===== TABEL ===== */
         .mhs-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 0;
+            table-layout: fixed;
+            min-width: 860px;
         }
         .mhs-table thead {
             background: #e5edff;
@@ -267,13 +291,21 @@
             text-transform: uppercase;
             letter-spacing: .08em;
             color: #0b1f4d;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border-bottom: 1px solid #d4ddff;
+            white-space: nowrap;
         }
         .mhs-table tbody td {
-            padding: 10px 14px;
-            border-bottom: 1px solid #f3f4f6;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5ff;
             background: #ffffff;
+            vertical-align: middle;
+        }
+        .mhs-table tbody tr:nth-child(even) td {
+            background: #fbfcff;
+        }
+        .mhs-table tbody tr:hover td {
+            background: #f5f8ff;
         }
         .mhs-table tbody tr:last-child td {
             border-bottom: none;
@@ -287,15 +319,33 @@
         .col-aksi, .col-aksi-cell {
             text-align: center;
         }
-        .col-no      { width: 60px; }
-        .col-nim     { width: 150px; }
-        .col-kelas   { width: 80px; }
+        .col-no      { width: 70px; }
+        .col-nim     { width: 170px; }
+        .col-kelas   { width: 130px; }
         .col-dosen   { width: 180px; }
-        .col-aksi    { width: 160px; }
+        .col-aksi    { width: 200px; }
 
         .col-nama,
         .col-nama-cell {
             text-align: left;
+        }
+
+        .col-kelas-cell,
+        .col-kelas {
+            white-space: nowrap !important;
+        }
+        .col-nim-cell,
+        .col-nim,
+        .col-dosen-cell,
+        .col-dosen,
+        .col-aksi-cell,
+        .col-aksi {
+            white-space: nowrap !important;
+        }
+        .col-nama-cell {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         /* tombol */
@@ -303,12 +353,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 5px 16px;
+            padding: 6px 16px;
             border-radius: 999px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             border: 1px solid transparent;
             text-decoration: none !important;
+            line-height: 1;
+            white-space: nowrap;
         }
         .mhs-btn-edit {
             background: #1554d1;
@@ -321,24 +373,45 @@
             color: #ffffff;
         }
         .mhs-btn-delete {
-            background: #fef2f2;
+            background: #ffffff;
             border-color: #fecaca;
-            color: #b91c1c;
+            color: #dc2626;
         }
         .mhs-btn-delete:hover {
-            background: #fee2e2;
+            background: rgba(220, 38, 38, 0.08);
             border-color: #dc2626;
-            color: #b91c1c;
+            color: #dc2626;
         }
 
         .aksi-wrapper {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            flex-wrap: nowrap;
         }
         .aksi-wrapper form {
             margin: 0;
+        }
+
+        /* ✅✅✅ RAPihin: Judul HASIL PENCARIAN (tidak tebal & tidak mepet) */
+        .mhs-search-section {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #dfe8ff;
+        }
+        .mhs-search-heading {
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            margin: 0 0 12px;
+        }
+        .mhs-search-wrap {
+            margin-top: 6px;
+        }
+
+        .pagination {
+            justify-content: center;
         }
     </style>
 
@@ -355,7 +428,6 @@
             <div class="mhs-page-header">
                 <div class="mhs-page-header-top">
                     <div>
-                        {{-- hilangkan "Manajemen Mahasiswa" di kartu filter --}}
                         <h1 class="mhs-page-title">Data Mahasiswa per Kelas</h1>
                     </div>
 
@@ -370,7 +442,6 @@
                         <label class="mhs-filter-label">Kelas</label>
                         <select name="filter_kelas" class="mhs-filter-select">
                             <option value="">Semua</option>
-                            {{-- 🔹 pakai kelas dari tabel `kelas` --}}
                             @foreach ($daftarKelas as $row)
                                 <option value="{{ $row->nama_kelas }}"
                                     {{ request('filter_kelas') == $row->nama_kelas ? 'selected' : '' }}>
@@ -380,13 +451,18 @@
                         </select>
                     </div>
 
+                    {{-- Angkatan --}}
                     <div class="mhs-filter-group">
-                        <label class="mhs-filter-label">Semester</label>
-                        <select name="filter_semester" class="mhs-filter-select">
+                        <label class="mhs-filter-label">Angkatan</label>
+                        <select name="filter_angkatan" class="mhs-filter-select">
                             <option value="">Semua</option>
-                            @for ($i = 1; $i <= 6; $i++)
-                                <option value="{{ $i }}" {{ request('filter_semester') == $i ? 'selected' : '' }}>
-                                    Semester {{ $i }}
+                            @php
+                                $tahunSekarang = (int) date('Y');
+                                $startTahun = 2018;
+                            @endphp
+                            @for ($y = $tahunSekarang + 1; $y >= $startTahun; $y--)
+                                <option value="{{ $y }}" {{ request('filter_angkatan') == $y ? 'selected' : '' }}>
+                                    {{ $y }}
                                 </option>
                             @endfor
                         </select>
@@ -394,12 +470,7 @@
 
                     <div class="mhs-filter-group" style="flex:1; min-width:220px;">
                         <label class="mhs-filter-label">Cari (nama / NIM)</label>
-                        <input
-                            type="text"
-                            name="q"
-                            class="mhs-filter-input"
-                            value="{{ request('q') }}"
-                        >
+                        <input type="text" name="q" class="mhs-filter-input" value="{{ request('q') }}">
                     </div>
 
                     <div class="mhs-filter-group" style="min-width:auto;">
@@ -423,10 +494,9 @@
             <div class="kelas-section-title">Data Mahasiswa per Kelas</div>
 
             <div class="kelas-grid mb-4">
-                {{-- 🔹 loop kartu berdasarkan tabel `kelas` --}}
                 @foreach ($daftarKelas as $row)
                     @php
-                        $namaKelas = $row->nama_kelas;              // misal: "Kelas A" / "A" tergantung datanya
+                        $namaKelas = $row->nama_kelas;
                         $stat      = $kelasStats[$namaKelas] ?? null;
                         $total     = $stat->total
                             ?? $stat->jumlah_mahasiswa
@@ -451,19 +521,91 @@
                 @endforeach
             </div>
 
+            {{-- HASIL PENCARIAN --}}
+            @if(isset($hasSearch) && $hasSearch)
+
+                <div class="mhs-search-section">
+                    <div class="mhs-search-heading">Hasil Pencarian Mahasiswa</div>
+
+                    @if(!$mahasiswas || $mahasiswas->count() == 0)
+                        <div class="alert alert-info mt-2">
+                            Tidak ada mahasiswa yang cocok dengan pencarian.
+                        </div>
+                    @else
+                        <div class="mhs-detail-card mhs-search-wrap">
+                            <div class="card-body p-3">
+                                <div class="table-responsive mb-0">
+                                    <table class="mhs-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-no">No</th>
+                                                <th class="col-nim">NIM</th>
+                                                <th class="col-nama">Nama</th>
+                                                <th class="col-kelas">Kelas</th>
+                                                <th class="col-dosen">No HP</th>
+                                                <th class="col-aksi">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($mahasiswas as $mhs)
+                                                <tr>
+                                                    <td class="col-no-cell">
+                                                        {{ ($mahasiswas->currentPage() - 1) * $mahasiswas->perPage() + $loop->iteration }}
+                                                    </td>
+                                                    <td class="col-nim-cell">{{ $mhs->nim }}</td>
+                                                    <td class="col-nama-cell">{{ $mhs->nama }}</td>
+                                                    <td class="col-kelas-cell">{{ $mhs->kelas }}</td>
+                                                    <td class="col-dosen-cell">{{ $mhs->no_hp ?? '-' }}</td>
+                                                    <td class="col-aksi-cell">
+                                                        <div class="aksi-wrapper">
+                                                            <a href="{{ route('admins.mahasiswa.edit', ['mahasiswa' => $mhs->nim]) }}"
+                                                               class="mhs-btn mhs-btn-edit">
+                                                                Edit
+                                                            </a>
+
+                                                            <form action="{{ route('admins.mahasiswa.destroy', ['mahasiswa' => $mhs->nim]) }}"
+                                                                  method="POST"
+                                                                  onsubmit="return confirm('Yakin ingin menghapus mahasiswa ini?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="mhs-btn mhs-btn-delete">
+                                                                    Hapus
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mt-3">
+                                    {{ $mahasiswas->links() }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+            @endif
+
         {{-- ================== MODE 2: DETAIL PER KELAS ================== --}}
         @else
             <div class="mhs-detail-wrap">
 
-                <a href="{{ route('admins.mahasiswa.index') }}" class="mhs-back-link mb-3 d-inline-flex">
+                <a href="{{ route('admins.mahasiswa.index') }}" class="mhs-back-link mb-2 d-inline-flex">
                     <span>←</span>
                     <span>Kembali ke semua kelas</span>
                 </a>
 
-                <div class="mb-2">
-                    <h2 class="mhs-page-title mb-1" style="font-size:18px;">
-                        Data Mahasiswa — Kelas {{ $kelasFilter }}
-                    </h2>
+                <div class="mhs-detail-header">
+                    <div>
+                        <h2 class="mhs-detail-title">Data Mahasiswa — {{ $kelasFilter }}</h2>
+                        <p class="mhs-detail-sub">
+                            Daftar mahasiswa terdaftar di {{ $kelasFilter }}.
+                        </p>
+                    </div>
                 </div>
 
                 @if ($mahasiswas->count() == 0)
@@ -488,7 +630,10 @@
                                     <tbody>
                                         @foreach ($mahasiswas as $mhs)
                                             <tr>
-                                                <td class="col-no-cell">{{ $loop->iteration }}</td>
+                                                <td class="col-no-cell">
+                                                    {{-- ✅ PERBAIKAN: mode detail kelas pakai get(), jadi cukup loop->iteration --}}
+                                                    {{ $loop->iteration }}
+                                                </td>
                                                 <td class="col-nim-cell">{{ $mhs->nim }}</td>
                                                 <td class="col-nama-cell">{{ $mhs->nama }}</td>
                                                 <td class="col-kelas-cell">{{ $mhs->kelas }}</td>
@@ -517,9 +662,10 @@
                                 </table>
                             </div>
 
-                            <div class="mt-3">
+                            {{-- ✅ PERBAIKAN: detail kelas tidak paginate lagi, jadi links() dihapus --}}
+                            {{-- <div class="mt-3">
                                 {{ $mahasiswas->links() }}
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 @endif

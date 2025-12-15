@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MataKuliah;
 use App\Models\Kelas;
+use App\Models\Dosen; // ✅ TAMBAHAN
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -16,8 +17,12 @@ class MataKuliahController extends Controller
     {
         $kelasFilter = $request->query('kelas'); // ?kelas=Kelas A / Kelas B / dll
 
-        // data tabel di bawah (detail per kelas)
+        // ✅ deteksi mode pencarian (overview)
+        $hasSearch = $request->filled('q') || $request->filled('filter_kelas') || $request->filled('filter_semester');
+
         $matakuliahs = collect();
+
+        // MODE 2: DETAIL PER KELAS (tetap)
         if ($kelasFilter) {
             $matakuliahs = MataKuliah::where('kelas', $kelasFilter)
                 ->orderBy('semester')
@@ -26,7 +31,35 @@ class MataKuliahController extends Controller
                 ->withQueryString();
         }
 
-        // statistik jumlah MK per kelas (berdasarkan tabel mata_kuliah)
+        // MODE 1: OVERVIEW + SEARCH RESULT
+        if (!$kelasFilter && $hasSearch) {
+            $query = MataKuliah::query();
+
+            if ($request->filled('filter_kelas')) {
+                $query->where('kelas', $request->filter_kelas);
+            }
+
+            if ($request->filled('filter_semester')) {
+                $query->where('semester', $request->filter_semester);
+            }
+
+            if ($request->filled('q')) {
+                $q = $request->q;
+                $query->where(function ($w) use ($q) {
+                    $w->where('kode_mk', 'like', "%{$q}%")
+                      ->orWhere('nama_mk', 'like', "%{$q}%");
+                });
+            }
+
+            $matakuliahs = $query
+                ->orderBy('kelas')
+                ->orderBy('semester')
+                ->orderBy('kode_mk')
+                ->paginate(12)
+                ->withQueryString();
+        }
+
+        // statistik jumlah MK per kelas
         $kelasStats = MataKuliah::select(
                 'kelas',
                 DB::raw('COUNT(*) as total'),
@@ -36,77 +69,68 @@ class MataKuliahController extends Controller
             ->groupBy('kelas')
             ->orderBy('kelas')
             ->get()
-            ->keyBy('kelas'); // akses cepat: $kelasStats['Kelas A']
+            ->keyBy('kelas');
 
-        // 🔹 daftar kelas master dari tabel `kelas`
-        // dipakai untuk:
-        // - kartu ringkasan per kelas
-        // - dropdown filter kelas di view
+        // daftar kelas master
         $daftarKelas = Kelas::orderBy('nama_kelas')->get();
 
         return view('admins.matakuliah.index', [
             'matakuliahs'  => $matakuliahs,
             'kelasStats'   => $kelasStats,
             'kelasFilter'  => $kelasFilter,
-            'daftarKelas'  => $daftarKelas,   // <= penting
+            'daftarKelas'  => $daftarKelas,
+            'hasSearch'    => $hasSearch,
         ]);
     }
 
     /** ==================== FORM CREATE ==================== **/
     public function create(Request $request)
     {
-        // ambil kelas dari query kalau ada (?kelas=Kelas A)
         $kelasDefault = $request->query('kelas');
-
-        // untuk dropdown di form: pakai collection model (bisa $row->nama_kelas di view)
         $daftarKelas = Kelas::orderBy('nama_kelas')->get();
 
-        return view('admins.matakuliah.create', compact('kelasDefault', 'daftarKelas'));
+        // ✅ TAMBAHAN: data dosen untuk dropdown
+        $dosens = Dosen::orderBy('nama_dosen')->get();
+
+        return view('admins.matakuliah.create', compact('kelasDefault', 'daftarKelas', 'dosens'));
     }
 
     /** ==================== SIMPAN BARU ==================== **/
     public function store(Request $request)
     {
-        // untuk validasi: ambil array nama_kelas saja
         $opsiKelas = Kelas::orderBy('nama_kelas')
             ->pluck('nama_kelas')
             ->toArray();
 
         $validated = $request->validate(
             [
-                'kode_mk'    => ['required', 'string', 'max:20', 'unique:mata_kuliah,kode_mk'],
-                'nama_mk'    => ['required', 'string', 'max:150'],
-                'sks'        => ['required', 'integer', 'min:1'],
-                'semester'   => ['required', 'integer', 'min:1'],
-                'kelas'      => ['required', 'string', Rule::in($opsiKelas)],
+                'kode_mk'   => ['required', 'string', 'max:20', 'unique:mata_kuliah,kode_mk'],
+                'nama_mk'   => ['required', 'string', 'max:150'],
+                'sks'       => ['required', 'integer', 'min:1'],
+                'semester'  => ['required', 'integer', 'min:1'],
+                'kelas'     => ['required', 'string', Rule::in($opsiKelas)],
 
-                'nama_dosen' => ['nullable', 'string', 'max:150'],
-                'jabatan'    => ['nullable', 'string', 'max:100'],
-                'nip'        => ['nullable', 'string', 'max:50'],
-                'no_telp'    => ['nullable', 'string', 'max:50'],
+                // ✅ pilihan dosen dari dropdown
+                'id_dosen'  => ['required', 'integer', 'exists:dosen,id_dosen'],
             ],
             [],
             [
-                'kode_mk'    => 'Kode Mata Kuliah',
-                'nama_mk'    => 'Nama Mata Kuliah',
-                'sks'        => 'Jumlah SKS',
-                'semester'   => 'Semester',
-                'kelas'      => 'Kelas',
-                'nama_dosen' => 'Dosen Pengampu',
+                'kode_mk'   => 'Kode Mata Kuliah',
+                'nama_mk'   => 'Nama Mata Kuliah',
+                'sks'       => 'Jumlah SKS',
+                'semester'  => 'Semester',
+                'kelas'     => 'Kelas',
+                'id_dosen'  => 'Dosen Pengampu',
             ]
         );
 
         MataKuliah::create([
-            'kode_mk'    => strtoupper($validated['kode_mk']),
-            'nama_mk'    => $validated['nama_mk'],
-            'sks'        => $validated['sks'],
-            'semester'   => $validated['semester'],
-            'kelas'      => $validated['kelas'],
-            'nama_dosen' => $validated['nama_dosen'] ?? null,
-            'jabatan'    => $validated['jabatan'] ?? null,
-            'nip'        => $validated['nip'] ?? null,
-            'no_telp'    => $validated['no_telp'] ?? null,
-            'id_dosen'   => null,
+            'kode_mk'   => strtoupper($validated['kode_mk']),
+            'nama_mk'   => $validated['nama_mk'],
+            'sks'       => $validated['sks'],
+            'semester'  => $validated['semester'],
+            'kelas'     => $validated['kelas'],
+            'id_dosen'  => $validated['id_dosen'], // ✅ simpan id dosen
         ]);
 
         return redirect()->route('admins.matakuliah.index', ['kelas' => $validated['kelas']])
@@ -116,51 +140,47 @@ class MataKuliahController extends Controller
     /** ==================== FORM EDIT ==================== **/
     public function edit(MataKuliah $matakuliah)
     {
-        // opsi kelas untuk dropdown (collection, biar di view bisa $row->nama_kelas)
         $daftarKelas = Kelas::orderBy('nama_kelas')->get();
 
-        return view('admins.matakuliah.edit', compact('matakuliah', 'daftarKelas'));
+        // ✅ TAMBAHAN: data dosen untuk dropdown
+        $dosens = Dosen::orderBy('nama_dosen')->get();
+
+        return view('admins.matakuliah.edit', compact('matakuliah', 'daftarKelas', 'dosens'));
     }
 
     /** ==================== UPDATE DATA ==================== **/
     public function update(Request $request, MataKuliah $matakuliah)
     {
-        // validasi tetap pakai array nama_kelas
         $opsiKelas = Kelas::orderBy('nama_kelas')
             ->pluck('nama_kelas')
             ->toArray();
 
         $validated = $request->validate(
             [
-                'nama_mk'    => ['required', 'string', 'max:150'],
-                'sks'        => ['required', 'integer', 'min:1'],
-                'semester'   => ['required', 'integer', 'min:1'],
-                'kelas'      => ['required', 'string', Rule::in($opsiKelas)],
+                'nama_mk'   => ['required', 'string', 'max:150'],
+                'sks'       => ['required', 'integer', 'min:1'],
+                'semester'  => ['required', 'integer', 'min:1'],
+                'kelas'     => ['required', 'string', Rule::in($opsiKelas)],
 
-                'nama_dosen' => ['nullable', 'string', 'max:150'],
-                'jabatan'    => ['nullable', 'string', 'max:100'],
-                'nip'        => ['nullable', 'string', 'max:50'],
-                'no_telp'    => ['nullable', 'string', 'max:50'],
+                // ✅ pilihan dosen dari dropdown
+                'id_dosen'  => ['required', 'integer', 'exists:dosen,id_dosen'],
             ],
             [],
             [
-                'nama_mk'    => 'Nama Mata Kuliah',
-                'sks'        => 'Jumlah SKS',
-                'semester'   => 'Semester',
-                'kelas'      => 'Kelas',
-                'nama_dosen' => 'Dosen Pengampu',
+                'nama_mk'   => 'Nama Mata Kuliah',
+                'sks'       => 'Jumlah SKS',
+                'semester'  => 'Semester',
+                'kelas'     => 'Kelas',
+                'id_dosen'  => 'Dosen Pengampu',
             ]
         );
 
         $matakuliah->update([
-            'nama_mk'    => $validated['nama_mk'],
-            'sks'        => $validated['sks'],
-            'semester'   => $validated['semester'],
-            'kelas'      => $validated['kelas'],
-            'nama_dosen' => $validated['nama_dosen'] ?? null,
-            'jabatan'    => $validated['jabatan'] ?? null,
-            'nip'        => $validated['nip'] ?? null,
-            'no_telp'    => $validated['no_telp'] ?? null,
+            'nama_mk'   => $validated['nama_mk'],
+            'sks'       => $validated['sks'],
+            'semester'  => $validated['semester'],
+            'kelas'     => $validated['kelas'],
+            'id_dosen'  => $validated['id_dosen'], // ✅ update id dosen
         ]);
 
         return redirect()->route('admins.matakuliah.index', ['kelas' => $validated['kelas']])

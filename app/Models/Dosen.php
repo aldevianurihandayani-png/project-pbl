@@ -21,16 +21,29 @@ class Dosen extends Model
         'no_telp',
     ];
 
-    // 🔥 RELASI: Dosen → Mahasiswa (1 dosen membimbing banyak mahasiswa)
+    /**
+     * RELASI:
+     * 1 DOSEN membimbing banyak MAHASISWA
+     */
     public function mahasiswas()
     {
-        return $this->hasMany(Mahasiswa::class, 'id_dosen', 'id_dosen');
-        // kolom 'id_dosen' harus ada di tabel mahasiswas
+        return $this->hasMany(
+            Mahasiswa::class,
+            'id_dosen',
+            'id_dosen'
+        );
     }
 
-    // relasi ke mata kuliah (opsional)
-    public function mataKuliah()
+    /**
+     * RELASI:
+     * 1 DOSEN mengampu banyak MATA KULIAH
+     */
+    public function mataKuliahs()
     {
-        return $this->hasMany(MataKuliah::class, 'id_dosen', 'id_dosen');
+        return $this->hasMany(
+            MataKuliah::class,
+            'id_dosen',
+            'id_dosen'
+        );
     }
 }
