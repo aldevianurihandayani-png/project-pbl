@@ -42,7 +42,7 @@
       <span>Logbook</span>
     </a>
 
-    {{-- 🔥 PERINGKAT (MAHASISWA) --}}
+    {{-- Peringkat --}}
     <a href="{{ route('tpk.mahasiswa.index') }}"
        class="{{ request()->routeIs('tpk.mahasiswa.*') ? 'active' : '' }}">
       <i class="fa-solid fa-ranking-star"></i>
@@ -58,9 +58,9 @@
 
     <div class="nav-title">Akun</div>
 
-    {{-- Profil --}}
-    <a href="{{ route('profile.edit') }}"
-       class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+    {{-- 🔥 PROFIL MAHASISWA (KHUSUS, BUKAN GLOBAL) --}}
+    <a href="{{ route('mahasiswa.profile') }}"
+       class="{{ request()->routeIs('mahasiswa.profile') ? 'active' : '' }}">
       <i class="fa-solid fa-id-badge"></i>
       <span>Profil</span>
     </a>

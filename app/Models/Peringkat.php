@@ -13,42 +13,23 @@ class Peringkat extends Model
     protected $table = 'peringkats';
 
     protected $fillable = [
-        'jenis',          // mahasiswa | kelompok
-        'mahasiswa_id',   // nullable (kalau kelompok)
-        'nama_tpk',       // nama mahasiswa / kelompok (hasil TPK)
+        'jenis',
+        'mahasiswa_id',
+        'nama_tpk',
         'mata_kuliah',
-        'nilai_total',    // 0–1 (ditampilkan persen)
+        'nilai_total',
         'peringkat',
         'semester',
         'tahun_ajaran',
+
+        // WAJIB biar nyambung ke tabel TPK:
+        'tpk_type',
+        'tpk_id',
     ];
 
     protected $casts = [
         'nilai_total' => 'float',
         'peringkat'   => 'integer',
+        'tpk_id'      => 'integer',
     ];
-
-    /* ===================== RELATION ===================== */
-
-    // optional, kalau suatu saat mau mapping ke mahasiswa asli
-    public function mahasiswa()
-    {
-        return $this->belongsTo(
-            Mahasiswa::class,
-            'mahasiswa_id',
-            'nim'
-        );
-    }
-
-    /* ===================== SCOPES ===================== */
-
-    public function scopeMahasiswa($query)
-    {
-        return $query->where('jenis', 'mahasiswa');
-    }
-
-    public function scopeKelompok($query)
-    {
-        return $query->where('jenis', 'kelompok');
-    }
 }

@@ -9,12 +9,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Peringkat;
 use App\Models\TpkMahasiswa;
 use App\Models\TpkKelompok;
+use App\Models\BobotPeringkat;
 
 class PeringkatController extends Controller
 {
-    /**
-     * LIST: tampilkan peringkat mahasiswa & kelompok (pagination masing-masing)
-     */
     public function index()
     {
         $peringkatKelompok = Peringkat::where('jenis', 'kelompok')
@@ -25,7 +23,6 @@ class PeringkatController extends Controller
             ->orderBy('peringkat')
             ->paginate(10, ['*'], 'pm_page');
 
-        // helper nama display
         $peringkatMahasiswa->getCollection()->transform(function ($p) {
             $p->nama_display = $p->nama_tpk ?? '-';
             return $p;
@@ -34,9 +31,6 @@ class PeringkatController extends Controller
         return view('koordinator.peringkat.index', compact('peringkatKelompok', 'peringkatMahasiswa'));
     }
 
-    /* =========================================================
-     * CREATE FORM (nilai mentah TPK)
-     * ========================================================= */
     public function createMahasiswa()
     {
         return view('koordinator.peringkat.create_mahasiswa');
@@ -47,9 +41,6 @@ class PeringkatController extends Controller
         return view('koordinator.peringkat.create_kelompok');
     }
 
-    /* =========================================================
-     * STORE (nilai mentah TPK) + AUTO HITUNG ULANG
-     * ========================================================= */
     public function storeMahasiswa(Request $request)
     {
         $data = $request->validate([
@@ -61,9 +52,7 @@ class PeringkatController extends Controller
 
         TpkMahasiswa::create($data);
 
-        // auto hitung ulang peringkat mahasiswa
         $this->calculateMahasiswa();
-
         return redirect()->route('koordinator.peringkat.index')
             ->with('success', 'Nilai mahasiswa ditambahkan & peringkat mahasiswa diperbarui.');
     }
@@ -78,16 +67,11 @@ class PeringkatController extends Controller
 
         TpkKelompok::create($data);
 
-        // auto hitung ulang peringkat kelompok
         $this->calculateKelompok();
-
         return redirect()->route('koordinator.peringkat.index')
             ->with('success', 'Nilai kelompok ditambahkan & peringkat kelompok diperbarui.');
     }
 
-    /* =========================================================
-     * HITUNG ULANG (manual trigger) - /koordinator/peringkat/calculate?type=...
-     * ========================================================= */
     public function calculate(Request $request)
     {
         $type = $request->get('type', 'mahasiswa');
@@ -103,103 +87,166 @@ class PeringkatController extends Controller
             ->with('success', 'Peringkat mahasiswa berhasil dihitung ulang.');
     }
 
-    /* =========================================================
-     * EDIT / UPDATE (hanya edit hasil peringkat yang sudah jadi)
-     * ========================================================= */
-    public function edit(Peringkat $peringkat)
+    public function edit(string $type, int $id)
     {
-        return view('koordinator.peringkat.edit', compact('peringkat'));
+        $item = $type === 'kelompok'
+            ? TpkKelompok::findOrFail($id)
+            : TpkMahasiswa::findOrFail($id);
+
+        return view('koordinator.peringkat.edit', compact('item', 'type'));
     }
 
-    public function update(Request $request, Peringkat $peringkat)
+    public function update(Request $request, string $type, int $id)
     {
-        $data = $request->validate([
-            'nama_tpk'    => 'nullable|string|max:255',
-            'nilai_total' => 'required|numeric|min:0',
-        ]);
+        if ($type === 'kelompok') {
+            $item = TpkKelompok::findOrFail($id);
 
-        // untuk kelompok: nama wajib
-        if ($peringkat->jenis === 'kelompok' && empty($data['nama_tpk'])) {
-            return back()->with('error', 'Nama kelompok wajib diisi.')->withInput();
+            $data = $request->validate([
+                'nama'       => 'required|string|max:255',
+                'review_uts' => 'required|numeric',
+                'review_uas' => 'required|numeric',
+            ]);
+
+            $item->update($data);
+            $this->calculateKelompok();
+        } else {
+            $item = TpkMahasiswa::findOrFail($id);
+
+            $data = $request->validate([
+                'nama'           => 'required|string|max:255',
+                'keaktifan'      => 'required|numeric',
+                'nilai_kelompok' => 'required|numeric',
+                'nilai_dosen'    => 'required|numeric',
+            ]);
+
+            $item->update($data);
+            $this->calculateMahasiswa();
         }
 
-        $peringkat->update($data);
-
-        // auto susun ulang ranking
-        $this->recalculateRanking($peringkat->jenis);
-
         return redirect()->route('koordinator.peringkat.index')
-            ->with('success', 'Data berhasil diupdate & peringkat otomatis diperbarui.');
+            ->with('success', 'Data berhasil diupdate & peringkat diperbarui.');
     }
 
-    /* =========================================================
-     * DELETE (soft) + UNDO (restore)
-     * ========================================================= */
-    public function destroy(Peringkat $peringkat)
+    public function destroyTpk(Request $request)
     {
-        $jenis = $peringkat->jenis;
-        $id = $peringkat->id;
+        $data = $request->validate([
+            'tpk_type' => 'required|in:mahasiswa,kelompok',
+            'tpk_id'   => 'required|integer',
+        ]);
 
-        $peringkat->delete();
-
-        $this->recalculateRanking($jenis);
+        if ($data['tpk_type'] === 'mahasiswa') {
+            TpkMahasiswa::findOrFail($data['tpk_id'])->delete();
+            $this->calculateMahasiswa();
+        } else {
+            TpkKelompok::findOrFail($data['tpk_id'])->delete();
+            $this->calculateKelompok();
+        }
 
         return redirect()->route('koordinator.peringkat.index')
-            ->with('success', 'Data berhasil dihapus.')
-            ->with('undo_id', $id);
+            ->with('success', 'Data berhasil dihapus permanen & peringkat diperbarui.');
     }
 
-    public function restore($id)
+    /* ===================== ATUR BOBOT ===================== */
+
+    public function bobot()
     {
-        $peringkat = Peringkat::withTrashed()->findOrFail($id);
-        $jenis = $peringkat->jenis;
+        // ambil bobot terakhir, kalau belum ada buat default
+        $mhs = BobotPeringkat::firstOrCreate(
+            ['jenis' => 'mahasiswa'],
+            ['mhs_keaktifan' => 30, 'mhs_nilai_kelompok' => 30, 'mhs_nilai_dosen' => 40]
+        );
 
-        $peringkat->restore();
+        $klp = BobotPeringkat::firstOrCreate(
+            ['jenis' => 'kelompok'],
+            ['klp_review_uts' => 50, 'klp_review_uas' => 50]
+        );
 
-        $this->recalculateRanking($jenis);
-
-        return redirect()->route('koordinator.peringkat.index')
-            ->with('success', 'Data berhasil dikembalikan (undo).');
+        return view('koordinator.peringkat.bobot', compact('mhs', 'klp'));
     }
 
-    /* =========================================================
-     * CORE: CALCULATE TPK -> SIMPAN KE peringkats
-     * ========================================================= */
+    public function storeBobot(Request $request)
+    {
+        $data = $request->validate([
+            // mahasiswa
+            'mhs_keaktifan'      => 'required|integer|min:0|max:100',
+            'mhs_nilai_kelompok' => 'required|integer|min:0|max:100',
+            'mhs_nilai_dosen'    => 'required|integer|min:0|max:100',
+            // kelompok
+            'klp_review_uts'     => 'required|integer|min:0|max:100',
+            'klp_review_uas'     => 'required|integer|min:0|max:100',
+        ]);
+
+        $sumMhs = $data['mhs_keaktifan'] + $data['mhs_nilai_kelompok'] + $data['mhs_nilai_dosen'];
+        $sumKlp = $data['klp_review_uts'] + $data['klp_review_uas'];
+
+        // aturan kamu: GA BOLEH LEBIH DARI 100%
+        if ($sumMhs > 100) {
+            return back()->withErrors(['bobot_mhs' => 'Total bobot Mahasiswa tidak boleh lebih dari 100%.'])->withInput();
+        }
+        if ($sumKlp > 100) {
+            return back()->withErrors(['bobot_klp' => 'Total bobot Kelompok tidak boleh lebih dari 100%.'])->withInput();
+        }
+
+        BobotPeringkat::updateOrCreate(
+            ['jenis' => 'mahasiswa'],
+            [
+                'mhs_keaktifan' => $data['mhs_keaktifan'],
+                'mhs_nilai_kelompok' => $data['mhs_nilai_kelompok'],
+                'mhs_nilai_dosen' => $data['mhs_nilai_dosen'],
+            ]
+        );
+
+        BobotPeringkat::updateOrCreate(
+            ['jenis' => 'kelompok'],
+            [
+                'klp_review_uts' => $data['klp_review_uts'],
+                'klp_review_uas' => $data['klp_review_uas'],
+            ]
+        );
+
+        return redirect()->route('koordinator.peringkat.index')
+            ->with('success', 'Bobot berhasil disimpan.');
+    }
+
+    /* ===================== CORE SAW ===================== */
 
     private function calculateKelompok(): void
     {
-        $data = TpkKelompok::all();
-        if ($data->isEmpty()) return;
+        $rows = TpkKelompok::query()->get();
+        if ($rows->isEmpty()) return;
 
-        // AHP (2 kriteria): uts & uas
-        $pairwiseMatrix = [
-            [1,   1 / 2],
-            [2,   1],
-        ];
-        $weights = $this->calculateWeightsFromPairwise($pairwiseMatrix);
+        $b = BobotPeringkat::firstOrCreate(
+            ['jenis' => 'kelompok'],
+            ['klp_review_uts' => 50, 'klp_review_uas' => 50]
+        );
 
-        $decisionMatrix = [];
-        $names = [];
-        foreach ($data as $row) {
-            $names[] = $row->nama;
-            $decisionMatrix[] = [
-                (float) $row->review_uts,
-                (float) $row->review_uas,
-            ];
+        // bobot persen -> dinormalisasi kalau total < 100
+        $w = $this->normalizeWeights([
+            (int)$b->klp_review_uts,
+            (int)$b->klp_review_uas,
+        ]);
+
+        $decision = [];
+        $items = [];
+        foreach ($rows as $r) {
+            $items[] = ['id' => $r->id, 'nama' => $r->nama];
+            $decision[] = [(float)$r->review_uts, (float)$r->review_uas];
         }
 
-        $criteriaTypes = ['benefit', 'benefit'];
-        $normalized = $this->normalizeDecisionMatrix($decisionMatrix, $criteriaTypes);
-        $scores = $this->calculateScores($normalized, $weights);
+        $normalized = $this->normalizeDecisionMatrix($decision, ['benefit', 'benefit']); // SAW
+        $scores = $this->calculateScores($normalized, $w);
 
         $ranking = [];
-        foreach ($scores as $idx => $score) {
-            $ranking[] = ['nama' => $names[$idx], 'score' => $score];
+        foreach ($scores as $i => $score) {
+            $ranking[] = [
+                'tpk_id' => $items[$i]['id'],
+                'nama'   => $items[$i]['nama'],
+                'score'  => $score,
+            ];
         }
-        usort($ranking, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($ranking, fn($a,$b)=> $b['score'] <=> $a['score']);
 
         DB::transaction(function () use ($ranking) {
-            // hapus hasil lama
             Peringkat::where('jenis', 'kelompok')->delete();
 
             foreach ($ranking as $i => $r) {
@@ -208,10 +255,12 @@ class PeringkatController extends Controller
                     'nama_tpk'     => $r['nama'],
                     'mahasiswa_id' => null,
                     'mata_kuliah'  => 'PBL',
-                    'nilai_total'  => round($r['score'], 4), // 0-1
+                    'nilai_total'  => round($r['score'], 4),
                     'peringkat'    => $i + 1,
                     'semester'     => null,
                     'tahun_ajaran' => null,
+                    'tpk_type'     => 'kelompok',
+                    'tpk_id'       => $r['tpk_id'],
                 ]);
             }
         });
@@ -219,37 +268,43 @@ class PeringkatController extends Controller
 
     private function calculateMahasiswa(): void
     {
-        $data = TpkMahasiswa::all();
-        if ($data->isEmpty()) return;
+        $rows = TpkMahasiswa::query()->get();
+        if ($rows->isEmpty()) return;
 
-        // AHP (3 kriteria): keaktifan, nilai_kelompok, nilai_dosen
-        $pairwiseMatrix = [
-            [1,      2,      1 / 7],
-            [1 / 2,  1,      1 / 7],
-            [7,      7,      1],
-        ];
-        $weights = $this->calculateWeightsFromPairwise($pairwiseMatrix);
+        $b = BobotPeringkat::firstOrCreate(
+            ['jenis' => 'mahasiswa'],
+            ['mhs_keaktifan' => 30, 'mhs_nilai_kelompok' => 30, 'mhs_nilai_dosen' => 40]
+        );
 
-        $decisionMatrix = [];
-        $names = [];
-        foreach ($data as $row) {
-            $names[] = $row->nama;
-            $decisionMatrix[] = [
-                (float) $row->keaktifan,
-                (float) $row->nilai_kelompok,
-                (float) $row->nilai_dosen,
+        $w = $this->normalizeWeights([
+            (int)$b->mhs_keaktifan,
+            (int)$b->mhs_nilai_kelompok,
+            (int)$b->mhs_nilai_dosen,
+        ]);
+
+        $decision = [];
+        $items = [];
+        foreach ($rows as $r) {
+            $items[] = ['id' => $r->id, 'nama' => $r->nama];
+            $decision[] = [
+                (float)$r->keaktifan,
+                (float)$r->nilai_kelompok,
+                (float)$r->nilai_dosen,
             ];
         }
 
-        $criteriaTypes = ['benefit', 'benefit', 'benefit'];
-        $normalized = $this->normalizeDecisionMatrix($decisionMatrix, $criteriaTypes);
-        $scores = $this->calculateScores($normalized, $weights);
+        $normalized = $this->normalizeDecisionMatrix($decision, ['benefit','benefit','benefit']);
+        $scores = $this->calculateScores($normalized, $w);
 
         $ranking = [];
-        foreach ($scores as $idx => $score) {
-            $ranking[] = ['nama' => $names[$idx], 'score' => $score];
+        foreach ($scores as $i => $score) {
+            $ranking[] = [
+                'tpk_id' => $items[$i]['id'],
+                'nama'   => $items[$i]['nama'],
+                'score'  => $score,
+            ];
         }
-        usort($ranking, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($ranking, fn($a,$b)=> $b['score'] <=> $a['score']);
 
         DB::transaction(function () use ($ranking) {
             Peringkat::where('jenis', 'mahasiswa')->delete();
@@ -258,63 +313,33 @@ class PeringkatController extends Controller
                 Peringkat::create([
                     'jenis'        => 'mahasiswa',
                     'nama_tpk'     => $r['nama'],
-                    'mahasiswa_id' => null, // hasil TPK belum mapping nim
+                    'mahasiswa_id' => null,
                     'mata_kuliah'  => 'PBL',
-                    'nilai_total'  => round($r['score'], 4), // 0-1
+                    'nilai_total'  => round($r['score'], 4),
                     'peringkat'    => $i + 1,
                     'semester'     => null,
                     'tahun_ajaran' => null,
+                    'tpk_type'     => 'mahasiswa',
+                    'tpk_id'       => $r['tpk_id'],
                 ]);
             }
         });
     }
 
     /**
-     * AUTO ranking ulang untuk 1 jenis (setelah edit/delete/restore)
+     * Kalau total bobot < 100, dinormalisasi ke total 1 (biar SAW bener).
+     * Kalau semua 0, fallback ke rata.
      */
-    private function recalculateRanking(string $jenis): void
+    private function normalizeWeights(array $weightsPercent): array
     {
-        DB::transaction(function () use ($jenis) {
-            $rows = Peringkat::where('jenis', $jenis)
-                ->orderByDesc('nilai_total')
-                ->orderBy('id')
-                ->get();
+        $sum = array_sum($weightsPercent);
+        $n = count($weightsPercent);
 
-            foreach ($rows as $i => $row) {
-                $row->update(['peringkat' => $i + 1]);
-            }
-        });
-    }
-
-    /* =========================================================
-     * HELPER AHP + SAW
-     * ========================================================= */
-    private function calculateWeightsFromPairwise(array $pairwiseMatrix): array
-    {
-        $n = count($pairwiseMatrix);
-
-        $columnSums = [];
-        for ($j = 0; $j < $n; $j++) {
-            $sum = 0;
-            for ($i = 0; $i < $n; $i++) $sum += $pairwiseMatrix[$i][$j];
-            $columnSums[$j] = $sum;
+        if ($sum <= 0) {
+            return array_fill(0, $n, 1 / $n);
         }
 
-        $normalizedMatrix = [];
-        for ($i = 0; $i < $n; $i++) {
-            $row = [];
-            for ($j = 0; $j < $n; $j++) {
-                $row[] = $pairwiseMatrix[$i][$j] / $columnSums[$j];
-            }
-            $normalizedMatrix[] = $row;
-        }
-
-        $weights = [];
-        foreach ($normalizedMatrix as $row) {
-            $weights[] = array_sum($row) / $n;
-        }
-
-        return $weights;
+        return array_map(fn($w) => $w / $sum, $weightsPercent); // jadi total = 1
     }
 
     private function normalizeDecisionMatrix(array $decisionMatrix, array $criteriaTypes): array
@@ -327,27 +352,27 @@ class PeringkatController extends Controller
 
         for ($i = 0; $i < $rows; $i++) {
             for ($j = 0; $j < $cols; $j++) {
-                $value = $decisionMatrix[$i][$j];
-                $maxValues[$j] = max($maxValues[$j], $value);
-                $minValues[$j] = min($minValues[$j], $value);
+                $v = $decisionMatrix[$i][$j];
+                $maxValues[$j] = max($maxValues[$j], $v);
+                $minValues[$j] = min($minValues[$j], $v);
             }
         }
 
-        $normalizedMatrix = [];
+        $normalized = [];
         for ($i = 0; $i < $rows; $i++) {
             $row = [];
             for ($j = 0; $j < $cols; $j++) {
-                $value  = $decisionMatrix[$i][$j];
+                $v = $decisionMatrix[$i][$j];
                 $isCost = isset($criteriaTypes[$j]) && $criteriaTypes[$j] === 'cost';
 
                 $row[] = $isCost
-                    ? ($value != 0 ? $minValues[$j] / $value : 0)
-                    : ($maxValues[$j] != 0 ? $value / $maxValues[$j] : 0);
+                    ? ($v != 0 ? $minValues[$j] / $v : 0)
+                    : ($maxValues[$j] != 0 ? $v / $maxValues[$j] : 0);
             }
-            $normalizedMatrix[] = $row;
+            $normalized[] = $row;
         }
 
-        return $normalizedMatrix;
+        return $normalized;
     }
 
     private function calculateScores(array $normalizedMatrix, array $weights): array
@@ -355,7 +380,9 @@ class PeringkatController extends Controller
         $scores = [];
         foreach ($normalizedMatrix as $row) {
             $sum = 0;
-            foreach ($row as $idx => $value) $sum += $value * $weights[$idx];
+            foreach ($row as $idx => $value) {
+                $sum += $value * ($weights[$idx] ?? 0);
+            }
             $scores[] = $sum;
         }
         return $scores;
