@@ -45,6 +45,7 @@ use App\Http\Controllers\Dosen\KelompokController as DosenKelompokController;
 use App\Http\Controllers\Dosen\DosenMilestoneController as DosenMilestoneController;
 use App\Http\Controllers\Dosen\DosenLogbookController;
 use App\Http\Controllers\Dosen\DosenPembimbingController;
+use App\Http\Controllers\Dosen\ProfileController;
 
 // Dosen Penguji
 use App\Http\Controllers\DosenPenguji\MahasiswaController as DPMahasiswaController;
@@ -58,6 +59,8 @@ use App\Http\Controllers\DosenPenguji\PenilaianItemController;
 use App\Http\Controllers\CpmkController;
 use App\Models\Cpmk;
 use App\Models\Rubrik;
+use App\Http\Controllers\mahasiswa\MahasiswaProfileController;
+use App\Http\Controllers\koordinator\KoordinatorProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -228,6 +231,7 @@ Route::prefix('mahasiswa')
     ->name('mahasiswa.')
     ->middleware(['auth', 'role:mahasiswa'])
     ->group(function () {
+
         Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
         Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
         Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
@@ -238,6 +242,11 @@ Route::prefix('mahasiswa')
         )->except(['show']);
 
         Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
+
+        // ✅ PROFIL MAHASISWA (HARUS DI DALAM GROUP)
+        Route::get('/profile', [MahasiswaProfileController::class, 'show'])->name('profile');
+        Route::get('/profile/edit', [MahasiswaProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [MahasiswaProfileController::class, 'update'])->name('profile.update');
     });
 
 /*
@@ -246,12 +255,20 @@ Route::prefix('mahasiswa')
 |--------------------------------------------------------------------------
 */
 
+
+
 Route::prefix('dosen')
     ->name('dosen.')
     ->middleware(['auth', 'role:dosen_pembimbing'])
     ->group(function () {
 
+        // ================== DASHBOARD ==================
         Route::view('/dashboard', 'dosen.dashboard')->name('dashboard');
+
+        // ================== PROFIL DOSEN ==================
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         // ================== KELOMPOK ==================
         Route::resource('kelompok', DosenKelompokController::class)->names('kelompok');
@@ -259,10 +276,17 @@ Route::prefix('dosen')
             ->name('kelompok.kelas');
 
         // ================== MAHASISWA ==================
-        Route::get('/mahasiswa', [DosenPembimbingController::class, 'index'])
-            ->name('mahasiswa.index');
-        Route::get('/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
-            ->name('mahasiswa.show');
+Route::get('/mahasiswa', [DosenPembimbingController::class, 'index'])
+    ->name('mahasiswa.index');
+
+// 👉 DETAIL MAHASISWA PER KELAS (READ ONLY)
+Route::get('/mahasiswa/kelas/{kelas}', [DosenPembimbingController::class, 'kelas'])
+    ->name('mahasiswa.kelas');
+
+Route::get('/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
+    ->name('mahasiswa.show');
+    
+
 
         // ================== MILESTONE ==================
         Route::resource('milestone', DosenMilestoneController::class)
@@ -284,6 +308,9 @@ Route::prefix('dosen')
         Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
             ->name('logbook.nilai.update');
     });
+
+
+
 
 
 /*
@@ -489,6 +516,10 @@ Route::prefix('koordinator')
         Route::resource('peringkat', PeringkatController::class);
     });
 
+    Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('koordinator/profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('koordinator/profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -589,3 +620,5 @@ Route::prefix('tpk')->name('tpk.')->group(function () {
     });
 
 });
+
+ 

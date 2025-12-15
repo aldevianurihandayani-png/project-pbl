@@ -44,7 +44,7 @@
     <div class="nav-title">Akun</div>
 
     {{-- Profil --}}
-    <a href="{{ url('/profile') }}">
+    <a href="{{ url('mahasiswa/profile') }}">
       <i class="fa-solid fa-id-badge"></i> Profil
     </a>
   </div>
