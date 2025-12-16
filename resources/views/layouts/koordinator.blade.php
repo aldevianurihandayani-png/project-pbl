@@ -169,7 +169,7 @@
       </a>
 
       <div class="nav-title">Akun</div>
-      <a href="{{ url('/profile') }}" class="{{ request()->is('profile*') ? 'active' : '' }}">
+      <a href="{{ url('/koordinator/profile') }}"class="{{ request()->is('koordinator/profile*') ? 'active' : '' }}">
         <i class="fa-solid fa-id-badge"></i>Profil
       </a>
     </div>

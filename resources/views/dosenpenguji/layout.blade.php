@@ -318,7 +318,8 @@
 
             <a class="item" href="{{ route('dosenpenguji.profile') }}"><i class="fa-solid fa-id-badge"></i> Lihat Profil</a>
             <a class="item" href="{{ route('dosenpenguji.profile.edit') }}"><i class="fa-solid fa-user-gear"></i> Edit Profil</a>
-            <a class="item" href="#"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
+            <a class="item" href="{{ route('help.index') }}"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
+
 
             <form method="POST" action="{{ route('logout') }}">
               @csrf
