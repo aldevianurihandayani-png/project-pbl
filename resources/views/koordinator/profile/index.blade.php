@@ -1,189 +1,225 @@
+{{-- resources/views/koordinator/profile.blade.php --}}
 @extends('layouts.koordinator')
 
-@section('page_title', 'Profil Koordinator')
+@section('title', 'Profil — Koordinator')
+@section('header', 'Profil Koordinator')
 
 @section('content')
 
 <style>
-/* ====== CSS KHUSUS HALAMAN PROFIL (SAMA DENGAN ADMIN) ====== */
-.ap-wrap{ padding:18px 8px 30px; }
-.ap-grid{ display:grid; grid-template-columns:360px 1fr; gap:18px; }
-@media (max-width:992px){ .ap-grid{ grid-template-columns:1fr; } }
+.page-header{display:none;}
 
-.ap-card{
+.dp-wrap{ padding:18px 8px 30px; }
+.dp-grid{
+    display:grid;
+    grid-template-columns:360px 1fr;
+    gap:18px;
+}
+@media (max-width:992px){
+    .dp-grid{ grid-template-columns:1fr; }
+}
+
+.dp-card{
     background:#fff;
     border-radius:14px;
     box-shadow:0 8px 24px rgba(0,0,0,.08);
     overflow:hidden;
 }
-.ap-card-h{
+.dp-card-h{
     padding:14px 18px;
     border-bottom:1px solid rgba(0,0,0,.06);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 }
-.ap-title{
+.dp-title{
     margin:0;
     font-weight:800;
     color:#4e73df;
     font-size:14px;
 }
-.ap-card-b{ padding:18px; }
-.ap-card-f{
-    padding:14px 18px;
-    border-top:1px solid rgba(0,0,0,.06);
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-}
 
-/* Avatar */
-.ap-avatar-wrap{
-    --posX:50%;
-    --posY:35%;
-    width:120px;
-    height:120px;
-    margin:0 auto 12px;
-    border-radius:999px;
-}
-.ap-avatar{
-    width:120px;
-    height:120px;
+.dp-card-b{ padding:18px; }
+
+.dp-avatar{
+    width:140px;height:140px;
     border-radius:999px;
     object-fit:cover;
-    object-position:var(--posX) var(--posY);
+    display:block;
+    margin:0 auto 12px;
     border:4px solid #fff;
     box-shadow:0 10px 22px rgba(0,0,0,.12);
-    cursor:grab;
 }
-.ap-avatar-tip{
+.dp-avatar-initial{
+    width:140px;height:140px;
+    border-radius:999px;
+    display:grid;
+    place-items:center;
+    margin:0 auto 12px;
+    border:4px solid #fff;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    background:#eef2ff;
+    color:#31408a;
+    font-weight:900;
+    font-size:52px;
+}
+
+.dp-name{
+    font-weight:800;
+    font-size:18px;
     text-align:center;
-    font-size:11px;
+    margin:0;
+    color:#0e257a;
+}
+.dp-email{
+    text-align:center;
     color:#858796;
-    margin-top:6px;
+    font-size:13px;
+    margin:6px 0 14px;
 }
 
-.ap-name{ text-align:center; font-weight:800; }
-.ap-email{ text-align:center; font-size:12px; color:#858796; }
+.dp-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#eef2ff;
+    color:#22336b;
+    font-weight:800;
+    font-size:12px;
+    border:1px solid #d7deff;
+}
+.dp-chip-wrap{ display:flex; justify-content:center; }
 
-.ap-field{ margin-bottom:14px; }
-.ap-label{ font-weight:700; font-size:13px; color:#5a5c69; }
-
-.ap-input{
+.dp-info{
     width:100%;
-    height:44px;
+    border-collapse:separate;
+    border-spacing:0;
+    border:1px solid #eef1f6;
+    border-radius:12px;
+    overflow:hidden;
+}
+.dp-info th{
+    width:240px;
+    background:#f6f8fd;
+    color:#0e257a;
+    font-weight:900;
+    padding:12px 14px;
+    border-bottom:1px solid #eef1f6;
+    font-size:13px;
+}
+.dp-info td{
+    padding:12px 14px;
+    border-bottom:1px solid #eef1f6;
+    font-size:13px;
+}
+.dp-info tr:last-child th,
+.dp-info tr:last-child td{ border-bottom:none; }
+
+.dp-btn{
+    background:#0e257a;
+    color:#fff !important;
+    border-radius:10px;
+    padding:8px 14px;
+    font-weight:800;
+    font-size:13px;
+    text-decoration:none !important;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+}
+
+.dp-alert{
     padding:10px 12px;
     border-radius:10px;
-    border:1px solid #d1d3e2;
-}
-.ap-btn-primary{
-    background:#4e73df;
-    color:#fff;
-    border-radius:10px;
-    padding:10px 14px;
-    border:none;
-    font-weight:700;
-}
-.ap-btn-secondary{
-    background:#fff;
-    border:1px solid #d1d3e2;
-    border-radius:10px;
-    padding:10px 14px;
-}
-.ap-alert{
     background:#d1fae5;
     color:#065f46;
-    padding:10px 12px;
-    border-radius:10px;
+    border:1px solid rgba(6,95,70,.15);
     margin-bottom:12px;
 }
 </style>
 
 @php
-    use Illuminate\Support\Facades\Storage;
+  $u = auth()->user();
+  $displayName = $u->nama ?? $u->name ?? 'Nama Koordinator';
+  $email = $u->email ?? '-';
 
-    $photo = $user->profile_photo_path
-        ? Storage::url($user->profile_photo_path)
-        : asset('images/default-profile.png');
-
-    $posX = old('photo_pos_x', 50);
-    $posY = old('photo_pos_y', 35);
+  $parts = preg_split('/\s+/', trim($displayName));
+  $initials = strtoupper(
+      mb_substr($parts[0] ?? 'K', 0, 1) .
+      mb_substr($parts[1] ?? '', 0, 1)
+  );
 @endphp
 
-<div class="ap-wrap">
-    <div class="ap-grid">
+<div class="dp-wrap">
 
-        {{-- FOTO PROFIL --}}
-        <div class="ap-card">
-            <div class="ap-card-h">
-                <h6 class="ap-title">Foto Profil</h6>
-            </div>
-            <div class="ap-card-b">
-                <div class="ap-avatar-wrap" style="--posX:{{ $posX }}%; --posY:{{ $posY }}%;">
-                    <img src="{{ $photo }}" class="ap-avatar">
-                </div>
-                <div class="ap-avatar-tip">Drag foto</div>
-
-                <p class="ap-name">{{ $user->name }}</p>
-                <p class="ap-email">{{ $user->email }}</p>
-
-                <div class="ap-field">
-                    <label class="ap-label">Upload Foto Baru</label>
-                    <input type="file" name="profile_photo" form="profileForm">
-                </div>
-            </div>
-        </div>
-
-        {{-- FORM PROFIL --}}
-        <div class="ap-card">
-            <div class="ap-card-h">
-                <h6 class="ap-title">Informasi Profil</h6>
-            </div>
-
-            <form id="profileForm"
-                  action="{{ route('koordinator.profile.update') }}"
-                  method="POST"
-                  enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-
-                <input type="hidden" name="photo_pos_x" value="{{ $posX }}">
-                <input type="hidden" name="photo_pos_y" value="{{ $posY }}">
-
-                <div class="ap-card-b">
-                    @if(session('success'))
-                        <div class="ap-alert">{{ session('success') }}</div>
-                    @endif
-
-                    <div class="ap-field">
-                        <label class="ap-label">Nama Lengkap</label>
-                        <input type="text" name="name" class="ap-input"
-                               value="{{ old('name', $user->name) }}" required>
-                    </div>
-
-                    <div class="ap-field">
-                        <label class="ap-label">Email</label>
-                        <input type="email" name="email" class="ap-input"
-                               value="{{ old('email', $user->email) }}" required>
-                    </div>
-
-                    <div class="ap-field">
-                        <label class="ap-label">Password Baru</label>
-                        <input type="password" name="password" class="ap-input">
-                    </div>
-
-                    <div class="ap-field">
-                        <label class="ap-label">Konfirmasi Password</label>
-                        <input type="password" name="password_confirmation" class="ap-input">
-                    </div>
-                </div>
-
-                <div class="ap-card-f">
-                    <button type="reset" class="ap-btn-secondary">Batal</button>
-                    <button type="submit" class="ap-btn-primary">Simpan Perubahan</button>
-                </div>
-            </form>
-        </div>
-
+  @if (session('success'))
+    <div class="dp-alert">
+      {{ session('success') }}
     </div>
-</div>
+  @endif
 
+  <div class="dp-grid">
+
+    {{-- KIRI : FOTO --}}
+    <div class="dp-card">
+      <div class="dp-card-h">
+        <h6 class="dp-title">Foto Profil</h6>
+      </div>
+
+      <div class="dp-card-b">
+        @if ($u->foto)
+          <img src="{{ asset('storage/'.$u->foto) }}" class="dp-avatar">
+        @else
+          <div class="dp-avatar-initial">{{ $initials }}</div>
+        @endif
+
+        <p class="dp-name">{{ $displayName }}</p>
+        <p class="dp-email">{{ $email }}</p>
+
+        <div class="dp-chip-wrap">
+          <span class="dp-chip">koordinator</span>
+        </div>
+      </div>
+    </div>
+
+    {{-- KANAN : INFO --}}
+    <div class="dp-card">
+      <div class="dp-card-h">
+        <h6 class="dp-title">Informasi Akun</h6>
+
+        <a href="{{ route('koordinator.profile.edit') }}" class="dp-btn">
+          <i class="fa-solid fa-pen-to-square"></i> Edit Profil
+        </a>
+      </div>
+
+      <div class="dp-card-b">
+        <table class="dp-info">
+          <tr>
+            <th>Nama Lengkap</th>
+            <td>{{ $displayName }}</td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td>{{ $email }}</td>
+          </tr>
+          <tr>
+            <th>Role</th>
+            <td><span class="dp-chip">koordinator</span></td>
+          </tr>
+          <tr>
+            <th>Program Studi</th>
+            <td>{{ $u->prodi ?? '-' }}</td>
+          </tr>
+          <tr>
+            <th>Tanggal Bergabung</th>
+            <td>{{ optional($u->created_at)->translatedFormat('d M Y') }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
 @endsection

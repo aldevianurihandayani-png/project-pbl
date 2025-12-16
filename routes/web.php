@@ -27,6 +27,7 @@ use App\Http\Controllers\Koordinator\KelompokController as KoordinatorKelompokCo
 use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswaController;
 use App\Http\Controllers\Koordinator\KoordinatorCpmkController;
 use App\Http\Controllers\Koordinator\KoordinatorPenilaianController;
+use App\Http\Controllers\Koordinator\KoordinatorProfileController;
 
 
 
@@ -551,6 +552,12 @@ Route::prefix('koordinator')
         // READ ONLY Penilaian
         Route::get('/penilaian', [KoordinatorPenilaianController::class, 'index'])->name('penilaian.index');
         Route::get('/penilaian/{penilaian}', [KoordinatorPenilaianController::class, 'show'])->name('penilaian.show');
+
+        // PROFIL KOORDINATOR
+        Route::get('profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
+
 
         // ===============================
         // PERINGKAT (CRUD)
