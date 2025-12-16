@@ -136,14 +136,12 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      width:36px;height:36px;
-      border-radius:999px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
+      background:transparent;
+      border:0;
       transition: background .15s ease;
       z-index:7000;
     }
-    .bell-btn:hover{ background: rgba(255,255,255,.16); }
+    .bell-btn:hover{ background: transparent; }
     .bell-btn i{color:#fff;font-size:16px}
 
     .bell-btn .badge{

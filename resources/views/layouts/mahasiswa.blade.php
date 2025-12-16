@@ -6,154 +6,118 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Dashboard — Mahasiswa')</title>
 
-  {{-- 1) Bootstrap CSS dulu --}}
+  {{-- Bootstrap --}}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  {{-- 2) Icons/fonts --}}
+  {{-- Icons --}}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-  {{-- 3) CSS kamu (override Bootstrap) --}}
+  {{-- CSS utama --}}
   <link rel="stylesheet" href="{{ asset('css/mahasiswa.css') }}">
 
-  {{-- CSS NOTIF DROPDOWN (langsung di layout) --}}
-  @push('styles')
+  {{-- ===== NOTIFIKASI (SAMA DENGAN DOSEN PENGUJI) ===== --}}
   <style>
-    /* ===== NOTIFIKASI ICON ===== */
-    .notif-wrap { position: relative; }
-
-    .notif {
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      background: #1e3a8a;
-      border: none;
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      position: relative;
-      transition: background 0.2s ease, transform 0.15s ease;
+    header.topbar{
+      position:sticky;
+      top:0;
+      z-index:5000;
     }
 
-    .notif:hover {
-      background: #2563eb;
-      transform: scale(1.05);
+    /* wrapper */
+    .notif-wrap{ position:relative; }
+
+    /* tombol lonceng */
+    .notif{
+      background:transparent;
+      border:0;
+      color:#fff;
+      cursor:pointer;
+      position:relative;
+    }
+    .notif:hover{ background:transparent; }
+    .notif i{ font-size:16px; color:#fff; }
+
+    /* badge */
+    .notif .badge{
+      position:absolute;
+      top:-4px;
+      right:-4px;
+      min-width:18px;
+      height:18px;
+      padding:0 4px;
+      border-radius:999px;
+      background:#ff3b3b;
+      color:#fff;
+      font-size:12px;
+      font-weight:700;
+      border:2px solid #0a1a54;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
 
-    .notif:focus { outline: none; box-shadow: none; }
-
-    .notif i { font-size: 18px; }
-
-    /* BADGE ANGKA */
-    .notif .badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-      border-radius: 999px;
-      background: #ef4444;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #0b1d54;
+    /* dropdown */
+    .notif-menu{
+      width:360px;
+      max-height:420px;
+      overflow:auto;
+      border-radius:14px;
+      padding:0;
+      border:1px solid rgba(13,23,84,.12);
+      box-shadow:0 10px 28px rgba(13,23,84,.15);
+      margin-top:10px;
+      z-index:6000;
     }
 
-    /* ===== DROPDOWN NOTIFIKASI ===== */
-    .notif-menu {
-      width: 340px;
-      border-radius: 14px;
-      overflow: hidden;
-      padding: 0;
-      box-shadow: 0 12px 30px rgba(0,0,0,.18);
-      border: 1px solid #e5e7eb;
-      margin-top: 10px;
+    .notif-head{
+      padding:10px 12px;
+      border-bottom:1px solid #eef1f6;
+      font-weight:700;
+      color:#0e257a;
+      background:#fff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
 
-    /* Header dropdown */
-    .notif-head {
-      background: #0b1d54;
-      color: #fff;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .notif-item{
+      display:flex;
+      gap:10px;
+      padding:12px;
+      text-decoration:none;
+      color:inherit;
+      border-bottom:1px solid #f3f5fb;
+      background:#fff;
+    }
+    .notif-item:hover{ background:#f7f9ff; }
+
+    .notif-item__icon{
+      width:28px;
+      height:28px;
+      border-radius:8px;
+      display:grid;
+      place-items:center;
+      background:#e9efff;
+      color:#1d4ed8;
+      flex:0 0 auto;
     }
 
-    .notif-head__title { font-weight: 800; }
-    .notif-head__meta  { font-size: 12px; opacity: .85; }
+    .notif-item__title{ font-weight:700; color:#0e257a; }
+    .notif-item__desc{ font-size:12px; color:#6c7a8a; }
+    .notif-item__time{ font-size:12px; color:#6c7a8a; }
 
-    /* List notif */
-    .notif-list {
-      max-height: 320px;
-      overflow-y: auto;
-      background: #fff;
+    .notif-foot{
+      padding:10px;
+      border-top:1px solid #eef1f6;
+      text-align:center;
+      background:#fff;
     }
-
-    .notif-item {
-      display: flex;
-      gap: 12px;
-      padding: 14px 16px;
-      text-decoration: none;
-      color: #1f2937;
-      border-bottom: 1px solid #eef2f7;
-      transition: background .15s;
-    }
-
-    .notif-item:hover { background: #f3f6ff; }
-
-    /* icon di list */
-    .notif-item__icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 999px;
-      background: #e0e7ff;
-      color: #1e3a8a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      flex: 0 0 auto;
-    }
-
-    /* body */
-    .notif-item__title { font-weight: 800; font-size: 14px; line-height: 1.1; }
-    .notif-item__desc  { font-size: 13px; color: #6b7280; }
-    .notif-item__time  { font-size: 11px; color: #9ca3af; margin-top: 2px; }
-
-    /* footer */
-    .notif-foot {
-      padding: 12px;
-      text-align: center;
-      background: #f9fafb;
-      border-top: 1px solid #eef2f7;
-    }
-
-    .notif-foot__link {
-      font-size: 14px;
-      font-weight: 700;
-      color: #1e3a8a;
-      text-decoration: none;
-    }
-
-    .notif-foot__link:hover { text-decoration: underline; }
-
-    /* mobile */
-    @media (max-width: 520px){
-      .notif-menu { width: 92vw; }
+    .notif-foot a{
+      color:#0e257a;
+      font-weight:700;
+      text-decoration:none;
     }
   </style>
-  @endpush
-
-  {{-- Tambahan style dari partial/halaman --}}
-  @stack('sidebar-styles')
-  @stack('styles')
 </head>
 
 <body>
@@ -162,82 +126,79 @@
 
   {{-- MAIN --}}
   <main class="app-content">
-    <header class="topbar">
-      <button class="topbar-btn" id="toggleSidebar" type="button">
+    <header class="topbar d-flex align-items-center justify-content-between px-3">
+
+      <button class="btn text-white" id="toggleSidebar">
         <i class="fa-solid fa-bars"></i>
       </button>
 
-      <div class="welcome">
-        <h1 class="mb-0">@yield('page_title', 'Dashboard Mahasiswa')</h1>
-      </div>
+      <h1 class="m-0 fs-5">@yield('page_title', 'Dashboard Mahasiswa')</h1>
 
-      <div class="userbox">
-        {{-- NOTIFIKASI (BISA DIKLIK) --}}
+      <div class="d-flex align-items-center gap-3">
+
+        {{-- ===== NOTIFIKASI ===== --}}
         @php
-          $notifBaru = 7;
-          $notifs = [
-            ['title'=>'PERCOBAAN KESEKIAN','desc'=>'HFYUIIGIUG','time'=>'7 hours ago'],
-            ['title'=>'gft','desc'=>'hgfq','time'=>'8 hours ago'],
-            ['title'=>'testing lagiii','desc'=>'hgdtdyftuutudytyu','time'=>'8 hours ago'],
-            ['title'=>'testing lagiii','desc'=>'mencoba notif biar muncul ke role','time'=>'8 hours ago'],
-            ['title'=>'testing','desc'=>'coba coba notifikkasjiii','time'=>'9 hours ago'],
-          ];
+          $notifBaru = \App\Models\Notification::getUnreadCount();
+          $notifs    = \App\Models\Notification::getListForTopbar(10);
         @endphp
 
         <div class="dropdown notif-wrap">
-          <button class="notif" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifikasi">
-            <i class="fa-regular fa-bell"></i>
-            <span class="badge">{{ $notifBaru }}</span>
+          <button class="notif" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-bell"></i>
+            @if($notifBaru > 0)
+              <span class="badge">{{ $notifBaru }}</span>
+            @endif
           </button>
 
           <div class="dropdown-menu dropdown-menu-end notif-menu">
             <div class="notif-head">
-              <div class="notif-head__title">Notifikasi</div>
-              <div class="notif-head__meta">{{ $notifBaru }} baru</div>
+              <span>Notifikasi</span>
+              <small>{{ $notifBaru }} baru</small>
             </div>
 
-            <div class="notif-list">
-              @foreach($notifs as $n)
-                <a class="notif-item" href="#">
-                  <div class="notif-item__icon">
-                    <i class="fa-solid fa-bell"></i>
+            @forelse($notifs as $n)
+              <a class="notif-item" href="{{ route('mahasiswa.notifikasi.read', $n->id) }}">
+                <div class="notif-item__icon">
+                  <i class="fa-solid fa-bell"></i>
+                </div>
+                <div>
+                  <div class="notif-item__title">{{ $n->judul }}</div>
+                  @if($n->pesan)
+                    <div class="notif-item__desc">{{ $n->pesan }}</div>
+                  @endif
+                  <div class="notif-item__time">
+                    {{ optional($n->created_at)->diffForHumans() }}
                   </div>
-                  <div class="notif-item__body">
-                    <div class="notif-item__title">{{ $n['title'] }}</div>
-                    <div class="notif-item__desc">{{ $n['desc'] }}</div>
-                    <div class="notif-item__time">{{ $n['time'] }}</div>
-                  </div>
-                </a>
-              @endforeach
-            </div>
+                </div>
+              </a>
+            @empty
+              <div class="p-3 text-muted small text-center">
+                Tidak ada notifikasi
+              </div>
+            @endforelse
 
             <div class="notif-foot">
-              <a class="notif-foot__link" href="#">Lihat semua</a>
+              <a href="{{ route('mahasiswa.notifikasi.index') }}">Lihat semua</a>
             </div>
           </div>
         </div>
 
         {{-- USER --}}
-        <div style="display:flex;align-items:center;gap:10px">
+        <div class="d-flex align-items-center gap-2">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(($nama ?? (auth()->user()?->name ?? 'MS')),0,2)) }}
+            {{ strtoupper(substr(auth()->user()->name ?? 'MS',0,2)) }}
           </div>
-          <strong>{{ $nama ?? (auth()->user()?->name ?? 'Mahasiswa') }}</strong>
+          <strong class="text-white">{{ auth()->user()->name ?? 'Mahasiswa' }}</strong>
         </div>
       </div>
     </header>
 
-    <div class="page">
+    <div class="page p-3">
       @yield('content')
     </div>
   </main>
 
   {{-- Bootstrap JS --}}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  {{-- JS kamu --}}
-  <script src="{{ asset('js/mahasiswa.js') }}"></script>
-
-  @stack('scripts')
 </body>
 </html>
