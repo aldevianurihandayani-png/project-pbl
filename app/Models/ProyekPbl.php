@@ -9,11 +9,13 @@ class ProyekPbl extends Model
 {
     use HasFactory;
 
-    protected $table = 'proyek_pbl'; // ✅ sesuai tabel baru di DB
+    protected $table = 'proyek_pbl';
     protected $primaryKey = 'id_proyek_pbl';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false; // kalau tabel tidak punya created_at/updated_at
+
+    // TABEL KAMU PUNYA created_at & updated_at
+    public $timestamps = true;
 
     protected $fillable = [
         'judul',
@@ -22,6 +24,8 @@ class ProyekPbl extends Model
         'id_dosen',
         'id_kelompok',
     ];
+
+    /* ================= RELATION ================= */
 
     public function mataKuliah()
     {
@@ -35,6 +39,6 @@ class ProyekPbl extends Model
 
     public function kelompok()
     {
-        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
+        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id_kelompok');
     }
 }

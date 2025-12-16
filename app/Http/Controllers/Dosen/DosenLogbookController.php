@@ -4,23 +4,20 @@ namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\Logbook;
-use App\Models\Feedback;              // 🔥 tambahkan
+use App\Models\Feedback;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;   // 🔥 tambahkan
+use Illuminate\Support\Facades\Auth;
 
 class DosenLogbookController extends Controller
 {
     public function index()
     {
-        // TODO: kalau mau, filter hanya logbook mahasiswa bimbingan dosen ini
         $logbooks = Logbook::all();
-
         return view('dosen.logbook.index', compact('logbooks'));
     }
 
     public function show(Logbook $logbook)
     {
-        // 🔥 ambil semua feedback yang terkait logbook ini
         $feedback = Feedback::where('id_notifikasi', $logbook->id)
             ->orderBy('tanggal', 'desc')
             ->get();
@@ -54,34 +51,50 @@ class DosenLogbookController extends Controller
     }
 
     /**
-     * Simpan / update nilai pembimbing (1–100) dari halaman detail logbook
-     * + simpan komentar ke tabel feedback.
+     * Update nilai pembimbing + komentar (opsional)
      */
     public function updateNilai(Request $request, Logbook $logbook)
     {
         $validated = $request->validate([
             'nilai'    => 'required|integer|min:1|max:100',
-            'komentar' => 'nullable|string|max:1000',   // 🔥 komentar opsional
+            'komentar' => 'nullable|string|max:1000',
         ]);
 
-        // simpan nilai ke logbook
         $logbook->nilai = $validated['nilai'];
         $logbook->save();
 
-        // kalau ada komentar, simpan ke tabel feedback
         if (!empty($validated['komentar'])) {
             Feedback::create([
-                'id_user'       => Auth::id(),        // dosen yang login
-                'id_notifikasi' => $logbook->id,      // 🔥 asumsi: ini id_logbook
+                'id_user'       => Auth::id(),
+                'id_notifikasi' => $logbook->id,
                 'isi'           => $validated['komentar'],
                 'status'        => 'baru',
                 'tanggal'       => now(),
             ]);
         }
 
-        // Balik lagi ke halaman detail logbook
         return redirect()
             ->route('dosen.logbook.show', $logbook->id)
-            ->with('success', 'Nilai dan komentar logbook berhasil disimpan.');
+            ->with('success', 'Nilai dan komentar berhasil disimpan.');
+    }
+
+    /**
+     * 🔥 TAMBAH KOMENTAR SAJA (FORM "Tambahkan komentar...")
+     */
+    public function storeKomentar(Request $request, Logbook $logbook)
+    {
+        $request->validate([
+            'komentar' => 'required|string|max:1000',
+        ]);
+
+        Feedback::create([
+            'id_user'       => Auth::id(),
+            'id_notifikasi' => $logbook->id,
+            'isi'           => $request->komentar,
+            'status'        => 'baru',
+            'tanggal'       => now(),
+        ]);
+
+        return back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 }

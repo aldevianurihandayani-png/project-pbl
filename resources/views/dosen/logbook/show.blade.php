@@ -43,7 +43,7 @@
 
             <hr>
 
-            {{-- FORM NILAI + KOMENTAR --}}
+            {{-- FORM NILAI --}}
             <form action="{{ route('dosen.logbook.nilai.update', $logbook->id) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -64,20 +64,7 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Komentar / Catatan Pembimbing</label>
-                    <textarea
-                        name="komentar"
-                        class="form-control @error('komentar') is-invalid @enderror"
-                        rows="3"
-                        placeholder="Tuliskan komentar (opsional)..."
-                    >{{ old('komentar') }}</textarea>
-                    @error('komentar')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mb-3">
                     <a href="{{ route('dosen.logbook.index') }}" class="btn btn-outline-secondary">
                         Kembali
                     </a>
@@ -89,8 +76,33 @@
 
             <hr>
 
+            {{-- FORM TAMBAH KOMENTAR (MODEL CHAT) --}}
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body">
+                    <form action="{{ route('dosen.logbook.komentar.store', $logbook->id) }}" method="POST">
+                        @csrf
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-grow-1">
+                                <input type="text"
+                                       name="komentar"
+                                       class="form-control rounded-pill @error('komentar') is-invalid @enderror"
+                                       placeholder="Tambahkan komentar..."
+                                       required>
+                                @error('komentar')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-circle">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {{-- LIST KOMENTAR SEBELUMNYA --}}
             <h5 class="fw-semibold mb-3">Komentar Sebelumnya</h5>
+
             @forelse ($feedback as $fb)
                 <div class="border rounded p-3 mb-2 bg-light">
                     <div class="small text-muted mb-1">
