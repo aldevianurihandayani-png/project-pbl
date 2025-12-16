@@ -28,6 +28,7 @@ use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswa
 use App\Http\Controllers\Koordinator\KoordinatorCpmkController;
 use App\Http\Controllers\Koordinator\KoordinatorPenilaianController;
 use App\Http\Controllers\Koordinator\KoordinatorProfileController;
+use App\Http\Controllers\Koordinator\ProyekPblController;
 
 
 
@@ -558,6 +559,9 @@ Route::prefix('koordinator')
         Route::get('profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
         Route::put('profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
 
+        Route::resource('proyek-pbl', ProyekPblController::class)
+->names('proyek-pbl') // <- penting biar name jadi koordinator.proyek-pbl.*
+    ->parameters(['proyek-pbl' => 'proyek_pbl']);
 
         // ===============================
         // PERINGKAT (CRUD)
