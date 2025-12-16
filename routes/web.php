@@ -25,6 +25,9 @@ use App\Http\Controllers\HelpController;
 use App\Http\Controllers\Koordinator\PeringkatController;
 use App\Http\Controllers\Koordinator\KelompokController as KoordinatorKelompokController;
 use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswaController;
+use App\Http\Controllers\Koordinator\KoordinatorCpmkController;
+use App\Http\Controllers\Koordinator\KoordinatorPenilaianController;
+
 
 
 // Admin
@@ -497,6 +500,14 @@ Route::prefix('koordinator')
 
         Route::get('/mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
+
+        // READ ONLY CPMK
+        Route::get('/cpmk', [KoordinatorCpmkController::class, 'index'])->name('cpmk.index');
+        Route::get('/cpmk/{cpmk}', [KoordinatorCpmkController::class, 'show'])->name('cpmk.show');
+
+        // READ ONLY Penilaian
+        Route::get('/penilaian', [KoordinatorPenilaianController::class, 'index'])->name('penilaian.index');
+        Route::get('/penilaian/{penilaian}', [KoordinatorPenilaianController::class, 'show'])->name('penilaian.show');
 
         // ===============================
         // PERINGKAT (CRUD)
