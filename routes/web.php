@@ -293,6 +293,10 @@ Route::prefix('mahasiswa')
         Route::get('/profile', [MahasiswaProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [MahasiswaProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [MahasiswaProfileController::class, 'update'])->name('profile.update');
+
+        // NOTIFIKASI
+        Route::get('notifikasi', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifikasi.index');
+        Route::get('notifikasi/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifikasi.read');
     });
 
 
@@ -569,8 +573,10 @@ Route::prefix('koordinator')
         Route::resource('peringkat', PeringkatController::class);
     });
 
+    Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('koordinator/profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('koordinator/profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
 
-    
 
 /*
 |--------------------------------------------------------------------------

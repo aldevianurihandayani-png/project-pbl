@@ -79,8 +79,7 @@
     /* ===== Notifications (bell) ===== */
     .top-actions{display:flex;align-items:center;gap:16px;position:relative}
     .bell{
-      position:relative;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
-      width:36px;height:36px;border-radius:999px;background:#0e257a
+      position:relative;cursor:pointer;
     }
     .bell i{color:#fff;font-size:16px}
     .bell .dot{
