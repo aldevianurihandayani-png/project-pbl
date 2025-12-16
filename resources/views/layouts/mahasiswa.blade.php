@@ -127,12 +127,9 @@
   {{-- MAIN --}}
   <main class="app-content">
     <header class="topbar d-flex align-items-center justify-content-between px-3">
-
-      <button class="btn text-white" id="toggleSidebar">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-
-      <h1 class="m-0 fs-5">@yield('page_title', 'Dashboard Mahasiswa')</h1>
+      <div class="d-flex align-items-center gap-3">
+        <h1 class="m-0 fs-5">@yield('page_title', 'Dashboard Mahasiswa')</h1>
+      </div>
 
       <div class="d-flex align-items-center gap-3">
 

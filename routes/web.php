@@ -496,6 +496,14 @@ Route::post('peringkat/bobot', [PeringkatController::class, 'storeBobot'])
 
         Route::get('/mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
+
+        // Notifikasi untuk Koordinator
+        Route::get('/notifikasi', [NotificationController::class, 'index'])
+            ->name('notifikasi.index');
+        Route::get('/notifikasi/{notification}/read', [NotificationController::class, 'markRead'])
+            ->name('notifikasi.read');
+        Route::get('/notifikasi/markAll', [NotificationController::class, 'markAllRead'])
+            ->name('notifikasi.markAll');
     });
 
     Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
