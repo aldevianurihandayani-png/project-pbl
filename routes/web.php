@@ -23,7 +23,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Koordinator\PeringkatController;
 use App\Http\Controllers\Koordinator\KelompokController as KoordinatorKelompokController;
 use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswaController;
-
+use App\Http\Controllers\koordinator\KoordinatorProfileController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -60,8 +60,8 @@ use App\Http\Controllers\CpmkController;
 use App\Models\Cpmk;
 use App\Models\Rubrik;
 use App\Http\Controllers\mahasiswa\MahasiswaProfileController;
-use App\Http\Controllers\koordinator\KoordinatorProfileController;
-
+use App\Http\Controllers\TPK\TPKKelompokController;
+use App\Http\Controllers\TPK\TPKController;
 /*
 |--------------------------------------------------------------------------
 | Halaman Publik
@@ -227,13 +227,43 @@ Route::prefix('admins')
 | Mahasiswa (role: mahasiswa)
 |--------------------------------------------------------------------------
 */
+
+// =======================
+// LOGBOOK MAHASISWA
+// URL: /logbooks/...
+// Name: logbooks.*
+// =======================
+/*
+|--------------------------------------------------------------------------
+| Mahasiswa (role: mahasiswa)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('mahasiswa')
+    ->name('mahasiswa.')
+    ->middleware(['auth','verified','role:mahasiswa'])
+    ->group(function () {
+        Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
+        Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
+        Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
+        Route::resource('milestone', \App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController::class)->except(['show']);
+        Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
+});
+Route::middleware(['auth', 'role:mahasiswa'])
+    ->resource('logbooks', LogbookController::class);
+
+
+// =======================
+// MAHASISWA (LAINNYA)
+// URL: /mahasiswa/...
+// Name: mahasiswa.*
+// =======================
 Route::prefix('mahasiswa')
     ->name('mahasiswa.')
     ->middleware(['auth', 'role:mahasiswa'])
     ->group(function () {
 
         Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
-        Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
+
         Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
 
         Route::resource(
@@ -243,11 +273,13 @@ Route::prefix('mahasiswa')
 
         Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
 
-        // ✅ PROFIL MAHASISWA (HARUS DI DALAM GROUP)
         Route::get('/profile', [MahasiswaProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [MahasiswaProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [MahasiswaProfileController::class, 'update'])->name('profile.update');
     });
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -300,6 +332,9 @@ Route::get('/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
             ->name('milestone.reject');
 
         // ================== LOGBOOK ==================
+
+
+        // ================== LOGBOOK ==================
         Route::resource('logbook', DosenLogbookController::class)->names('logbook');
 
         Route::patch('logbook/{logbook}/toggle-status', [DosenLogbookController::class, 'toggleStatus'])
@@ -307,6 +342,10 @@ Route::get('/mahasiswa/{id}', [DosenPembimbingController::class, 'show'])
 
         Route::put('logbook/{logbook}/nilai', [DosenLogbookController::class, 'updateNilai'])
             ->name('logbook.nilai.update');
+
+        Route::post('logbook/{logbook}/komentar', [DosenLogbookController::class, 'storeKomentar'])
+            ->name('logbook.komentar.store');
+
     });
 
 
@@ -421,23 +460,20 @@ Route::prefix('dosenpenguji')
 | Koordinator PBL (role: koor_pbl)
 |--------------------------------------------------------------------------
 */
-
-
 Route::prefix('koordinator')
     ->name('koordinator.')
     ->middleware(['auth', 'verified', 'role:koor_pbl'])
     ->group(function () {
 
-       // ====== ATUR BOBOT ======
-Route::get('peringkat/bobot', [PeringkatController::class, 'bobot'])
-    ->name('peringkat.bobot');
+        // ====== ATUR BOBOT ======
+        Route::get('peringkat/bobot', [PeringkatController::class, 'bobot'])
+            ->name('peringkat.bobot');
 
-Route::post('peringkat/bobot', [PeringkatController::class, 'storeBobot'])
-    ->name('peringkat.bobot.store');
-
+        Route::post('peringkat/bobot', [PeringkatController::class, 'storeBobot'])
+            ->name('peringkat.bobot.store');
 
         // ================= DASHBOARD =================
-        Route::view('/dashboard', 'koordinator.dashboard')->name('dashboard');
+        Route::view('dashboard', 'koordinator.dashboard')->name('dashboard');
 
         // ================= PERINGKAT (INDEX) =================
         Route::get('peringkat', [PeringkatController::class, 'index'])
@@ -461,43 +497,49 @@ Route::post('peringkat/bobot', [PeringkatController::class, 'storeBobot'])
         Route::get('peringkat/calculate', [PeringkatController::class, 'calculate'])
             ->name('peringkat.calculate');
 
-        // ================= EDIT (GENERIC – 1 VIEW) =================
-        // dipakai di index.blade:
-        // route('koordinator.peringkat.edit', ['type'=>'kelompok|mahasiswa','id'=>...])
+        // ================= EDIT =================
         Route::get('peringkat/{type}/{id}/edit', [PeringkatController::class, 'edit'])
             ->whereIn('type', ['mahasiswa', 'kelompok'])
             ->whereNumber('id')
             ->name('peringkat.edit');
 
-        // ================= UPDATE (GENERIC – FIX ERROR) =================
-        // 🔥 INI YANG WAJIB ADA, kalau ini ga ada → edit ga bisa submit
+        // ================= UPDATE =================
         Route::put('peringkat/{type}/{id}', [PeringkatController::class, 'update'])
             ->whereIn('type', ['mahasiswa', 'kelompok'])
             ->whereNumber('id')
             ->name('peringkat.update');
 
-        // ================= DELETE TPK (HARD DELETE) =================
+        // ================= DELETE TPK =================
         Route::post('peringkat/tpk/destroy', [PeringkatController::class, 'destroyTpk'])
             ->name('peringkat.destroyTpk');
 
-        // ================= READ ONLY LAINNYA =================
-        Route::get('/kelompok', [KoordinatorKelompokController::class, 'index'])
+        // ================= READ ONLY =================
+        Route::get('kelompok', [KoordinatorKelompokController::class, 'index'])
             ->name('kelompok');
 
-        Route::get('/kelompok/{kelompok}', [KoordinatorKelompokController::class, 'show'])
+        Route::get('kelompok/{kelompok}', [KoordinatorKelompokController::class, 'show'])
             ->name('kelompok.detail');
 
-        Route::get('/mahasiswa', [KoordinatorMahasiswaController::class, 'index'])
+        Route::get('mahasiswa', [KoordinatorMahasiswaController::class, 'index'])
             ->name('mahasiswa.index');
 
-        Route::get('/mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
+        Route::get('mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
+
+        // ================= PROFILE =================
+        Route::get('profile', [KoordinatorProfileController::class, 'show'])
+            ->name('profile');
+
+        Route::get('profile/edit', [KoordinatorProfileController::class, 'edit'])
+            ->name('profile.edit');
+
+        Route::put('profile', [KoordinatorProfileController::class, 'update'])
+            ->name('profile.update');
+
     });
 
-    Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
-        Route::get('koordinator/profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('koordinator/profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
 
+    
 
 /*
 |--------------------------------------------------------------------------
@@ -574,8 +616,7 @@ Route::prefix('tpk/mahasiswa')->name('tpk.mahasiswa.')->group(function () {
 Route::post('logbooks/{logbook}/feedback', [LogbookController::class, 'storeFeedback'])
     ->name('logbooks.feedback.store');
 
-use App\Http\Controllers\TPK\TPKKelompokController;
-use App\Http\Controllers\TPK\TPKController;
+
 
 Route::get('/tpk', [TPKController::class, 'index'])->name('tpk.index');
 
@@ -597,6 +638,6 @@ Route::prefix('tpk')->name('tpk.')->group(function () {
         Route::get('/calculate', [TPKMahasiswaController::class, 'calculate'])->name('calculate');
     });
 
-});
+}); // ✅ PENUTUP GROUP TPK
 
- 
+
