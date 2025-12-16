@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Logbook;
-use App\Models\Feedback; // 🔥 DITAMBAHKAN
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -17,10 +17,14 @@ class LogbookController extends Controller
 
     public function __construct()
     {
-        $this->mingguEnum = array_map(fn($i) => "Minggu $i", range(1, 18));
+        $this->mingguEnum = array_map(fn ($i) => "Minggu $i", range(1, 18));
     }
 
-    /** GET /logbooks */
+    /**
+     * ============================
+     * ADMIN / GLOBAL LOGBOOK
+     * ============================
+     */
     public function index(Request $request)
     {
         $q = Logbook::query();
@@ -32,30 +36,78 @@ class LogbookController extends Controller
                   ->orWhere('keterangan', 'like', $kw);
             });
         }
-        if ($request->filled('dari'))   $q->whereDate('tanggal', '>=', $request->dari);
-        if ($request->filled('sampai')) $q->whereDate('tanggal', '<=', $request->sampai);
 
-        $logbooks = $q->orderByDesc('tanggal')->paginate(10)->withQueryString();
+        if ($request->filled('dari')) {
+            $q->whereDate('tanggal', '>=', $request->dari);
+        }
+
+        if ($request->filled('sampai')) {
+            $q->whereDate('tanggal', '<=', $request->sampai);
+        }
+
+        $logbooks = $q->orderByDesc('tanggal')
+                      ->paginate(10)
+                      ->withQueryString();
 
         return view('logbooks.index', compact('logbooks'));
     }
 
-    /** GET /logbooks/create */
+    /**
+     * ============================
+     * MAHASISWA LOGBOOK
+     * ============================
+     * URL: /mahasiswa/logbook
+     */
+    public function mahasiswaIndex(Request $request)
+    {
+        $q = Logbook::where('user_id', Auth::id());
+
+        if ($request->filled('keyword')) {
+            $kw = '%' . $request->keyword . '%';
+            $q->where(function ($x) use ($kw) {
+                $x->where('aktivitas', 'like', $kw)
+                  ->orWhere('keterangan', 'like', $kw);
+            });
+        }
+
+        if ($request->filled('dari')) {
+            $q->whereDate('tanggal', '>=', $request->dari);
+        }
+
+        if ($request->filled('sampai')) {
+            $q->whereDate('tanggal', '<=', $request->sampai);
+        }
+
+        $logbooks = $q->orderByDesc('tanggal')->get();
+
+        // 🔥 PAKAI VIEW YANG SUDAH ADA
+        return view('logbooks.index', compact('logbooks'));
+    }
+
+    /**
+     * ============================
+     * CREATE
+     * ============================
+     */
     public function create()
     {
         if (!$this->canWrite()) {
-            return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
+            abort(403);
         }
 
         $mingguOptions = $this->mingguEnum;
         return view('logbooks.create', compact('mingguOptions'));
     }
 
-    /** POST /logbooks */
+    /**
+     * ============================
+     * STORE
+     * ============================
+     */
     public function store(Request $request, GoogleDriveService $gdrive)
     {
         if (!$this->canWrite()) {
-            return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
+            abort(403);
         }
 
         $validated = $request->validate([
@@ -63,12 +115,15 @@ class LogbookController extends Controller
             'minggu'     => ['required', Rule::in($this->mingguEnum)],
             'aktivitas'  => ['required', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
-            'foto'       => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'foto'       => ['nullable', 'image', 'max:2048'],
         ]);
 
         $fotoLink = null;
         if ($request->hasFile('foto')) {
-            $fotoLink = $gdrive->uploadLogbookFile(Auth::user(), $request->file('foto'));
+            $fotoLink = $gdrive->uploadLogbookFile(
+                Auth::user(),
+                $request->file('foto')
+            );
         }
 
         $logbook = Logbook::create([
@@ -80,45 +135,57 @@ class LogbookController extends Controller
             'user_id'    => Auth::id(),
         ]);
 
-        // Kirim email
         try {
-            Mail::to(Auth::user()->email)->send(new LogbookSubmittedMail(Auth::user(), $logbook));
+            Mail::to(Auth::user()->email)
+                ->send(new LogbookSubmittedMail(Auth::user(), $logbook));
         } catch (\Throwable $e) {
-            \Log::error('MAIL ERROR: '.$e->getMessage());
-            return redirect()->route('logbooks.index')
-                ->with('success', 'Logbook berhasil ditambahkan, tapi email gagal: '.$e->getMessage());
+            \Log::error($e->getMessage());
         }
 
-        return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil ditambahkan & email terkirim.');
+        // 🔥 BALIK KE HALAMAN MAHASISWA
+        return redirect()
+            ->route('mahasiswa.logbook')
+            ->with('success', 'Logbook berhasil ditambahkan.');
     }
 
-    /** GET /logbooks/{logbook} */
+    /**
+     * ============================
+     * SHOW
+     * ============================
+     */
     public function show(Logbook $logbook)
     {
-        // 🔥 AMBIL KOMENTAR DOSEN UNTUK LOGBOOK INI
         $feedback = Feedback::where('id_notifikasi', $logbook->id)
-            ->orderBy('tanggal', 'desc')
+            ->orderByDesc('tanggal')
             ->get();
 
         return view('logbooks.show', compact('logbook', 'feedback'));
     }
 
-    /** GET /logbooks/{logbook}/edit */
+    /**
+     * ============================
+     * EDIT
+     * ============================
+     */
     public function edit(Logbook $logbook)
     {
         if (!$this->canWrite()) {
-            return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
+            abort(403);
         }
 
         $mingguOptions = $this->mingguEnum;
         return view('logbooks.edit', compact('logbook', 'mingguOptions'));
     }
 
-    /** PUT/PATCH /logbooks/{logbook} */
+    /**
+     * ============================
+     * UPDATE
+     * ============================
+     */
     public function update(Request $request, Logbook $logbook, GoogleDriveService $gdrive)
     {
         if (!$this->canWrite()) {
-            return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
+            abort(403);
         }
 
         $validated = $request->validate([
@@ -126,12 +193,15 @@ class LogbookController extends Controller
             'minggu'     => ['required', Rule::in($this->mingguEnum)],
             'aktivitas'  => ['required', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
-            'foto'       => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'foto'       => ['nullable', 'image', 'max:2048'],
         ]);
 
         $fotoLink = $logbook->foto;
         if ($request->hasFile('foto')) {
-            $fotoLink = $gdrive->uploadLogbookFile(Auth::user(), $request->file('foto'));
+            $fotoLink = $gdrive->uploadLogbookFile(
+                Auth::user(),
+                $request->file('foto')
+            );
         }
 
         $logbook->update([
@@ -142,43 +212,59 @@ class LogbookController extends Controller
             'foto'       => $fotoLink,
         ]);
 
-        return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil diperbarui.');
+        return redirect()
+            ->route('mahasiswa.logbook')
+            ->with('success', 'Logbook berhasil diperbarui.');
     }
 
-    /** DELETE /logbooks/{logbook} */
+    /**
+     * ============================
+     * DELETE
+     * ============================
+     */
     public function destroy(Logbook $logbook)
     {
         if (!$this->canWrite()) {
-            return redirect()->route('logbooks.index')->with('error', 'Anda tidak memiliki akses.');
+            abort(403);
         }
 
         $logbook->delete();
 
-        return redirect()->route('logbooks.index')->with('success', 'Logbook berhasil dihapus.');
+        return redirect()
+            ->route('mahasiswa.logbook')
+            ->with('success', 'Logbook berhasil dihapus.');
     }
 
-    /** Helper: cek role tulis */
+    /**
+     * ============================
+     * FEEDBACK
+     * ============================
+     */
+    public function storeFeedback(Request $request, Logbook $logbook)
+    {
+        $data = $request->validate([
+            'isi' => ['required', 'string'],
+        ]);
+
+        Feedback::create([
+            'id_user'       => Auth::id(),
+            'id_notifikasi' => $logbook->id,
+            'isi'           => $data['isi'],
+            'status'        => 'baru',
+            'tanggal'       => now(),
+        ]);
+
+        return back()->with('success', 'Komentar berhasil dikirim.');
+    }
+
+    /**
+     * ============================
+     * HELPER
+     * ============================
+     */
     private function canWrite(): bool
     {
-        return Auth::check() && in_array(Auth::user()->role, ['mahasiswa', 'admin'], true);
+        return Auth::check()
+            && in_array(Auth::user()->role, ['mahasiswa', 'admin'], true);
     }
-
-    /** POST /logbooks/{logbook}/feedback */
-public function storeFeedback(Request $request, Logbook $logbook)
-{
-    $data = $request->validate([
-        'isi' => ['required', 'string'],
-    ]);
-
-    \App\Models\Feedback::create([
-        'id_user'       => Auth::id(),      // yang komentar (mahasiswa atau dosen)
-        'id_notifikasi' => $logbook->id,    // kita anggap ini id logbook
-        'isi'           => $data['isi'],
-        'status'        => 'baru',
-        'tanggal'       => now(),
-    ]);
-
-    return back()->with('success', 'Komentar berhasil dikirim.');
-}
-
 }
