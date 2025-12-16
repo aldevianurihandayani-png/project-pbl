@@ -18,6 +18,8 @@ use App\Http\Controllers\TPK\TPKMahasiswaController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\HelpController;
+
 
 // Koordinator
 use App\Http\Controllers\Koordinator\PeringkatController;
@@ -104,6 +106,16 @@ Route::get('/notif', [NotificationController::class, 'index'])
 Route::post('/notif/read-all', [NotificationController::class, 'readAll'])
     ->name('notif.readAll')
     ->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| 🆘 BANTUAN – ROUTE
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/bantuan', [HelpController::class, 'index'])->name('help.index');
+    Route::get('/bantuan/{slug}', [HelpController::class, 'show'])->name('help.show'); // opsional
+});
 
 
 /*
@@ -298,6 +310,9 @@ Route::prefix('dosenpenguji')
 
         Route::redirect('/', '/dosenpenguji/dashboard');
         Route::view('/dashboard', 'dosenpenguji.dashboard')->name('dashboard');
+
+        Route::get('/bantuan', [\App\Http\Controllers\HelpController::class, 'index'])
+            ->name('bantuan');
 
         Route::get('/mahasiswa', [DPMahasiswaController::class, 'index'])
             ->name('mahasiswa');
