@@ -183,9 +183,9 @@
         {{-- USER --}}
         <div class="d-flex align-items-center gap-2">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
-            {{ strtoupper(substr(auth()->user()->name ?? 'MS',0,2)) }}
+            {{ strtoupper(substr(auth()->user()->nama ?? 'MS',0,2)) }}
           </div>
-          <strong class="text-white">{{ auth()->user()->name ?? 'Mahasiswa' }}</strong>
+          <strong class="text-white">{{ auth()->user()->nama ?? 'Mahasiswa' }}</strong>
         </div>
       </div>
     </header>
