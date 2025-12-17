@@ -8,10 +8,17 @@ use Illuminate\Http\Request;
 
 class ProyekPblController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = ProyekPbl::orderByDesc('id_proyek_pbl')->paginate(10);
-        return view('koordinator.proyek_pbl.index', compact('items'));
+        $q = $request->get('q');
+
+        $data = ProyekPbl::query()
+            ->when($q, fn ($qr) => $qr->where('judul', 'like', "%{$q}%"))
+            ->orderByDesc('id_proyek_pbl')
+            ->paginate(10)
+            ->appends($request->only('q'));
+
+        return view('koordinator.proyek_pbl.index', compact('data', 'q'));
     }
 
     public function create()
@@ -22,11 +29,7 @@ class ProyekPblController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'judul'       => ['required', 'string', 'max:255'],
-            'tanggal'     => ['nullable', 'date'],
-            'kode_mk'     => ['required', 'integer'],
-            'id_dosen'    => ['required', 'integer'],
-            'id_kelompok' => ['required', 'integer'],
+            'judul' => ['required', 'string', 'max:255'],
         ]);
 
         ProyekPbl::create($data);
@@ -34,11 +37,6 @@ class ProyekPblController extends Controller
         return redirect()
             ->route('koordinator.proyek-pbl.index')
             ->with('success', 'Proyek PBL berhasil ditambahkan.');
-    }
-
-    public function show(ProyekPbl $proyek_pbl)
-    {
-        return view('koordinator.proyek_pbl.show', ['item' => $proyek_pbl]);
     }
 
     public function edit(ProyekPbl $proyek_pbl)
@@ -49,11 +47,7 @@ class ProyekPblController extends Controller
     public function update(Request $request, ProyekPbl $proyek_pbl)
     {
         $data = $request->validate([
-            'judul'       => ['required', 'string', 'max:255'],
-            'tanggal'     => ['nullable', 'date'],
-            'kode_mk'     => ['required', 'integer'],
-            'id_dosen'    => ['required', 'integer'],
-            'id_kelompok' => ['required', 'integer'],
+            'judul' => ['required', 'string', 'max:255'],
         ]);
 
         $proyek_pbl->update($data);
