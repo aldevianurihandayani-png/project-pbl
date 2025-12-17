@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TpkKelompok extends Model
 {
-    use HasFactory, SoftDeletes;
 
     protected $table = 'tpk_kelompoks';
 
