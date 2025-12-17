@@ -12,6 +12,8 @@ class TpkMahasiswa extends Model
     protected $table = 'data_tpks';
 
     protected $fillable = [
+        'kelas',           // ✅ tambahin ini
+        'mahasiswa_nim',
         'nama',
         'keaktifan',
         'nilai_kelompok',
@@ -23,4 +25,9 @@ class TpkMahasiswa extends Model
         'nilai_kelompok' => 'float',
         'nilai_dosen'    => 'float',
     ];
+
+    public function mahasiswa()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_nim', 'nim');
+    }
 }

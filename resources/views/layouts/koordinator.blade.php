@@ -168,6 +168,11 @@
         <i class="fa-solid fa-ranking-star"></i>Kelola Peringkat
       </a>
 
+      <a href="{{ route('koordinator.proyek-pbl.index') }}"
+       class="{{ request()->routeIs('koordinator.proyek-pbl*') ? 'active' : '' }}">
+      <i class="fa-solid fa-diagram-project"></i>Proyek PBL
+      </a>
+
       <div class="nav-title">Akun</div>
       <a href="{{ url('/koordinator/profile') }}"class="{{ request()->is('koordinator/profile*') ? 'active' : '' }}">
         <i class="fa-solid fa-id-badge"></i>Profil

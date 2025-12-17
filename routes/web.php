@@ -28,6 +28,7 @@ use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswa
 use App\Http\Controllers\Koordinator\KoordinatorCpmkController;
 use App\Http\Controllers\Koordinator\KoordinatorPenilaianController;
 use App\Http\Controllers\Koordinator\KoordinatorProfileController;
+use App\Http\Controllers\Koordinator\ProyekPblController;
 
 
 
@@ -548,6 +549,28 @@ Route::prefix('koordinator')
 
         Route::get('mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
+
+        // READ ONLY CPMK
+        Route::get('/cpmk', [KoordinatorCpmkController::class, 'index'])->name('cpmk.index');
+        Route::get('/cpmk/{cpmk}', [KoordinatorCpmkController::class, 'show'])->name('cpmk.show');
+
+        // READ ONLY Penilaian
+        Route::get('/penilaian', [KoordinatorPenilaianController::class, 'index'])->name('penilaian.index');
+        Route::get('/penilaian/{penilaian}', [KoordinatorPenilaianController::class, 'show'])->name('penilaian.show');
+
+        // PROFIL KOORDINATOR
+        Route::get('profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
+
+        Route::resource('proyek-pbl', ProyekPblController::class)
+->names('proyek-pbl') // <- penting biar name jadi koordinator.proyek-pbl.*
+    ->parameters(['proyek-pbl' => 'proyek_pbl']);
+
+        // ===============================
+        // PERINGKAT (CRUD)
+        // ===============================
+        Route::resource('peringkat', PeringkatController::class);
     });
 
     Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
