@@ -13,7 +13,7 @@ class Penilaian extends Model
     protected $table = 'penilaians';
 
     protected $fillable = [
-        'mahasiswa_id',
+        'mahasiswa_id',      // NOTE: pada setup kamu ini akan berisi NIM (karena Mahasiswa PK = nim)
         'matakuliah_kode',   // FK -> mata_kuliah.kode_mk (STRING)
         'kelas_id',
         'dosen_id',
@@ -27,16 +27,17 @@ class Penilaian extends Model
     ];
 
     /* ============================================================
-     |  RELASI (tetap seperti skema baru)
+     |  RELASI
      * ============================================================ */
+
     public function mahasiswa()
     {
-        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id'); // mahasiswas.id
+        // ✅ Mahasiswa PK = nim, jadi FK di penilaians.mahasiswa_id harus cocok ke mahasiswas.nim
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id', 'nim');
     }
 
     public function matakuliah()
     {
-        // Ganti MataKuliah::class jika model kamu bernama Matakuliah
         return $this->belongsTo(MataKuliah::class, 'matakuliah_kode', 'kode_mk');
     }
 
@@ -52,7 +53,7 @@ class Penilaian extends Model
 
     /* ============================================================
      |  KOMPATIBILITAS DENGAN KODE LAMA (atribut virtual)
-     |  - mahasiswa_nim  -> mapping ke mahasiswa_id
+     |  - mahasiswa_nim  -> mapping ke mahasiswa_id (yang menyimpan NIM)
      |  - rubrik_id      -> disimpan/diambil dari komponen JSON (opsional)
      |  - nilai          -> mapping ke nilai_akhir
      * ============================================================ */
@@ -60,44 +61,38 @@ class Penilaian extends Model
     // --- mahasiswa_nim (virtual) ---
     public function getMahasiswaNimAttribute()
     {
-        // jika relasi ter-load, ambil nim; aman jika null
-        return optional($this->mahasiswa)->nim;
+        // kalau relasi ter-load -> ambil nim, kalau tidak -> fallback ke mahasiswa_id
+        return optional($this->mahasiswa)->nim ?? ($this->attributes['mahasiswa_id'] ?? null);
     }
 
     public function setMahasiswaNimAttribute($nim)
     {
-        // cari Mahasiswa by nim lalu set mahasiswa_id (tanpa menyimpan kolom baru)
-        if (! empty($nim)) {
-            $mhs = Mahasiswa::where('nim', $nim)->first();
-            if ($mhs) {
-                $this->attributes['mahasiswa_id'] = $mhs->id;
-            }
+        // ✅ karena Mahasiswa PK = nim, cukup set mahasiswa_id = nim
+        if (!empty($nim)) {
+            $this->attributes['mahasiswa_id'] = $nim;
         }
     }
 
     // --- rubrik_id (virtual, opsional) ---
     public function getRubrikIdAttribute()
     {
-        // kalau di komponen kamu menaruh rubrik_id, ambil dari sana
-        // contoh asumsi: komponen = [{ "rubrik_id": 5, "nama": "...", "bobot": 30, "skor": 80}, ...]
         $arr = $this->komponen ?? [];
         foreach ($arr as $item) {
-            if (isset($item['rubrik_id'])) {
-                return $item['rubrik_id'];
-            }
+            if (isset($item['rubrik_id'])) return $item['rubrik_id'];
         }
         return null;
     }
 
     public function setRubrikIdAttribute($val)
     {
-        // sisipkan/replace rubrik_id ke elemen pertama komponen (tanpa menghapus data lain)
         $arr = $this->komponen ?? [];
         if (empty($arr)) {
             $arr = [['rubrik_id' => $val]];
         } else {
             $arr[0]['rubrik_id'] = $val;
         }
+
+        // karena casts komponen = array, boleh set array langsung
         $this->attributes['komponen'] = json_encode($arr);
     }
 
