@@ -573,7 +573,11 @@ Route::prefix('koordinator')
         Route::resource('peringkat', PeringkatController::class);
     });
 
-    
+    Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('koordinator/profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('koordinator/profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
+
+
 /*
 |--------------------------------------------------------------------------
 | Jaminan Mutu
@@ -615,6 +619,37 @@ Route::prefix('jaminanmutu')
     });
 
 
+/*
+|--------------------------------------------------------------------------
+| Profil Penguji Global (optional)
+|--------------------------------------------------------------------------
+*/
+Route::view('/profile', 'dosenpenguji.profile')->name('profile');
+Route::view('/profile/edit', 'dosenpenguji.profile-edit')->name('profile.edit');
+Route::put('/profile', function (Request $request) {
+
+    $user = Auth::user();
+
+    $validated = $request->validate([
+        'nama'     => 'nullable|string|max:255',
+        'name'     => 'nullable|string|max:255',
+        'email'    => 'required|email',
+        'password' => 'nullable|min:6',
+    ]);
+
+    $data = [
+        'nama'  => $validated['nama'] ?? ($validated['name'] ?? $user->nama),
+        'email' => $validated['email'],
+    ];
+
+    if (!empty($validated['password'])) {
+        $data['password'] = Hash::make($validated['password']);
+    }
+
+    return redirect()
+        ->route('dosenpenguji.profile')
+        ->with('success', 'Perubahan berhasil disimpan.');
+})->name('profile.update');
 
 /*
 |--------------------------------------------------------------------------
