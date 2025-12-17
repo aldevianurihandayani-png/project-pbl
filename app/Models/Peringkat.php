@@ -21,8 +21,6 @@ class Peringkat extends Model
         'peringkat',
         'semester',
         'tahun_ajaran',
-
-        // WAJIB biar nyambung ke tabel TPK:
         'tpk_type',
         'tpk_id',
     ];
@@ -32,4 +30,10 @@ class Peringkat extends Model
         'peringkat'   => 'integer',
         'tpk_id'      => 'integer',
     ];
+
+    // ✅ ini yang bikin nyambung ke TpkMahasiswa / TpkKelompok
+    public function tpk()
+    {
+        return $this->morphTo(__FUNCTION__, 'tpk_type', 'tpk_id');
+    }
 }
