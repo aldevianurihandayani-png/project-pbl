@@ -19,7 +19,13 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\HasilController;
 
+
+// Jaminan Mutu
+use App\Http\Controllers\JaminanMutu\JmPenilaianController;
+use App\Http\Controllers\JaminanMutu\JmRubrikController;
+use App\Http\Controllers\JaminanMutu\JaminanMutuProfileController;
 
 // Koordinator
 use App\Http\Controllers\Koordinator\PeringkatController;
@@ -78,6 +84,9 @@ Route::view('/', 'home')->name('home');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+    //read only peringkat
+        Route::get('/hasil', [HasilController::class, 'index'])
+    ->name('hasil.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -549,6 +558,8 @@ Route::prefix('koordinator')
 
         Route::get('mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
+        
+
 
         // READ ONLY CPMK
         Route::get('/cpmk', [KoordinatorCpmkController::class, 'index'])->name('cpmk.index');
@@ -583,16 +594,48 @@ Route::prefix('koordinator')
 | Jaminan Mutu
 |--------------------------------------------------------------------------
 */
-use App\Http\Controllers\JaminanMutu\JmRubrikController;
+
+
 
 Route::prefix('jaminanmutu')
     ->name('jaminanmutu.')
     ->middleware(['auth', 'role:jaminan_mutu'])
     ->group(function () {
 
+        // =========================
         // Dashboard
+        // =========================
         Route::view('/dashboard', 'jaminanmutu.dashboard')
             ->name('dashboard');
+
+        // Jaminan Mutu Profile
+        Route::view('/profile', 'jaminanmutu.profile')->name('profile');
+        Route::view('/profile/edit', 'jaminanmutu.profile-edit')->name('profile.edit');
+
+        Route::put('/profile', function (Request $request) {
+            $user = auth()->user();
+
+            $validated = $request->validate([
+                'nama'     => 'nullable|string|max:255',
+                'email'    => 'required|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|min:6',
+            ]);
+
+            $data = [
+                'nama'  => $validated['nama'] ?? $user->nama,
+                'email' => $validated['email'],
+            ];
+
+            if (!empty($validated['password'])) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($data);
+
+            return redirect()
+                ->route('jaminanmutu.profile')
+                ->with('success', 'Profil berhasil diperbarui.');
+        })->name('profile.update');
 
         /*
         |--------------------------------------------------------------------------
@@ -604,6 +647,16 @@ Route::prefix('jaminanmutu')
 
         Route::get('/rubrik/{rubrik}', [JmRubrikController::class, 'show'])
             ->name('rubrik.show');
+
+        // =========================
+        // PENILAIAN (READ ONLY)
+        // ambil dari Dosen Penguji
+        // =========================
+        Route::get('/penilaian', [JmPenilaianController::class, 'index'])
+            ->name('penilaian.index');
+
+        Route::get('/penilaian/{penilaian}', [JmPenilaianController::class, 'show'])
+            ->name('penilaian.show');
     });
 
 

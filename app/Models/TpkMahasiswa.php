@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TpkMahasiswa extends Model
 {
-    use HasFactory;
+   
 
     protected $table = 'data_tpks';
 
     protected $fillable = [
-        'kelas',           // ✅ tambahin ini
+        'kelas',          
         'mahasiswa_nim',
         'nama',
         'keaktifan',

@@ -186,9 +186,9 @@
     </a>
 
       <div class="nav-title">Akun</div>
-      <a href="{{ url('/profile') }}">
-        <i class="fa-solid fa-id-badge"></i>Profil
-      </a>
+      <a href="{{ route('koordinator.profile') }}">
+  <i class="fa-solid fa-id-badge"></i>Profil
+</a>
     </div>
 
     <div class="logout">

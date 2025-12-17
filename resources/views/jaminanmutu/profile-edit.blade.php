@@ -1,8 +1,8 @@
-{{-- resources/views/koordinator/profile/profile-edit.blade.php --}}
-@extends('layouts.koordinator')
+{{-- resources/views/jaminanmutu/profile-edit.blade.php --}}
+@extends('layouts.jaminanmutu')
 
-@section('title', 'Edit Profil — Koordinator')
-@section('header', 'Edit Profil Koordinator')
+@section('title', 'Edit Profil — Jaminan Mutu')
+@section('page_title', 'Edit Profil Jaminan Mutu')
 
 @section('content')
 <style>
@@ -48,7 +48,7 @@
   </div>
 
   <div class="card-bd">
-    <form action="{{ route('koordinator.profile.update') }}"
+    <form action="{{ route('jaminanmutu.profile.update') }}"
           method="POST" enctype="multipart/form-data"
           style="display:grid;grid-template-columns:260px 1fr;gap:24px">
       @csrf
@@ -66,7 +66,7 @@
             @else
               <span id="preview-initial"
                     style="font-size:56px;color:#31408a;font-weight:900">
-                {{ strtoupper(substr($u->nama ?? $u->name ?? 'KO', 0, 2)) }}
+                {{ strtoupper(substr($u->nama ?? $u->name ?? 'JM', 0, 2)) }}
               </span>
               <img id="preview"
                    src=""
@@ -104,21 +104,15 @@
         </div>
 
         <div class="form-group">
-          <label>Role</label>
-          <input type="text" class="form-control" value="koordinator PBL" disabled>
+        <label>Role</label>
+        <input type="text" class="form-control"
+            value="Jaminan Mutu" disabled>
         </div>
 
         <div class="form-group">
           <label>Program Studi</label>
           <input type="text" name="prodi" class="form-control"
                  value="{{ old('prodi', $u->prodi) }}"
-                 placeholder="Opsional">
-        </div>
-
-        <div class="form-group">
-          <label>NIM (opsional)</label>
-          <input type="text" name="nim" class="form-control"
-                 value="{{ old('nim', $u->nim) }}"
                  placeholder="Opsional">
         </div>
 
@@ -139,7 +133,7 @@
           <button type="submit" class="btn btn-primary">
             <i class="fa-solid fa-floppy-disk"></i> Simpan
           </button>
-          <a href="{{ route('koordinator.profile') }}" class="btn btn-secondary">
+          <a href="{{ route('jaminanmutu.profile') }}" class="btn btn-secondary">
             Batal
           </a>
         </div>

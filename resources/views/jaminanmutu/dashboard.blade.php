@@ -184,13 +184,22 @@
       <a href="{{ url('/jaminanmutu/rubrik') }}"><i class="fa-solid fa-flag-checkered"></i>Rubrik</a>
 
       <div class="nav-title">Akun</div>
-      <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
-    </div>
+      <a href="{{ route('jaminanmutu.profile') }}"><i class="fa-solid fa-id-badge"></i>Profil
+      </a>
 
-    <div class="logout">
-      <a href="{{ url('/logout') }}" class="menu" style="display:block"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-    </div>
-  </aside>
+    <div class="logout" style="margin-top:auto;">
+    <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+      @csrf
+      <button type="submit"
+        style="display:flex;align-items:center;gap:12px;width:100%;
+               border:0;background:transparent;
+               padding:10px 12px;border-radius:12px;margin:4px 6px;
+               color:#ffb2b2;cursor:pointer;">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </form>
+  </div>
+</aside>
 
   <!-- ========== MAIN ========== -->
   <main>
