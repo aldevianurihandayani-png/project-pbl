@@ -27,6 +27,8 @@ use App\Http\Controllers\Koordinator\KelompokController as KoordinatorKelompokCo
 use App\Http\Controllers\Koordinator\MahasiswaController as KoordinatorMahasiswaController;
 use App\Http\Controllers\Koordinator\KoordinatorCpmkController;
 use App\Http\Controllers\Koordinator\KoordinatorPenilaianController;
+use App\Http\Controllers\Koordinator\KoordinatorProfileController;
+use App\Http\Controllers\Koordinator\ProyekPblController;
 
 
 
@@ -291,6 +293,10 @@ Route::prefix('mahasiswa')
         Route::get('/profile', [MahasiswaProfileController::class, 'show'])->name('profile');
         Route::get('/profile/edit', [MahasiswaProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [MahasiswaProfileController::class, 'update'])->name('profile.update');
+
+        // NOTIFIKASI
+        Route::get('notifikasi', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifikasi.index');
+        Route::get('notifikasi/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifikasi.read');
     });
 
 
@@ -552,14 +558,25 @@ Route::prefix('koordinator')
         Route::get('/penilaian', [KoordinatorPenilaianController::class, 'index'])->name('penilaian.index');
         Route::get('/penilaian/{penilaian}', [KoordinatorPenilaianController::class, 'show'])->name('penilaian.show');
 
+        // PROFIL KOORDINATOR
+        Route::get('profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
+
+        Route::resource('proyek-pbl', ProyekPblController::class)
+->names('proyek-pbl') // <- penting biar name jadi koordinator.proyek-pbl.*
+    ->parameters(['proyek-pbl' => 'proyek_pbl']);
+
         // ===============================
         // PERINGKAT (CRUD)
         // ===============================
         Route::resource('peringkat', PeringkatController::class);
     });
 
+    Route::get('Koordinator/profile', [KoordinatorProfileController::class, 'show'])->name('profile');
+        Route::get('koordinator/profile/edit', [KoordinatorProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('koordinator/profile', [KoordinatorProfileController::class, 'update'])->name('profile.update');
 
-    
 
 /*
 |--------------------------------------------------------------------------

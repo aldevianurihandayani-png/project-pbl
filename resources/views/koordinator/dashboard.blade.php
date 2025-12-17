@@ -179,6 +179,12 @@
         <i class="fa-solid fa-ranking-star"></i>Kelola Peringkat
       </a>
 
+      {{-- menu baru: proyek_pbl --}}
+    <a href="{{ route('koordinator.proyek-pbl.index') }}"
+       class="{{ request()->routeIs('koordinator.proyek-pbl*') ? 'active' : '' }}">
+      <i class="fa-solid fa-diagram-project"></i>Proyek PBL
+    </a>
+
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}">
         <i class="fa-solid fa-id-badge"></i>Profil
