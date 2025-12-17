@@ -23,11 +23,16 @@
 
 @section('content')
 
+@php
+  $matakuliah = $matakuliah ?? collect();
+  $rubrik = $rubrik ?? collect();
+@endphp
+
 <div class="toolbar">
   <form method="GET" action="{{ route('jaminanmutu.rubrik.index') }}" class="filters">
 
     {{-- Dropdown MK (opsional, tampil kalau datanya ada) --}}
-    @if(isset($matakuliah) && $matakuliah->count())
+    @if($matakuliah->count())
       <label for="mk">Mata Kuliah:</label>
       <select id="mk" name="matakuliah" onchange="this.form.submit()">
         <option value="">Semua MK</option>
@@ -42,6 +47,7 @@
     {{-- Search --}}
     <label for="q">Cari:</label>
     <input id="q" type="text" name="q" value="{{ request('q') }}" placeholder="Nama rubrik / deskripsi...">
+
     <button type="submit" class="btn" style="border:0;cursor:pointer;">
       <i class="fa-solid fa-magnifying-glass"></i> Filter
     </button>
@@ -54,6 +60,8 @@
     @endif
   </form>
 
+  <div class="badge">
+  </div>
 </div>
 
 <div class="table-wrap">
@@ -70,13 +78,17 @@
     <tbody>
       @forelse($rubrik as $i => $r)
         <tr>
-          <td>{{ $rubrik->firstItem() + $i }}</td>
+          {{-- ✅ tanpa paginator: pakai index + 1 --}}
+          <td>{{ $i + 1 }}</td>
+
           <td>
-            <b>{{ $r->nama_rubrik ?? '-' }}</b><br>
-            <span class="muted">{{ \Illuminate\Support\Str::limit($r->deskripsi ?? '', 90) }}</span>
+            <b>{{ $r->nama_rubrik ?? ($r->nama ?? '-') }}</b><br>
+            <span class="muted">{{ \Illuminate\Support\Str::limit($r->deskripsi ?? ($r->keterangan ?? ''), 90) }}</span>
           </td>
-          <td>{{ ($r->bobot ?? 0) }}%</td>
+
+          <td>{{ (int)($r->bobot ?? 0) }}%</td>
           <td>{{ optional($r->created_at)->format('d/m/Y H:i') }}</td>
+
           <td style="text-align:center;">
             <a class="btn" href="{{ route('jaminanmutu.rubrik.show', $r->id) }}">
               <i class="fa-solid fa-eye"></i> Detail
@@ -92,10 +104,6 @@
       @endforelse
     </tbody>
   </table>
-</div>
-
-<div style="margin-top:12px;">
-  {{ $rubrik->links() }}
 </div>
 
 @endsection
