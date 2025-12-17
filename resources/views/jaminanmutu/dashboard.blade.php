@@ -187,18 +187,13 @@
       <a href="{{ route('jaminanmutu.profile') }}"><i class="fa-solid fa-id-badge"></i>Profil
       </a>
 
-    <div class="logout" style="margin-top:auto;">
-    <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-      @csrf
-      <button type="submit"
-        style="display:flex;align-items:center;gap:12px;width:100%;
-               border:0;background:transparent;
-               padding:10px 12px;border-radius:12px;margin:4px 6px;
-               color:#ffb2b2;cursor:pointer;">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
-      </button>
-    </form>
-  </div>
+    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+  @csrf
+  <button type="submit" style="border:0;background:transparent;cursor:pointer;padding:0;color:inherit;">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</form>
+
 </aside>
 
   <!-- ========== MAIN ========== -->
