@@ -583,12 +583,41 @@ Route::prefix('koordinator')
 | Jaminan Mutu
 |--------------------------------------------------------------------------
 */
+use App\Http\Controllers\JaminanMutu\JmRubrikController;
+use App\Http\Controllers\JaminanMutu\JmPenilaianController;
+
 Route::prefix('jaminanmutu')
     ->name('jaminanmutu.')
     ->middleware(['auth', 'role:jaminan_mutu'])
     ->group(function () {
-        Route::view('/dashboard', 'jaminanmutu.dashboard')->name('dashboard');
+
+        // =========================
+        // Dashboard
+        // =========================
+        Route::view('/dashboard', 'jaminanmutu.dashboard')
+            ->name('dashboard');
+
+        // =========================
+        // RUBRIK (READ ONLY)
+        // ambil dari Dosen Penguji
+        // =========================
+        Route::get('/rubrik', [JmRubrikController::class, 'index'])
+            ->name('rubrik.index');
+
+        Route::get('/rubrik/{rubrik}', [JmRubrikController::class, 'show'])
+            ->name('rubrik.show');
+
+        // =========================
+        // PENILAIAN (READ ONLY)
+        // ambil dari Dosen Penguji
+        // =========================
+        Route::get('/penilaian', [JmPenilaianController::class, 'index'])
+            ->name('penilaian.index');
+
+        Route::get('/penilaian/{penilaian}', [JmPenilaianController::class, 'show'])
+            ->name('penilaian.show');
     });
+
 
 /*
 |--------------------------------------------------------------------------
