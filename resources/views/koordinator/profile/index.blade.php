@@ -1,4 +1,4 @@
-{{-- resources/views/koordinator/profile.blade.php --}}
+{{-- resources/views/koordinator/profile/index.blade.php --}}
 @extends('layouts.koordinator')
 
 @section('title', 'Profil — Koordinator')
@@ -11,157 +11,226 @@
 
 .dp-wrap{ padding:18px 8px 30px; }
 .dp-grid{
-    display:grid;
-    grid-template-columns:360px 1fr;
-    gap:18px;
+  display:grid;
+  grid-template-columns:360px 1fr;
+  gap:18px;
 }
 @media (max-width:992px){
-    .dp-grid{ grid-template-columns:1fr; }
+  .dp-grid{ grid-template-columns:1fr; }
 }
 
 .dp-card{
-    background:#fff;
-    border-radius:14px;
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-    overflow:hidden;
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  overflow:hidden;
 }
 .dp-card-h{
-    padding:14px 18px;
-    border-bottom:1px solid rgba(0,0,0,.06);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
 .dp-title{
-    margin:0;
-    font-weight:800;
-    color:#4e73df;
-    font-size:14px;
+  margin:0;
+  font-weight:800;
+  color:#4e73df;
+  font-size:14px;
 }
 
 .dp-card-b{ padding:18px; }
 
 .dp-avatar{
-    width:140px;height:140px;
-    border-radius:999px;
-    object-fit:cover;
-    display:block;
-    margin:0 auto 12px;
-    border:4px solid #fff;
-    box-shadow:0 10px 22px rgba(0,0,0,.12);
+  width:140px;height:140px;
+  border-radius:999px;
+  object-fit:cover;
+  display:block;
+  margin:0 auto 12px;
+  border:4px solid #fff;
+  box-shadow:0 10px 22px rgba(0,0,0,.12);
 }
 .dp-avatar-initial{
-    width:140px;height:140px;
-    border-radius:999px;
-    display:grid;
-    place-items:center;
-    margin:0 auto 12px;
-    border:4px solid #fff;
-    box-shadow:0 10px 22px rgba(0,0,0,.12);
-    background:#eef2ff;
-    color:#31408a;
-    font-weight:900;
-    font-size:52px;
+  width:140px;height:140px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 12px;
+  border:4px solid #fff;
+  box-shadow:0 10px 22px rgba(0,0,0,.12);
+  background:#eef2ff;
+  color:#31408a;
+  font-weight:900;
+  font-size:52px;
 }
 
 .dp-name{
-    font-weight:800;
-    font-size:18px;
-    text-align:center;
-    margin:0;
-    color:#0e257a;
+  font-weight:800;
+  font-size:18px;
+  text-align:center;
+  margin:0;
+  color:#0e257a;
 }
 .dp-email{
-    text-align:center;
-    color:#858796;
-    font-size:13px;
-    margin:6px 0 14px;
+  text-align:center;
+  color:#858796;
+  font-size:13px;
+  margin:6px 0 14px;
 }
 
 .dp-chip{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:6px 12px;
-    border-radius:999px;
-    background:#eef2ff;
-    color:#22336b;
-    font-weight:800;
-    font-size:12px;
-    border:1px solid #d7deff;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#22336b;
+  font-weight:800;
+  font-size:12px;
+  border:1px solid #d7deff;
 }
 .dp-chip-wrap{ display:flex; justify-content:center; }
 
 .dp-info{
-    width:100%;
-    border-collapse:separate;
-    border-spacing:0;
-    border:1px solid #eef1f6;
-    border-radius:12px;
-    overflow:hidden;
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  border:1px solid #eef1f6;
+  border-radius:12px;
+  overflow:hidden;
 }
 .dp-info th{
-    width:240px;
-    background:#f6f8fd;
-    color:#0e257a;
-    font-weight:900;
-    padding:12px 14px;
-    border-bottom:1px solid #eef1f6;
-    font-size:13px;
+  width:240px;
+  background:#f6f8fd;
+  color:#0e257a;
+  font-weight:900;
+  padding:12px 14px;
+  border-bottom:1px solid #eef1f6;
+  font-size:13px;
 }
 .dp-info td{
-    padding:12px 14px;
-    border-bottom:1px solid #eef1f6;
-    font-size:13px;
+  padding:12px 14px;
+  border-bottom:1px solid #eef1f6;
+  font-size:13px;
 }
 .dp-info tr:last-child th,
 .dp-info tr:last-child td{ border-bottom:none; }
 
 .dp-btn{
-    background:#0e257a;
-    color:#fff !important;
-    border-radius:10px;
-    padding:8px 14px;
-    font-weight:800;
-    font-size:13px;
-    text-decoration:none !important;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
+  background:#0e257a;
+  color:#fff !important;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:800;
+  font-size:13px;
+  text-decoration:none !important;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:0;
+  cursor:pointer;
+}
+.dp-btn-ghost{
+  background:#eef2ff;
+  color:#22336b !important;
 }
 
 .dp-alert{
-    padding:10px 12px;
-    border-radius:10px;
-    background:#d1fae5;
-    color:#065f46;
-    border:1px solid rgba(6,95,70,.15);
-    margin-bottom:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#d1fae5;
+  color:#065f46;
+  border:1px solid rgba(6,95,70,.15);
+  margin-bottom:12px;
+}
+
+.dp-errors{
+  background:#fee2e2;
+  border:1px solid rgba(185,28,28,.18);
+  color:#7f1d1d;
+  padding:10px 12px;
+  border-radius:10px;
+  margin-bottom:12px;
+}
+
+/* ===== Modal ===== */
+.dp-modal-backdrop{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:9999;
+}
+.dp-modal{
+  width:min(860px, 100%);
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 18px 60px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.dp-modal-h{
+  padding:14px 18px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.dp-modal-h h6{ margin:0; font-weight:900; color:#0e257a; }
+.dp-x{ border:0; background:transparent; font-size:20px; cursor:pointer; color:#334155; }
+.dp-modal-b{ padding:18px; }
+
+.dp-form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media (max-width:720px){
+  .dp-form-grid{ grid-template-columns:1fr; }
+}
+.dp-label{ font-weight:800; font-size:12px; color:#0e257a; margin-bottom:6px; display:block; }
+.dp-input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #dbe3f3;
+  outline:none;
+}
+.dp-input:focus{ border-color:#94a3ff; box-shadow:0 0 0 3px rgba(79,70,229,.12); }
+.dp-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:14px;
 }
 </style>
 
 @php
   $u = auth()->user();
+
   $displayName = $u->nama ?? $u->name ?? 'Nama Koordinator';
-  $email = $u->email ?? '-';
+  $email       = $u->email ?? '-';
 
   $parts = preg_split('/\s+/', trim($displayName));
   $initials = strtoupper(
       mb_substr($parts[0] ?? 'K', 0, 1) .
       mb_substr($parts[1] ?? '', 0, 1)
   );
+
+  // ✅ PAKAI KOLOM FOTO (sama seperti dosen penguji)
+  $photoPath = $u->foto ?? null;
+  $photoUrl  = $photoPath ? asset('storage/'.$photoPath) : null;
 @endphp
 
 <div class="dp-wrap">
 
   @if (session('success'))
-    <div class="dp-alert">
-      {{ session('success') }}
-    </div>
+    <div class="dp-alert">{{ session('success') }}</div>
   @endif
 
   <div class="dp-grid">
-
     {{-- KIRI : FOTO --}}
     <div class="dp-card">
       <div class="dp-card-h">
@@ -169,8 +238,10 @@
       </div>
 
       <div class="dp-card-b">
-        @if ($u->foto)
-          <img src="{{ asset('storage/'.$u->foto) }}" class="dp-avatar">
+        @if ($photoUrl)
+          <img src="{{ $photoUrl }}" class="dp-avatar" alt="Foto Profil"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+          <div class="dp-avatar-initial" style="display:none">{{ $initials }}</div>
         @else
           <div class="dp-avatar-initial">{{ $initials }}</div>
         @endif
@@ -190,8 +261,8 @@
         <h6 class="dp-title">Informasi Akun</h6>
 
         <a href="{{ route('koordinator.profile.edit') }}" class="dp-btn">
-          <i class="fa-solid fa-pen-to-square"></i> Edit Profil
-        </a>
+  <i class="fa-solid fa-pen-to-square"></i> Edit Profil
+</a>
       </div>
 
       <div class="dp-card-b">
@@ -206,7 +277,7 @@
           </tr>
           <tr>
             <th>Role</th>
-            <td><span class="dp-chip">koordinator</span></td>
+            <td><span class="dp-chip">koordinator PBL</span></td>
           </tr>
           <tr>
             <th>Program Studi</th>
@@ -219,7 +290,6 @@
         </table>
       </div>
     </div>
-
   </div>
 </div>
 @endsection
