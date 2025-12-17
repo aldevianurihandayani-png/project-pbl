@@ -43,8 +43,8 @@
     </a>
 
     {{-- Peringkat --}}
-    <a href="{{ route('tpk.mahasiswa.index') }}"
-       class="{{ request()->routeIs('tpk.mahasiswa.*') ? 'active' : '' }}">
+    <a href="{{ route('hasil.index') }}"
+       class="{{ request()->routeIs('hasil.index.*') ? 'active' : '' }}">
       <i class="fa-solid fa-ranking-star"></i>
       <span>Peringkat</span>
     </a>
@@ -58,7 +58,7 @@
 
     <div class="nav-title">Akun</div>
 
-    {{-- 🔥 PROFIL MAHASISWA (KHUSUS, BUKAN GLOBAL) --}}
+    {{-- PROFIL MAHASISWA --}}
     <a href="{{ route('mahasiswa.profile') }}"
        class="{{ request()->routeIs('mahasiswa.profile') ? 'active' : '' }}">
       <i class="fa-solid fa-id-badge"></i>
