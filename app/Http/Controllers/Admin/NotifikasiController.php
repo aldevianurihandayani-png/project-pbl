@@ -40,18 +40,68 @@ class NotifikasiController extends Controller
 
     /**
      * 🔥 SIMPAN KE DB + BUAT PENERIMA (pivot) + KIRIM EMAIL
-     * - user_id terisi => notifikasi personal + pivot ke user itu
-     * - user_id kosong => broadcast + pivot ke semua user
+     *
+     * FIX UTAMA:
+     * - Jika "kirim ke semua user" => user_id NULL dan role NULL (broadcast)
+     * - Jika kirim ke user tertentu => user_id terisi, role NULL
+     * - (Opsional) Jika kirim ke role tertentu => user_id NULL, role terisi
+     *
+     * NOTE:
+     * Beberapa form mengirim user_id="all"/"semua"/"" saat broadcast.
+     * Maka di sini kita NORMALISASI agar pasti menjadi NULL.
      */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'judul'   => 'required|string|max:255',
-            'pesan'   => 'nullable|string|max:255',
-            'user_id' => 'nullable|exists:users,id', // null = semua user (broadcast)
+            'judul'    => 'required|string|max:255',
+            'pesan'    => 'nullable|string',
+            'user_id'  => 'nullable',              // jangan pakai exists dulu, karena bisa "all"
+            'role'     => 'nullable|string|max:50',
+            'type'     => 'nullable|string|max:30',
+            'url'      => 'nullable|string|max:255',
+            'link_url' => 'nullable|string|max:255',
+            // kalau form kamu punya field penerima (optional):
+            'penerima' => 'nullable|string',
         ]);
 
         $data['is_read'] = 0;
+
+        // ================================
+        // ✅ NORMALISASI PENERIMA (ANTI BUG)
+        // ================================
+        $userIdRaw   = $request->input('user_id');
+        $roleRaw     = $request->input('role');
+        $penerimaRaw = $request->input('penerima');
+
+        $userIdIsBroadcastToken = is_string($userIdRaw) && in_array(strtolower(trim($userIdRaw)), ['', '0', 'all', 'semua', 'semua pengguna', 'semua_pengguna'], true);
+        $penerimaIsBroadcast    = is_string($penerimaRaw) && in_array(strtolower(trim($penerimaRaw)), ['all', 'semua', 'semua pengguna', 'semua_pengguna'], true);
+
+        // broadcast jika:
+        // - penerima=semua/all
+        // - atau user_id kosong / token all/semua
+        // - atau user_id tidak ada dan role juga tidak ada
+        $isBroadcast = $penerimaIsBroadcast || $userIdIsBroadcastToken || (empty($userIdRaw) && empty($roleRaw));
+
+        if ($isBroadcast) {
+            // ✅ BROADCAST KE SEMUA
+            $data['user_id'] = null;
+            $data['role']    = null;
+        } else {
+            // personal jika user_id numeric
+            if (!empty($userIdRaw) && is_numeric($userIdRaw)) {
+                // validasi exists untuk personal
+                $request->validate([
+                    'user_id' => 'exists:users,id',
+                ]);
+
+                $data['user_id'] = (int) $userIdRaw;
+                $data['role']    = null;
+            } else {
+                // role-based (opsional)
+                $data['user_id'] = null;
+                $data['role']    = $roleRaw ?: null;
+            }
+        }
 
         // ✅ 1) Simpan notifikasi header
         $notif = Notification::create($data);
@@ -95,15 +145,45 @@ class NotifikasiController extends Controller
     public function update(Request $request, Notification $notifikasi)
     {
         $data = $request->validate([
-            'judul'   => 'required|string|max:255',
-            'pesan'   => 'nullable|string|max:255',
-            'user_id' => 'nullable|exists:users,id',
+            'judul'    => 'required|string|max:255',
+            'pesan'    => 'nullable|string',
+            'user_id'  => 'nullable',              // jangan pakai exists dulu, karena bisa "all"
+            'role'     => 'nullable|string|max:50',
+            'type'     => 'nullable|string|max:30',
+            'url'      => 'nullable|string|max:255',
+            'link_url' => 'nullable|string|max:255',
+            'penerima' => 'nullable|string',
         ]);
+
+        $userIdRaw   = $request->input('user_id');
+        $roleRaw     = $request->input('role');
+        $penerimaRaw = $request->input('penerima');
+
+        $userIdIsBroadcastToken = is_string($userIdRaw) && in_array(strtolower(trim($userIdRaw)), ['', '0', 'all', 'semua', 'semua pengguna', 'semua_pengguna'], true);
+        $penerimaIsBroadcast    = is_string($penerimaRaw) && in_array(strtolower(trim($penerimaRaw)), ['all', 'semua', 'semua pengguna', 'semua_pengguna'], true);
+
+        $isBroadcast = $penerimaIsBroadcast || $userIdIsBroadcastToken || (empty($userIdRaw) && empty($roleRaw));
+
+        if ($isBroadcast) {
+            $data['user_id'] = null;
+            $data['role']    = null;
+        } else {
+            if (!empty($userIdRaw) && is_numeric($userIdRaw)) {
+                $request->validate([
+                    'user_id' => 'exists:users,id',
+                ]);
+
+                $data['user_id'] = (int) $userIdRaw;
+                $data['role']    = null;
+            } else {
+                $data['user_id'] = null;
+                $data['role']    = $roleRaw ?: null;
+            }
+        }
 
         $notifikasi->update($data);
 
-        // ✅ kalau pivot dipakai, sinkronkan penerima lagi
-        // (biar penerima sesuai perubahan user_id / broadcast)
+        // ✅ sinkronkan penerima lagi
         $notifikasi->syncRecipients();
 
         return redirect()->route('admins.notifikasi.index')

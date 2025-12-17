@@ -4,9 +4,6 @@
 @section('page_title','Dashboard Mahasiswa')
 
 @section('content')
-  <!-- ========== MAIN ========== -->
-  <main>
-    <div class="page">
       <!-- KPI -->
       <section class="kpi">
         <div class="card">
@@ -126,6 +123,4 @@
           </p>
         </div>
       </section>
-    </div>
-  </main>
 @endsection

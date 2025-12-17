@@ -127,12 +127,12 @@ class PenilaianItemController extends Controller
         $data = $request->validate([
             'mahasiswa_nim' => ['required','string','exists:'.$mTable.',nim'],
             // nama tabel rubrik di Laravel biasanya "rubriks"
-            'rubrik_id'     => ['required','integer','exists:rubriks,id'],
+            'rubrik_id'     => ['required','integer','exists:rubrik,id'],
             'nilai'         => ['nullable','numeric','min:0','max:100'],
         ]);
 
         // gunakan tabel gradebook LAMA: "penilaian" (tanpa s)
-        $existId = DB::table('penilaian')
+        $existId = DB::table('penilaian_items')
             ->where('mahasiswa_nim', $data['mahasiswa_nim'])
             ->where('rubrik_id', $data['rubrik_id'])
             ->value('id');
@@ -143,7 +143,7 @@ class PenilaianItemController extends Controller
             ])->withInput();
         }
 
-        DB::table('penilaian')->insert([
+        DB::table('penilaian_items')->insert([
             'mahasiswa_nim' => $data['mahasiswa_nim'],
             'rubrik_id'     => $data['rubrik_id'],
             'nilai'         => $data['nilai'],
@@ -177,7 +177,7 @@ class PenilaianItemController extends Controller
         $rubriks = $rubrikQ->get(['id','nama_rubrik','bobot']);
 
         // ambil baris dari tabel penilaian
-        $item = DB::table('penilaian')->where('id', $id)->first();
+        $item = DB::table('penilaian_items')->where('id', $id)->first();
         if (!$item) {
             abort(404);
         }
@@ -200,12 +200,12 @@ class PenilaianItemController extends Controller
 
         $data = $request->validate([
             'mahasiswa_nim' => ['required','string','exists:'.$mTable.',nim'],
-            'rubrik_id'     => ['required','integer','exists:rubriks,id'],
+            'rubrik_id'     => ['required','integer','exists:rubrik,id'],
             'nilai'         => ['nullable','numeric','min:0','max:100'],
         ]);
 
         // cek duplikasi nim + rubrik kecuali baris ini sendiri
-        $dupe = DB::table('penilaian')
+        $dupe = DB::table('penilaian_items')
             ->where('mahasiswa_nim', $data['mahasiswa_nim'])
             ->where('rubrik_id', $data['rubrik_id'])
             ->where('id', '<>', $id)
@@ -217,7 +217,7 @@ class PenilaianItemController extends Controller
             ])->withInput();
         }
 
-        DB::table('penilaian')
+        DB::table('penilaian_items')
             ->where('id', $id)
             ->update([
                 'mahasiswa_nim' => $data['mahasiswa_nim'],
@@ -234,7 +234,7 @@ class PenilaianItemController extends Controller
     /** HAPUS */
     public function destroy($id)
     {
-        DB::table('penilaian')->where('id', $id)->delete();
+        DB::table('penilaian_items')->where('id', $id)->delete();
 
         return redirect()
             ->route('dosenpenguji.penilaian', request()->only('matakuliah','kelas'))

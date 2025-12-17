@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -6,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daftar Kelompok — Dosen Pembimbing</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  @php
+    // ✅ DATA ASLI NOTIFIKASI
+    $notifBaru = \App\Models\Notification::getUnreadCount();
+    $notifs    = \App\Models\Notification::getListForTopbar(5);
+  @endphp
+
   <style>
     :root{
       --navy:#0b1d54; --navy-2:#0e257a; --bg:#f5f7fb; --card:#ffffff;
@@ -52,9 +58,11 @@
     header.topbar{
       background:#0a1a54; color:#fff; padding:12px 22px; display:flex; align-items:center; justify-content:space-between;
       position:sticky; top:0; z-index:3; box-shadow:var(--shadow);
+      overflow: visible;
     }
     .welcome h1{ margin:0; font-size:18px; letter-spacing:.2px }
-    .userbox{ display:flex; align-items:center; gap:14px }
+    .userbox{ display:flex; align-items:center; gap:14px; overflow: visible; }
+
     .notif{ position:relative; }
     .notif i{ font-size:18px }
     .notif .badge{ position:absolute; top:-6px; right:-6px; background:#e53935; color:#fff; border-radius:10px; font-size:10px; padding:2px 5px }
@@ -115,7 +123,7 @@
       display:flex;
       flex-direction:column;
       gap:8px;
-      cursor:pointer;                       /* bisa diklik */
+      cursor:pointer;
       transition:transform .15s, box-shadow .15s;
     }
     .kelas-card:hover{
@@ -145,9 +153,7 @@
       align-items:flex-start;
       gap:6px;
     }
-    .kelas-meta i{
-      margin-top:2px;
-    }
+    .kelas-meta i{ margin-top:2px; }
     .kelas-footer{
       margin-top:10px;
       display:flex;
@@ -165,6 +171,76 @@
       font-weight:600;
       text-decoration:none;
     }
+
+    /* =========================
+       ✅ NOTIF DROPDOWN (DATA ASLI)
+       ========================= */
+    .notif-wrap{ position:relative; }
+
+    .notif-btn{
+      background:transparent;
+      border:0;
+      padding:0;
+      cursor:pointer;
+      color:inherit;
+      line-height: 1;
+    }
+
+    .notif-dropdown{
+      position:absolute;
+      top:32px;
+      right:0;
+      width:320px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      box-shadow:0 12px 30px rgba(0,0,0,.18);
+      overflow:hidden;
+      display:none;
+      z-index:9999;
+    }
+    .notif-dropdown.show{ display:block; }
+
+    .notif-dd-head{
+      background:#0b1d54;
+      color:#fff;
+      padding:12px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-weight:700;
+    }
+    .notif-dd-head small{ font-weight:600; opacity:.9; }
+
+    .notif-dd-item{
+      display:block;
+      padding:12px 14px;
+      text-decoration:none;
+      color:#111827;
+      border-bottom:1px solid #eef2f7;
+    }
+    .notif-dd-item:hover{ background:#f3f6ff; }
+
+    .notif-dd-item strong{ display:block; font-size:14px; }
+    .notif-dd-item em{
+      display:block;
+      font-style:normal;
+      color:#6b7280;
+      font-size:12px;
+      margin-top:2px;
+    }
+
+    .notif-dd-foot{
+      background:#f9fafb;
+      padding:10px;
+      text-align:center;
+    }
+    .notif-dd-foot a{
+      color:#1e3a8a;
+      text-decoration:none;
+      font-weight:700;
+    }
+    .notif-dd-foot a:hover{ text-decoration:underline; }
   </style>
 </head>
 <body>
@@ -187,7 +263,6 @@
       <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
       <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
 
-      
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
@@ -211,11 +286,40 @@
       <div class="welcome">
         <h1>Daftar Kelompok</h1>
       </div>
+
       <div class="userbox">
-        <div class="notif">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge">3</span>
+        {{-- ✅ NOTIFIKASI (DATA ASLI + DROPDOWN) --}}
+        <div class="notif notif-wrap">
+          <button type="button" class="notif-btn" id="notifBtn" aria-label="Notifikasi">
+            <i class="fa-regular fa-bell"></i>
+            @if($notifBaru > 0)
+              <span class="badge">{{ $notifBaru }}</span>
+            @endif
+          </button>
+
+          <div class="notif-dropdown" id="notifBox">
+            <div class="notif-dd-head">
+              <div>Notifikasi</div>
+              <small>{{ $notifBaru }} baru</small>
+            </div>
+
+            @forelse($notifs as $n)
+              <a class="notif-dd-item" href="{{ route('admins.notifikasi.read', $n->id) }}">
+                <strong>{{ $n->judul }}</strong>
+                <em>{{ \Illuminate\Support\Str::limit($n->pesan, 60) }}</em>
+              </a>
+            @empty
+              <div class="notif-dd-item" style="border-bottom:0;color:#6b7280;">
+                Tidak ada notifikasi
+              </div>
+            @endforelse
+
+            <div class="notif-dd-foot">
+              <a href="{{ route('admins.notifikasi.index') }}">Lihat semua</a>
+            </div>
+          </div>
         </div>
+
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:50%;background:#e3e9ff;display:grid;place-items:center;color:#31408a;font-weight:700">
             {{ strtoupper(substr(auth()->user()->name ?? 'G', 0, 2)) }}
@@ -233,12 +337,11 @@
         <div class="card-bd" style="padding: 1.25rem;">
 
           @php
-              // pilihan kelas berdasar semester
-              $kelasOptions = ['A','B','C','D','E'];           // default sampai E (misal 3E)
+              $kelasOptions = ['A','B','C','D','E'];
               if (in_array($request->semester, [1,2])) {
-                  $kelasOptions = ['A','B','C','D'];          // sem 1 & 2 -> A–D
+                  $kelasOptions = ['A','B','C','D'];
               } elseif (in_array($request->semester, [3,4,6,7])) {
-                  $kelasOptions = ['A','B','C','D','E'];      // sem 3,4,6,7 -> A–E (3E termasuk)
+                  $kelasOptions = ['A','B','C','D','E'];
               }
           @endphp
 
@@ -290,28 +393,22 @@
 
         <div class="card-bd">
           @php
-            // grupkan berdasarkan kelas (misal: TI-3E, TI-3D, dsb)
             $kelasGrouped = $kelompoks->groupBy('kelas');
           @endphp
 
           <div class="kelas-grid">
             @forelse ($kelasGrouped as $namaKelas => $items)
               @php
-                  // label kelas rapi, contoh: "TI 3E"
                   $labelKelas = str_replace(['TI-','TI '],'TI ', $namaKelas);
                   $jumlahKelompok = $items->count();
                   $contoh = $items->first();
-
-                  // URL detail: ke halaman CRUD kelas tertentu (TI-3E, dst)
                   $detailUrl = route('dosen.kelompok.kelas', $namaKelas);
               @endphp
 
               <div class="kelas-card" data-href="{{ $detailUrl }}">
                 <div class="kelas-tag">Teknologi Informasi</div>
                 <div class="kelas-title">{{ $labelKelas }}</div>
-                <div class="kelas-sub">
-                  {{ $jumlahKelompok }} kelompok bimbingan
-                </div>
+                <div class="kelas-sub">{{ $jumlahKelompok }} kelompok bimbingan</div>
 
                 @if ($contoh)
                   <div class="kelas-meta">
@@ -354,13 +451,29 @@
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.kelas-card[data-href]').forEach(function(card) {
         card.addEventListener('click', function(e) {
-          // kalau yang diklik adalah link "Lihat detail", biarkan pakai href-nya sendiri
           if (e.target.closest('a')) return;
           const url = this.dataset.href;
-          if (url && url !== '#') {
-            window.location = url;
-          }
+          if (url && url !== '#') window.location = url;
         });
+      });
+    });
+
+    // ✅ TOGGLE DROPDOWN NOTIFIKASI
+    document.addEventListener('DOMContentLoaded', function () {
+      const btn = document.getElementById('notifBtn');
+      const box = document.getElementById('notifBox');
+      if (!btn || !box) return;
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        box.classList.toggle('show');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!box.contains(e.target) && !btn.contains(e.target)) {
+          box.classList.remove('show');
+        }
       });
     });
   </script>

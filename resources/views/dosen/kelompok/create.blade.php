@@ -66,7 +66,7 @@
     }
     .card .card-hd{ padding:14px 18px; border-bottom:1px solid #eef1f6; display:flex; align-items:center; gap:10px; color:var(--navy-2); font-weight:700 }
     .card .card-bd{ padding:16px 18px; color:#233042 }
-    
+
     /* Form Styles */
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; margin-bottom: .5rem; color: var(--navy); font-weight: 600; }
@@ -135,7 +135,7 @@
       <a href="{{ url('/dosen/kelompok') }}" class="active"><i class="fa-solid fa-users"></i>Kelompok</a>
       <a href="{{ url('/dosen/milestone') }}"><i class="fa-solid fa-flag-checkered"></i>Milestone</a>
       <a href="{{ url('/dosen/logbook') }}"><i class="fa-solid fa-book"></i>Logbook</a>
-      
+
       <div class="nav-title">Akun</div>
       <a href="{{ url('/profile') }}"><i class="fa-solid fa-id-badge"></i>Profil</a>
     </div>
@@ -192,7 +192,7 @@
                       <option value="">-- Pilih Kelas --</option>
                       @foreach($daftarKelas as $k)
                           @php
-                              $value    = $k->nama_kelas; // contoh: TI-3E
+                              $value    = $k->nama_kelas;
                               $selected = old('kelas', $kelasTerpilih ?? '') == $value ? 'selected' : '';
                           @endphp
                           <option value="{{ $value }}" {{ $selected }}>
@@ -202,19 +202,33 @@
                   </select>
               </div>
 
+              {{-- JUDUL PROYEK --}}
               <div class="form-group">
-                  <label for="judul_proyek">Judul Proyek</label>
-                  <input type="text" name="judul_proyek" class="form-control" id="judul_proyek"
-                         value="{{ old('judul_proyek') }}" required>
+                  <label for="judul">Judul Proyek</label>
+                  <select name="judul" id="judul" class="form-control" required>
+                      <option value="">-- Pilih Judul Proyek --</option>
+                      @foreach($daftarJudulProyek as $p)
+                          <option value="{{ $p->judul }}" @selected(old('judul') == $p->judul)>
+                              {{ $p->judul }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
 
+              {{-- NAMA KLIEN: dropdown dari tabel dosen --}}
               <div class="form-group">
                   <label for="nama_klien">Nama Klien</label>
-                  <input type="text" name="nama_klien" class="form-control" id="nama_klien"
-                         value="{{ old('nama_klien') }}" required>
+                  <select name="nama_klien" id="nama_klien" class="form-control" required>
+                      <option value="">-- Pilih Nama Klien --</option>
+                      @foreach($daftarKlien as $klien)
+                          <option value="{{ $klien->nama_dosen }}" @selected(old('nama_klien') == $klien->nama_dosen)>
+                              {{ $klien->nama_dosen }}
+                          </option>
+                      @endforeach
+                  </select>
               </div>
 
-              {{-- KETUA KELOMPOK: pilih dari mahasiswa --}}
+              {{-- KETUA KELOMPOK --}}
               <div class="form-group">
                   <label for="ketua_kelompok">Ketua Kelompok</label>
                   <select name="ketua_kelompok" id="ketua_kelompok" class="form-control" required>
@@ -227,42 +241,59 @@
                   </select>
               </div>
 
-              {{-- ANGGOTA: pilih langsung mahasiswa --}}
-              <div class="form-group">
-                  <label for="anggota">Anggota (pilih mahasiswa)</label>
-                  <select name="anggota[]" id="anggota" class="form-control" multiple size="8" required>
-                      @forelse($mahasiswas as $mhs)
-                          <option value="{{ $mhs->nim }}"
-                              @selected(in_array($mhs->nim, old('anggota', [])))
-                          >
-                              {{ $mhs->nim }} - {{ $mhs->nama }}
-                          </option>
-                      @empty
-                          <option disabled>Tidak ada mahasiswa yang tersedia.</option>
-                      @endforelse
-                  </select>
-                  <small class="text-muted">
-                      Tahan Ctrl (Windows) / Command (Mac) untuk memilih lebih dari satu mahasiswa.
-                  </small>
-                  @error('anggota')
-                      <div class="text-danger small">{{ $message }}</div>
-                  @enderror
-              </div>
+{{-- ANGGOTA KELOMPOK (CHECKBOX SEPERTI DOSEN PEMBIMBING) --}}
+<div class="form-group">
+    <label>Anggota Kelompok</label>
 
-              {{-- DOSEN PEMBIMBING: dropdown dari tabel dosen --}}
-              <div class="form-group">
-                  <label for="dosen_pembimbing_id">Dosen Pembimbing</label>
-                  <select name="dosen_pembimbing_id" id="dosen_pembimbing_id" class="form-control" required>
-                      <option value="">-- Pilih Dosen Pembimbing --</option>
-                      @foreach($dosenPembimbings as $dosen)
-                          <option value="{{ $dosen->id_dosen }}"
-                              @selected(old('dosen_pembimbing_id') == $dosen->id_dosen)
-                          >
-                              {{ $dosen->nama_dosen }}
-                          </option>
-                      @endforeach
-                  </select>
-              </div>
+    <div style="
+        border:1px solid #ced4da;
+        border-radius:8px;
+        padding:12px;
+        background:#fff;
+    ">
+        @forelse($mahasiswas as $mhs)
+            <div style="margin-bottom:8px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input
+                        type="checkbox"
+                        name="anggota[]"
+                        value="{{ $mhs->nim }}"
+                        {{ in_array($mhs->nim, old('anggota', [])) ? 'checked' : '' }}
+                    >
+                    {{ $mhs->nim }} - {{ $mhs->nama }}
+                </label>
+            </div>
+        @empty
+            <p style="margin:0;">Tidak ada mahasiswa tersedia.</p>
+        @endforelse
+    </div>
+
+    @error('anggota')
+        <div class="text-danger small">{{ $message }}</div>
+    @enderror
+</div>
+
+
+           {{-- DOSEN PEMBIMBING: multi pilih (checkbox) --}}
+<div class="form-group">
+  <label>Dosen Pembimbing (boleh lebih dari satu)</label>
+
+  <div style="border:1px solid #ced4da;border-radius:.5rem;padding:.75rem;max-height:180px;overflow:auto;">
+    @foreach($dosenPembimbings as $dosen)
+      <label style="display:flex;align-items:center;gap:10px;padding:6px 4px;cursor:pointer;">
+        <input type="checkbox"
+               name="id_dosen[]"
+               value="{{ $dosen->id_dosen }}"
+               {{ in_array($dosen->id_dosen, old('id_dosen', [])) ? 'checked' : '' }}>
+        <span>{{ $dosen->nama_dosen }}</span>
+      </label>
+    @endforeach
+  </div>
+
+  @error('id_dosen')
+    <div class="text-danger small">{{ $message }}</div>
+  @enderror
+</div>
 
               <button type="submit" class="btn">Simpan Kelompok</button>
           </form>
@@ -278,6 +309,18 @@
       if(!sb.classList.contains('show')) return;
       const btn = e.target.closest('.topbar-btn');
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
+    });
+
+    // ✅ Filter mahasiswa berdasarkan kelas (reload dengan ?kelas=...)
+    document.addEventListener('DOMContentLoaded', function () {
+      const kelasSelect = document.getElementById('kelas');
+      if (!kelasSelect) return;
+
+      kelasSelect.addEventListener('change', function () {
+        const url = new URL(window.location.href);
+        url.searchParams.set('kelas', this.value);
+        window.location.href = url.toString();
+      });
     });
   </script>
 </body>

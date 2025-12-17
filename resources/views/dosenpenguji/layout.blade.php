@@ -79,8 +79,7 @@
     /* ===== Notifications (bell) ===== */
     .top-actions{display:flex;align-items:center;gap:16px;position:relative}
     .bell{
-      position:relative;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
-      width:36px;height:36px;border-radius:999px;background:#0e257a
+      position:relative;cursor:pointer;
     }
     .bell i{color:#fff;font-size:16px}
     .bell .dot{
@@ -319,7 +318,8 @@
 
             <a class="item" href="{{ route('dosenpenguji.profile') }}"><i class="fa-solid fa-id-badge"></i> Lihat Profil</a>
             <a class="item" href="{{ route('dosenpenguji.profile.edit') }}"><i class="fa-solid fa-user-gear"></i> Edit Profil</a>
-            <a class="item" href="#"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
+            <a class="item" href="{{ route('help.index') }}"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
+
 
             <form method="POST" action="{{ route('logout') }}">
               @csrf
