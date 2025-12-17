@@ -140,16 +140,21 @@
       </a>
 
       <div class="nav-title">Akun</div>
-      <a href="{{ url('/profile') }}" class="{{ request()->is('profile*') ? 'active' : '' }}">
-        <i class="fa-solid fa-id-badge"></i>Profil
-      </a>
+      <a href="{{ route('jaminanmutu.profile') }}"
+   class="{{ request()->is('jaminanmutu/profile*') ? 'active' : '' }}">
+  <i class="fa-solid fa-id-badge"></i>Profil
+</a>
     </div>
 
-    <div class="logout">
-      <a href="{{ url('/logout') }}" class="menu" style="display:block">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
-      </a>
-    </div>
+    <div class="logout" style="margin-top:auto">
+  <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+    @csrf
+    <button type="submit" class="menu"
+      style="display:flex;width:100%;border:0;background:transparent;padding:10px 12px;border-radius:12px;margin:4px 6px;color:#ffb2b2;cursor:pointer;">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </form>
+</div>
   </aside>
 
   <main>
