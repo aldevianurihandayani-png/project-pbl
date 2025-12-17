@@ -580,6 +580,8 @@ Route::prefix('koordinator')
 |--------------------------------------------------------------------------
 */
 use App\Http\Controllers\JaminanMutu\JmRubrikController;
+use App\Http\Controllers\JaminanMutu\JaminanMutuProfileController;
+
 
 Route::prefix('jaminanmutu')
     ->name('jaminanmutu.')
@@ -589,6 +591,35 @@ Route::prefix('jaminanmutu')
         // Dashboard
         Route::view('/dashboard', 'jaminanmutu.dashboard')
             ->name('dashboard');
+
+        // Jaminan Mutu Profile
+        Route::view('/profile', 'jaminanmutu.profile')->name('profile');
+        Route::view('/profile/edit', 'jaminanmutu.profile-edit')->name('profile.edit');
+
+        Route::put('/profile', function (Request $request) {
+            $user = auth()->user();
+
+            $validated = $request->validate([
+                'nama'     => 'nullable|string|max:255',
+                'email'    => 'required|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|min:6',
+            ]);
+
+            $data = [
+                'nama'  => $validated['nama'] ?? $user->nama,
+                'email' => $validated['email'],
+            ];
+
+            if (!empty($validated['password'])) {
+                $data['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($data);
+
+            return redirect()
+                ->route('jaminanmutu.profile')
+                ->with('success', 'Profil berhasil diperbarui.');
+        })->name('profile.update');
 
         /*
         |--------------------------------------------------------------------------
