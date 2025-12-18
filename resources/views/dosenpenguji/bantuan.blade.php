@@ -303,7 +303,7 @@
             <div class="badge"><i class="fa-solid fa-envelope"></i></div>
             <div>
               <div style="font-weight:800;color:#0e257a">Email Support</div>
-              <div class="muted">support@domain.com</div>
+              <div class="muted">support@simap-politala.ac.id'</div>
             </div>
           </div>
 
@@ -311,7 +311,7 @@
             <div class="badge"><i class="fa-brands fa-whatsapp"></i></div>
             <div>
               <div style="font-weight:800;color:#0e257a">WhatsApp Admin</div>
-              <div class="muted">08xxxxxxxxxx</div>
+              <div class="muted">+62 822-5472-4885</div>
             </div>
           </div>
 
