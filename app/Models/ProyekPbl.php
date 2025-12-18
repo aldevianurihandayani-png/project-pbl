@@ -13,16 +13,10 @@ class ProyekPbl extends Model
     protected $primaryKey = 'id_proyek_pbl';
     public $incrementing = true;
     protected $keyType = 'int';
-
-    // TABEL KAMU PUNYA created_at & updated_at
     public $timestamps = true;
 
     protected $fillable = [
         'judul',
-        'tanggal',
-        'kode_mk',
-        'id_dosen',
-        'id_kelompok',
     ];
 
     /* ================= RELATION ================= */
@@ -34,11 +28,13 @@ class ProyekPbl extends Model
 
     public function dosen()
     {
+        // NOTE: pastikan PK dosen sesuai tabel kamu (id atau id_dosen)
         return $this->belongsTo(Dosen::class, 'id_dosen', 'id_dosen');
     }
 
     public function kelompok()
     {
-        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id_kelompok');
+        // ✅ proyek_pbl.id_kelompok -> kelompoks.id
+        return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 }

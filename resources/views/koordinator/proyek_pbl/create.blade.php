@@ -58,23 +58,39 @@
         <i class="fa-solid fa-plus"></i>
         <span>Form Tambah Proyek</span>
       </div>
-      <span class="small">Isi sesuai data proyek</span>
+      <span class="small">Isi judul proyek</span>
     </div>
 
     <div class="card-bd">
       <form method="POST" action="{{ route('koordinator.proyek-pbl.store') }}" class="form-grid">
-        {{-- form fields --}}
-        @include('koordinator.proyek_pbl._form')
+        @csrf
 
-        {{-- kalau di _form kamu sudah ada tombol, hapus tombol di bawah ini --}}
-        {{-- <div class="actions">
+        {{-- JUDUL PROYEK --}}
+        <div>
+          <label class="form-label">Judul Proyek</label>
+          <input
+            type="text"
+            name="judul"
+            class="form-control @error('judul') is-invalid @enderror"
+            value="{{ old('judul') }}"
+            placeholder="Masukkan judul proyek"
+            required
+          >
+          @error('judul')
+            <small style="color:#dc2626;font-weight:600">{{ $message }}</small>
+          @enderror
+        </div>
+
+        {{-- ACTION --}}
+        <div class="actions">
           <button class="btn btn-primary" type="submit">
             <i class="fa-solid fa-floppy-disk"></i> Simpan
           </button>
           <a class="btn btn-ghost" href="{{ route('koordinator.proyek-pbl.index') }}">
             <i class="fa-solid fa-arrow-left"></i> Kembali
           </a>
-        </div> --}}
+        </div>
+
       </form>
     </div>
   </section>

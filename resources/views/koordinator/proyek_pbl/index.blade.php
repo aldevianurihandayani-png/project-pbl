@@ -5,14 +5,12 @@
 
 @push('styles')
 <style>
-  /* ====== Page header kecil ====== */
   .page-head{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
     margin-bottom:12px;
   }
   .page-head .subtitle{ font-size:12px; color:var(--muted); margin-top:4px; }
 
-  /* ====== Button (biar nyatu sama theme) ====== */
   .btn{
     display:inline-flex; align-items:center; gap:8px;
     padding:10px 12px; border-radius:12px; border:1px solid transparent;
@@ -24,15 +22,13 @@
   .btn-warning{ background:#fef9c3; color:#854d0e; border:1px solid #fde68a; }
   .btn-danger{ background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; }
 
-  /* ====== Alert ====== */
   .alert{
     padding:12px 14px; border-radius:14px; border:1px solid;
     font-size:13px; font-weight:600;
+    margin-bottom:12px;
   }
   .alert-success{ background:#ecfdf5; border-color:#bbf7d0; color:#166534; }
-  .alert-danger{ background:#fef2f2; border-color:#fecaca; color:#991b1b; }
 
-  /* ====== Table modern ====== */
   .table-wrap{ overflow:auto; }
   .table-modern{
     width:100%; border-collapse:separate; border-spacing:0;
@@ -70,7 +66,6 @@
     color:var(--navy-2);
   }
 
-  /* pagination bawaan bootstrap kadang jelek, minimal spacing */
   .pagination{ margin:12px 0 0; }
 </style>
 @endpush
@@ -99,7 +94,7 @@
       <div style="display:flex;align-items:center;gap:10px">
         <i class="fa-solid fa-diagram-project"></i>
         <span>Data Proyek</span>
-        <span class="pill">{{ $items->total() }} data</span>
+        <span class="pill">{{ $data->total() }} data</span>
       </div>
       <span class="small">Klik Edit untuk ubah data</span>
     </div>
@@ -109,36 +104,20 @@
         <table class="table-modern">
           <thead>
             <tr>
-              <th>ID</th>
+              <th style="width:110px">ID</th>
               <th>Judul</th>
-              <th>Tanggal</th>
-              <th>Kode MK</th>
-              <th>ID Dosen</th>
-              <th>ID Kelompok</th>
-              <th style="width:170px">Aksi</th>
+              <th style="width:190px">Aksi</th>
             </tr>
           </thead>
 
           <tbody>
-            @forelse($items as $row)
+            @forelse($data as $row)
               <tr>
                 <td><span class="pill">#{{ $row->id_proyek_pbl }}</span></td>
 
                 <td class="judul-cell">
                   {{ $row->judul }}
                 </td>
-
-                <td>
-                  @if(!empty($row->tanggal))
-                    {{ \Carbon\Carbon::parse($row->tanggal)->format('Y-m-d') }}
-                  @else
-                    <span class="muted">-</span>
-                  @endif
-                </td>
-
-                <td>{{ $row->kode_mk }}</td>
-                <td>{{ $row->id_dosen }}</td>
-                <td>{{ $row->id_kelompok }}</td>
 
                 <td>
                   <a class="btn btn-sm btn-warning"
@@ -160,7 +139,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="7" class="muted" style="padding:14px 12px;">
+                <td colspan="3" class="muted" style="padding:14px 12px;">
                   Belum ada data proyek.
                 </td>
               </tr>
@@ -170,7 +149,7 @@
       </div>
 
       <div style="margin-top:12px;">
-        {{ $items->links() }}
+        {{ $data->links() }}
       </div>
     </div>
   </section>

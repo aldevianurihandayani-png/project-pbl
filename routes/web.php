@@ -19,6 +19,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DriveTestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\HasilController;
 
 
 // Jaminan Mutu
@@ -83,6 +84,9 @@ Route::view('/', 'home')->name('home');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+    //read only peringkat
+        Route::get('/hasil', [HasilController::class, 'index'])
+    ->name('hasil.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -554,6 +558,8 @@ Route::prefix('koordinator')
 
         Route::get('mahasiswa/{mahasiswa}', [KoordinatorMahasiswaController::class, 'show'])
             ->name('mahasiswa.show');
+        
+
 
         // READ ONLY CPMK
         Route::get('/cpmk', [KoordinatorCpmkController::class, 'index'])->name('cpmk.index');

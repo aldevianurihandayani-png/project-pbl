@@ -1,79 +1,76 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Koordinator;
 
+use App\Http\Controllers\Controller;
 use App\Models\ProyekPbl;
 use Illuminate\Http\Request;
 
 class ProyekPblController extends Controller
 {
-    /** List + cari + filter sederhana */
+    /** LIST DATA */
     public function index(Request $request)
     {
-        $q     = $request->get('q');
-        $mk    = $request->get('kode_mk');
-        $dosen = $request->get('id_dosen');
+        $q = $request->get('q');
 
-        $data = ProyekPbl::with(['mataKuliah','dosen','kelompok'])
-            ->when($q, fn($qr) => $qr->where('judul', 'like', "%{$q}%"))
-            ->when($mk, fn($qr) => $qr->where('kode_mk', $mk))
-            ->when($dosen, fn($qr) => $qr->where('id_dosen', $dosen))
+        $data = ProyekPbl::query()
+            ->when($q, fn ($qr) => $qr->where('judul', 'like', "%{$q}%"))
             ->orderByDesc('id_proyek_pbl')
             ->paginate(12)
-            ->appends($request->only('q','kode_mk','id_dosen'));
+            ->appends($request->only('q'));
 
-        return view('proyek_pbl.index', compact('data','q','mk','dosen'));
+        return view('koordinator.proyek_pbl.index', compact('data', 'q'));
     }
 
+    /** FORM CREATE */
     public function create()
     {
-        // ambil list untuk select (opsional isi di view via ajax)
-        return view('proyek_pbl.create');
+        return view('koordinator.proyek_pbl.create');
     }
 
+    /** SIMPAN DATA */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'judul'       => 'required|string|max:255',
-            'tanggal'     => 'required|date',
-            'kode_mk'     => 'required|exists:mata_kuliah,kode_mk',
-            'id_dosen'    => 'required|exists:dosen,id_dosen',
-            'id_kelompok' => 'required|exists:kelompok,id_kelompok',
+            'judul' => 'required|string|max:255',
         ]);
 
         ProyekPbl::create($validated);
 
-        return redirect()->route('proyek-pbl.index')
+        return redirect()
+            ->route('koordinator.proyek-pbl.index')
             ->with('success', 'Proyek PBL berhasil dibuat.');
     }
 
-    // Route model binding otomatis berdasarkan primaryKey di model
+    /** FORM EDIT */
     public function edit(ProyekPbl $proyek_pbl)
     {
-        return view('proyek_pbl.edit', ['proyek' => $proyek_pbl]);
+        return view('koordinator.proyek_pbl.edit', [
+            'proyek' => $proyek_pbl,
+        ]);
     }
 
+    /** UPDATE DATA */
     public function update(Request $request, ProyekPbl $proyek_pbl)
     {
         $validated = $request->validate([
-            'judul'       => 'required|string|max:255',
-            'tanggal'     => 'required|date',
-            'kode_mk'     => 'required|exists:mata_kuliah,kode_mk',
-            'id_dosen'    => 'required|exists:dosen,id_dosen',
-            'id_kelompok' => 'required|exists:kelompok,id_kelompok',
+            'judul' => 'required|string|max:255',
         ]);
 
         $proyek_pbl->update($validated);
 
-        return redirect()->route('proyek-pbl.index')
+        return redirect()
+            ->route('koordinator.proyek-pbl.index')
             ->with('success', 'Proyek PBL diperbarui.');
     }
 
+    /** HAPUS DATA */
     public function destroy(ProyekPbl $proyek_pbl)
     {
         $proyek_pbl->delete();
 
-        return redirect()->route('proyek-pbl.index')
+        return redirect()
+            ->route('koordinator.proyek-pbl.index')
             ->with('success', 'Proyek PBL dihapus.');
     }
 }

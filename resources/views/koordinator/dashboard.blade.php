@@ -192,8 +192,12 @@
     </div>
 
     <div class="logout">
-      <a href="{{ url('/logout') }}" class="menu" style="display:block">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+  @csrf
+  <button type="submit" style="border:0;background:transparent;cursor:pointer;padding:0;color:inherit;">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
+</form>
       </a>
     </div>
   </aside>
