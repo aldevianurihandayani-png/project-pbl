@@ -111,6 +111,11 @@
         <i class="fa-solid fa-clipboard-list"></i> Penilaian
       </a>
 
+       <a href="{{ route('koordinator.peringkat.index') }}"
+         class="menu {{ request()->routeIs('peringkat.index*') ? 'active' : '' }}">
+        <i class="fa-solid fa-ranking-star"></i> Peringkat
+      </a>
+
       <a href="{{ route('koordinator.proyek-pbl.index') }}"
          class="menu {{ request()->routeIs('koordinator.proyek-pbl*') ? 'active' : '' }}">
         <i class="fa-solid fa-diagram-project"></i> Proyek PBL
