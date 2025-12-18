@@ -17,10 +17,6 @@ class ProyekPbl extends Model
 
     protected $fillable = [
         'judul',
-        'tanggal',
-        'kode_mk',
-        'id_dosen',
-        'id_kelompok',
     ];
 
     /* ================= RELATION ================= */

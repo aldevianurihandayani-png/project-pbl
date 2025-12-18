@@ -3,13 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Peringkat extends Model
 {
-    use HasFactory, SoftDeletes;
-
     protected $table = 'peringkats';
 
     protected $fillable = [
@@ -23,6 +19,7 @@ class Peringkat extends Model
         'tahun_ajaran',
         'tpk_type',
         'tpk_id',
+        'kelas', // ✅ TAMBAH INI
     ];
 
     protected $casts = [
@@ -31,7 +28,6 @@ class Peringkat extends Model
         'tpk_id'      => 'integer',
     ];
 
-    // ✅ ini yang bikin nyambung ke TpkMahasiswa / TpkKelompok
     public function tpk()
     {
         return $this->morphTo(__FUNCTION__, 'tpk_type', 'tpk_id');

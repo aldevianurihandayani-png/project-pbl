@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Schema;
 
 use App\Models\Peringkat;
 use App\Models\TpkMahasiswa;
-use App\Models\TpkKelompok;     // tabel nilai kelompok (tpk_kelompoks)
+use App\Models\TpkKelompok;
 use App\Models\BobotPeringkat;
 use App\Models\Mahasiswa;
-use App\Models\Kelompok;        // tabel master kelompok (kelompoks)
+use App\Models\Kelompok;
 
 class PeringkatController extends Controller
 {
@@ -45,7 +45,6 @@ class PeringkatController extends Controller
     {
         $kelasAktif = $request->get('kelas');
 
-        // kalau kamu punya tabel kelas sendiri, boleh diganti ambil dari tabel kelas juga
         $kelasList = Mahasiswa::query()
             ->whereNotNull('kelas')
             ->where('kelas', '!=', '')
@@ -70,18 +69,16 @@ class PeringkatController extends Controller
     }
 
     /* =========================================================
-     * CREATE FORM (Kelompok) ✅ dropdown kelas + dropdown kelompok
+     * CREATE FORM (Kelompok)
      * ========================================================= */
     public function createKelompok(Request $request)
     {
         $kelasAktif = $request->get('kelas');
 
-        // ambil dari tabel kelas (sesuai screenshot: nama_kelas)
         $kelasList = DB::table('kelas')
             ->orderBy('nama_kelas')
             ->pluck('nama_kelas');
 
-        // dropdown kelompok harus ambil dari tabel `kelompoks` (MASTER)
         $kelompokList = collect();
         if (!empty($kelasAktif)) {
             $kelompokList = Kelompok::query()
@@ -148,7 +145,7 @@ class PeringkatController extends Controller
     }
 
     /* =========================================================
-     * STORE (Kelompok) ✅ simpan ke tpk_kelompoks pakai kelompok_id
+     * STORE (Kelompok)
      * ========================================================= */
     public function storeKelompok(Request $request)
     {
@@ -159,13 +156,11 @@ class PeringkatController extends Controller
             'review_uas'  => 'required|numeric|min:0|max:100',
         ]);
 
-        // pastikan kelompok memang milik kelas yang dipilih
         $kelompok = Kelompok::query()
             ->where('id', $data['kelompok_id'])
             ->where('kelas', $data['kelas'])
             ->firstOrFail();
 
-        // simpan nilai per kelompok (tpk_kelompoks)
         TpkKelompok::updateOrCreate(
             ['kelompok_id' => $kelompok->id],
             [
@@ -183,7 +178,7 @@ class PeringkatController extends Controller
     }
 
     /* =========================================================
-     * HITUNG ULANG (manual trigger)
+     * HITUNG ULANG
      * ========================================================= */
     public function calculate(Request $request)
     {
@@ -203,7 +198,7 @@ class PeringkatController extends Controller
     }
 
     /* =========================================================
-     * EDIT / UPDATE (optional)
+     * EDIT / UPDATE
      * ========================================================= */
     public function edit(string $type, int $id)
     {
@@ -322,7 +317,9 @@ class PeringkatController extends Controller
     }
 
     /* =========================================================
-     * CORE SAW: KELOMPOK ✅ pakai tpk_kelompoks + morph class
+     * CORE SAW: KELOMPOK
+     * - kelas tersimpan
+     * - anti double (reset + updateOrCreate)
      * ========================================================= */
     private function calculateKelompok(): void
     {
@@ -338,8 +335,13 @@ class PeringkatController extends Controller
 
         $decision = [];
         $items = [];
+
         foreach ($rows as $r) {
-            $items[] = ['id' => $r->id, 'nama' => $r->nama];
+            $items[] = [
+                'tpk_id' => $r->id,   // id tpk_kelompoks
+                'nama'   => $r->nama,
+                'kelas'  => $r->kelas,
+            ];
             $decision[] = [(float)$r->review_uts, (float)$r->review_uas];
         }
 
@@ -349,37 +351,43 @@ class PeringkatController extends Controller
         $ranking = [];
         foreach ($scores as $i => $score) {
             $ranking[] = [
-                'tpk_id' => $items[$i]['id'],   // ini id dari tpk_kelompoks
+                'tpk_id' => $items[$i]['tpk_id'],
                 'nama'   => $items[$i]['nama'],
-                'score'  => $score
+                'kelas'  => $items[$i]['kelas'],
+                'score'  => $score,
             ];
         }
         usort($ranking, fn($a, $b) => $b['score'] <=> $a['score']);
 
         DB::transaction(function () use ($ranking) {
+            // ✅ reset total ranking kelompok (paling aman)
             Peringkat::where('jenis', 'kelompok')->delete();
 
             foreach ($ranking as $i => $r) {
-                (new Peringkat())->forceFill([
-                    'jenis'        => 'kelompok',
-                    'nama_tpk'     => $r['nama'],
-                    'mahasiswa_id' => null,
-                    'mata_kuliah'  => 'PBL',
-                    'nilai_total'  => round($r['score'], 4),
-                    'peringkat'    => $i + 1,
-                    'semester'     => null,
-                    'tahun_ajaran' => null,
-
-                    // morphTo: simpan class + id
-                    'tpk_type'     => \App\Models\TpkKelompok::class,
-                    'tpk_id'       => $r['tpk_id'],
-                ])->save();
+                Peringkat::updateOrCreate(
+                    [
+                        'jenis'    => 'kelompok',
+                        'tpk_type' => TpkKelompok::class,
+                        'tpk_id'   => $r['tpk_id'],
+                    ],
+                    [
+                        'nama_tpk'     => $r['nama'],
+                        'mahasiswa_id' => null,
+                        'mata_kuliah'  => 'PBL',
+                        'nilai_total'  => round($r['score'], 4),
+                        'peringkat'    => $i + 1,
+                        'semester'     => null,
+                        'tahun_ajaran' => null,
+                        'kelas'        => Schema::hasColumn('peringkats', 'kelas') ? $r['kelas'] : null,
+                    ]
+                );
             }
         });
     }
 
     /* =========================================================
      * CORE SAW: MAHASISWA (optional per kelas)
+     * - anti double (delete tepat + updateOrCreate)
      * ========================================================= */
     private function calculateMahasiswa(?string $kelas = null): void
     {
@@ -398,12 +406,12 @@ class PeringkatController extends Controller
 
         $decision = [];
         $items = [];
+
         foreach ($rows as $r) {
             $items[] = [
-                'id'   => $r->id,
-                'nim'  => $r->mahasiswa_nim,
-                'nama' => $r->nama,
-                'kelas'=> $r->kelas,
+                'tpk_id' => $r->id,
+                'nama'   => $r->nama,
+                'kelas'  => $r->kelas,
             ];
             $decision[] = [(float)$r->keaktifan, (float)$r->nilai_kelompok, (float)$r->nilai_dosen];
         }
@@ -414,8 +422,7 @@ class PeringkatController extends Controller
         $ranking = [];
         foreach ($scores as $i => $score) {
             $ranking[] = [
-                'tpk_id' => $items[$i]['id'],
-                'nim'    => $items[$i]['nim'],
+                'tpk_id' => $items[$i]['tpk_id'],
                 'nama'   => $items[$i]['nama'],
                 'kelas'  => $items[$i]['kelas'],
                 'score'  => $score,
@@ -424,29 +431,32 @@ class PeringkatController extends Controller
         usort($ranking, fn($a,$b)=> $b['score'] <=> $a['score']);
 
         DB::transaction(function () use ($ranking, $kelas) {
-            $del = Peringkat::where('jenis', 'mahasiswa');
-
             if (!empty($kelas) && Schema::hasColumn('peringkats', 'kelas')) {
-                $del->where('kelas', $kelas);
+                // hapus ranking mahasiswa untuk kelas tertentu
+                Peringkat::where('jenis', 'mahasiswa')->where('kelas', $kelas)->delete();
+            } else {
+                // hapus semua ranking mahasiswa
+                Peringkat::where('jenis', 'mahasiswa')->delete();
             }
 
-            $del->delete();
-
             foreach ($ranking as $i => $r) {
-                (new Peringkat())->forceFill([
-                    'jenis'        => 'mahasiswa',
-                    'nama_tpk'     => $r['nama'],
-                    'mahasiswa_id' => null,
-                    'mata_kuliah'  => 'PBL',
-                    'nilai_total'  => round($r['score'], 4),
-                    'peringkat'    => $i + 1,
-                    'semester'     => null,
-                    'tahun_ajaran' => null,
-
-                    'tpk_type'     => \App\Models\TpkMahasiswa::class,
-                    'tpk_id'       => $r['tpk_id'],
-                    'kelas'        => Schema::hasColumn('peringkats', 'kelas') ? $r['kelas'] : null,
-                ])->save();
+                Peringkat::updateOrCreate(
+                    [
+                        'jenis'    => 'mahasiswa',
+                        'tpk_type' => TpkMahasiswa::class,
+                        'tpk_id'   => $r['tpk_id'],
+                    ],
+                    [
+                        'nama_tpk'     => $r['nama'],
+                        'mahasiswa_id' => null,
+                        'mata_kuliah'  => 'PBL',
+                        'nilai_total'  => round($r['score'], 4),
+                        'peringkat'    => $i + 1,
+                        'semester'     => null,
+                        'tahun_ajaran' => null,
+                        'kelas'        => Schema::hasColumn('peringkats', 'kelas') ? $r['kelas'] : null,
+                    ]
+                );
             }
         });
     }

@@ -74,13 +74,18 @@
       <i class="fa-solid fa-id-badge"></i>
       <span>Profil</span>
     </a>
-
   </div>
 
+  {{-- ✅ LOGOUT POST (FIX GET /logout) --}}
   <div class="logout">
-    <a href="{{ url('/logout') }}" class="menu" style="display:block">
-      <i class="fa-solid fa-right-from-bracket"></i> 
-      <span>Logout</span>
-    </a>
+    <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+      @csrf
+      <button type="submit"
+              class="menu"
+              style="display:block;width:100%;border:0;background:transparent;text-align:left;cursor:pointer;">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </button>
+    </form>
   </div>
 </aside>
