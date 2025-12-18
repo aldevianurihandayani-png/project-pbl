@@ -12,7 +12,7 @@ class Kelompok extends Model
     protected $table = 'kelompoks';
 
     // PK default Laravel adalah "id", jadi tidak perlu set primaryKey sama sekali.
-    // protected $primaryKey = 'id';
+   
 
     protected $fillable = [
         'nama',
