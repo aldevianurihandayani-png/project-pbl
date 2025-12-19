@@ -214,7 +214,7 @@
   </main>
 
   <script>
-    // Tutup sidebar ketika klik di luar (mobile)
+    
     document.addEventListener('click', (e)=>{
       const sb = document.getElementById('sidebar');
       if(!sb || !sb.classList.contains('show')) return;
