@@ -413,20 +413,11 @@ Route::prefix('dosenpenguji')
         Route::delete('/penilaian/grade/{nim}/{rubric_id}', [PenilaianController::class, 'deleteGrade'])
             ->name('penilaian.deleteGrade');
 
-        Route::get('/penilaian/export/excel', [PenilaianController::class, 'exportExcelBaru'])
-            ->name('penilaian.export.excel');
+        Route::get('/penilaian/export/excel', [PenilaianController::class, 'exportExcel'])
+        ->name('penilaian.export.excel');
 
-        Route::get('/penilaian/export/pdf', [PenilaianController::class, 'exportPdfBaru'])
-            ->name('penilaian.export.pdf');
-
-        Route::get('/penilaian/template', [PenilaianController::class, 'downloadTemplateBaru'])
-            ->name('penilaian.template');
-
-        Route::post('/penilaian/import', [PenilaianController::class, 'importExcelBaru'])
-            ->name('penilaian.import');
-
-        Route::get('/penilaian/export', [PenilaianController::class, 'exportExcelBaru'])
-            ->name('penilaian.export');
+        Route::get('/penilaian/export/pdf', [PenilaianController::class, 'exportPdf'])
+        ->name('penilaian.export.pdf');
 
         Route::get('/rubrik', [RubrikController::class, 'index'])->name('rubrik.index');
         Route::post('/rubrik', [RubrikController::class, 'store'])->name('rubrik.store');
