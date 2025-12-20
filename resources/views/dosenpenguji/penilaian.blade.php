@@ -109,18 +109,33 @@
 <tr><td colspan="{{ $colspan }}" style="text-align:center;padding:20px;">Mahasiswa tidak ditemukan</td></tr>
 @else
 @foreach($mahasiswa as $m)
+@php
+  // hitung nilai akhir awal dari data DB (agar setelah reload tetap tampil)
+  $final = 0;
+  foreach(($rubrics ?? collect()) as $r0){
+    $n0 = optional($m->penilaian->firstWhere('rubrik_id',$r0->id))->nilai;
+    if ($n0 !== null && $n0 !== '') {
+      $final += ((float)$n0 * (float)$r0->bobot) / 100;
+    }
+  }
+@endphp
 <tr>
   <td><b>{{ $m->nama }}</b><br><small>{{ $m->nim }} {{ $m->kelas ?? '' }}</small></td>
   @forelse($rubrics as $r)
     <td>
-      <input class="grade-input" type="number"
+      <input class="grade-input"
+        type="number"
+        step="0.01"
+        min="0" max="100"
+        data-nim="{{ $m->nim }}"
+        data-bobot="{{ $r->bobot }}"
         name="nilai[{{ $m->nim }}][{{ $r->id }}]"
         value="{{ optional($m->penilaian->firstWhere('rubrik_id',$r->id))->nilai }}">
     </td>
   @empty
     <td>-</td>
   @endforelse
-  <td class="final-grade">0.00</td>
+  <td class="final-grade" data-nim="{{ $m->nim }}">{{ number_format($final, 2, '.', '') }}</td>
 </tr>
 @endforeach
 @endif
@@ -132,4 +147,45 @@
 </div>
 </div>
 </form>
+
+<script>
+  function parseNum(v) {
+    if (v === null || v === undefined) return NaN;
+    v = String(v).trim();
+    if (!v) return NaN;
+    // dukung koma jadi desimal (mis. 89,5)
+    v = v.replace(',', '.');
+    return parseFloat(v);
+  }
+
+  function recalcFinal(nim) {
+    const inputs = document.querySelectorAll(`.grade-input[data-nim="${nim}"]`);
+    let total = 0;
+
+    inputs.forEach(input => {
+      const nilai = parseNum(input.value);
+      const bobot = parseNum(input.dataset.bobot);
+      if (!isNaN(nilai) && !isNaN(bobot)) {
+        total += (nilai * bobot) / 100;
+      }
+    });
+
+    const cell = document.querySelector(`.final-grade[data-nim="${nim}"]`);
+    if (cell) cell.textContent = total.toFixed(2);
+  }
+
+  // realtime update saat user mengetik
+  document.addEventListener('input', function(e){
+    if (!e.target.classList.contains('grade-input')) return;
+    const nim = e.target.dataset.nim;
+    if (nim) recalcFinal(nim);
+  });
+
+  // hitung awal untuk semua baris (biar pasti sinkron)
+  document.addEventListener('DOMContentLoaded', function(){
+    const nims = new Set();
+    document.querySelectorAll('.grade-input[data-nim]').forEach(el => nims.add(el.dataset.nim));
+    nims.forEach(nim => recalcFinal(nim));
+  });
+</script>
 @endsection
