@@ -222,7 +222,7 @@
       if(!btn && !e.target.closest('#sidebar')) sb.classList.remove('show');
     });
 
-    // Toggle dropdown notifikasi
+    //  dropdown notifikasi
     document.addEventListener('click', function(e){
       const btn = document.getElementById('notifBtnJM');
       const box = document.getElementById('notifBoxJM');
