@@ -75,6 +75,8 @@ use App\Models\Rubrik;
 use App\Http\Controllers\mahasiswa\MahasiswaProfileController;
 use App\Http\Controllers\TPK\TPKKelompokController;
 use App\Http\Controllers\TPK\TPKController;
+use App\Http\Controllers\mahasiswa\LaporanPenilaianController;
+
 /*
 |--------------------------------------------------------------------------
 | Halaman Publik
@@ -297,6 +299,7 @@ Route::prefix('mahasiswa')
             \App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController::class
         )->except(['show']);
 
+        Route::get('/laporan-penilaian-data', [LaporanPenilaianController::class, 'index'])->name('laporan_penilaian.index');
         Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
 
         Route::get('/profile', [MahasiswaProfileController::class, 'show'])->name('profile');

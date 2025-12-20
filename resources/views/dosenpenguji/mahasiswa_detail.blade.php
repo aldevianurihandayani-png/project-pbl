@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Detail Mahasiswa Kelas {{ $kelas }} — Dosen Penguji</title>
+  <title>Detail Mahasiswa Kelas {{ $kelasCode ?? $kelas }} — Dosen Penguji</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
@@ -166,6 +166,12 @@
   @php
     $notifications = $notifications ?? [];
     $notifCount = count($notifications);
+
+    // Normalisasi kelas supaya tidak jadi "Kelas Kelas A"
+    $kelasRaw = (string) ($kelas ?? '');
+    $kelasNoWord = preg_replace('/\bkelas\b/i', '', $kelasRaw);
+    $kelasNoWord = trim(preg_replace('/\s+/', ' ', $kelasNoWord));
+    $kelasCode = strtoupper(strtok($kelasNoWord, ' ')); // ambil token pertama
   @endphp
 
   <!-- SIDEBAR -->
@@ -203,7 +209,7 @@
         <i class="fa-solid fa-bars"></i>
       </button>
 
-      <div class="welcome"><h1>Detail Mahasiswa — Kelas {{ $kelas }}</h1></div>
+      <div class="welcome"><h1>Detail Mahasiswa — Kelas {{ $kelasCode }}</h1></div>
 
       <div id="topActions">
         <div class="bell" id="bellBtn" aria-label="Notifikasi">
@@ -273,7 +279,7 @@
     <div class="page">
       <div class="header-row">
         <div>
-          <div class="kelas-title-main">Kelas {{ $kelas }}</div>
+          <div class="kelas-title-main">Kelas {{ $kelasCode }}</div>
           <div class="kelas-sub">Total: {{ $mahasiswa->total() }} mahasiswa</div>
         </div>
         <a href="{{ url('/dosenpenguji/mahasiswa') }}" class="btn-back">
@@ -284,7 +290,7 @@
       {{-- Search dalam 1 kelas --}}
       <div class="toolbar">
         <form action="{{ url()->current() }}" method="GET" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
-          <input type="hidden" name="kelas" value="{{ $kelas }}">
+          <input type="hidden" name="kelas" value="{{ $kelasCode }}">
           <div class="search-group">
             <label for="q">Cari di kelas ini</label>
             <input type="text" id="q" name="q" value="{{ $search ?? '' }}" placeholder="Cari nama / NIM">
@@ -312,6 +318,13 @@
               </thead>
               <tbody>
                 @forelse ($mahasiswa as $index => $mhs)
+                  @php
+                    // Normalisasi kelas per mahasiswa juga (kalau di DB ada "Kelas A" / "Kelas Kelas A")
+                    $mhsKelasRaw = (string) ($mhs->kelas ?? '');
+                    $mhsKelasNoWord = preg_replace('/\bkelas\b/i', '', $mhsKelasRaw);
+                    $mhsKelasNoWord = trim(preg_replace('/\s+/', ' ', $mhsKelasNoWord));
+                    $mhsKelasCode = strtoupper(strtok($mhsKelasNoWord, ' '));
+                  @endphp
                   <tr>
                     <td>{{ ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + $loop->iteration }}</td>
                     <td>{{ $mhs->nim }}</td>
@@ -319,7 +332,7 @@
                     <td>{{ $mhs->email }}</td>
                     <td>{{ $mhs->angkatan }}</td>
                     <td>{{ $mhs->no_hp }}</td>
-                    <td>{{ $mhs->kelas }}</td>
+                    <td>{{ $mhsKelasCode }}</td>
                   </tr>
                 @empty
                   <tr class="empty-row">

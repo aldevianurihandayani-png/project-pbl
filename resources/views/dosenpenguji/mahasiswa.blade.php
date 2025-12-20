@@ -208,13 +208,24 @@
   @if($kelasSummary->count())
     <div class="kelas-grid">
       @foreach($kelasSummary as $row)
+        @php
+          $kelasRaw = (string) $row->kelas;
+
+          // hilangkan semua kata "kelas" (case-insensitive) lalu rapikan spasi
+          $kelasNoWord = preg_replace('/\bkelas\b/i', '', $kelasRaw);
+          $kelasNoWord = trim(preg_replace('/\s+/', ' ', $kelasNoWord));
+
+          // ambil token pertama sebagai kode kelas
+          $kelasCode = strtoupper(strtok($kelasNoWord, ' '));
+        @endphp
+
         <div class="kelas-card">
           <div class="kelas-card-header">
             <div>
               <div class="kelas-label">KELAS</div>
-              <div class="kelas-title">Kelas {{ $row->kelas }}</div>
+              <div class="kelas-title">Kelas {{ $kelasCode }}</div>
             </div>
-            <span class="kelas-badge">{{ $row->kelas }}</span>
+            <span class="kelas-badge">Kelas {{ $kelasCode }}</span>
           </div>
 
           <div>
@@ -223,7 +234,7 @@
           </div>
 
           <div class="kelas-footer">
-            <a href="{{ route('dosenpenguji.mahasiswa.kelas', $row->kelas) }}"
+            <a href="{{ route('dosenpenguji.mahasiswa.kelas', $kelasCode) }}"
                class="btn-detail">
               <span>Lihat detail</span>
               <i class="fa-solid fa-arrow-right"></i>
