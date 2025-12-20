@@ -21,71 +21,28 @@ class PenilaianItemController extends Controller
         return 'mahasiswas';
     }
 
-    /** Ambil list mahasiswa by MK & kelas (tahan banting nama kolom) */
+    /**
+     * ✅ Ambil list mahasiswa:
+     * - TANPA filter MK (biar pilih MK tetap munculin semua mahasiswa)
+     * - Filter kelas hanya kalau query kelas diisi
+     */
     private function getMahasiswaByMkKelas(?string $mk, ?string $kelas)
     {
         $mTable   = $this->studentTable();
         $hasKelas = Schema::hasColumn($mTable, 'kelas');
 
-        // deteksi tabel anggota kelompok
-        $gmTable = null;
-        if (Schema::hasTable('kelompok_anggota'))  $gmTable = 'kelompok_anggota';
-        elseif (Schema::hasTable('kelompok_anggotas')) $gmTable = 'kelompok_anggotas';
+        $q = DB::table($mTable);
 
-        // Jika ada struktur kelompok LENGKAP
-        if ($mk && Schema::hasTable('kelompoks') && $gmTable) {
-            $kTable  = 'kelompoks';
-
-            // cari nama kolom nim di tabel anggota (nim | mahasiswa_nim)
-            $nimCol = null;
-            if (Schema::hasColumn($gmTable, 'nim')) {
-                $nimCol = 'nim';
-            } elseif (Schema::hasColumn($gmTable, 'mahasiswa_nim')) {
-                $nimCol = 'mahasiswa_nim';
-            }
-
-            $q = DB::table("$kTable as k")
-                ->join("$gmTable as ka", 'ka.kelompok_id', '=', 'k.id');
-
-            if ($nimCol) {
-                $q->join("$mTable as m", "m.nim", '=', "ka.$nimCol");
-            } else {
-                // fallback darurat, kalau struktur tidak jelas
-                $q->join("$mTable as m", 'm.nim', '=', 'ka.nim');
-            }
-
-            // Kemungkinan kolom penghubung MK pada kelompoks
-            if (Schema::hasColumn($kTable, 'kode_mk')) {
-                $q->where('k.kode_mk', $mk);
-            } elseif (Schema::hasColumn($kTable, 'mata_kuliah_kode')) {
-                $q->where('k.mata_kuliah_kode', $mk);
-            } elseif (Schema::hasColumn($kTable, 'kode_matakuliah')) {
-                $q->where('k.kode_matakuliah', $mk);
-            } elseif (Schema::hasColumn($kTable, 'mata_kuliah_id') && Schema::hasTable('mata_kuliah')) {
-                $q->join('mata_kuliah as mkTbl', 'mkTbl.id', '=', 'k.mata_kuliah_id')
-                  ->where('mkTbl.kode_mk', $mk);
-            }
-
-            if (!empty($kelas) && $hasKelas) {
-                $q->where('m.kelas', $kelas);
-            }
-
-            $select = ['m.nim as nim','m.nama as nama'];
-            if ($hasKelas) $select[] = 'm.kelas as kelas';
-
-            return $q->distinct()
-                ->orderBy('m.nama')
-                ->get($select);
+        // filter kelas kalau diisi
+        if (!empty($kelas) && $hasKelas) {
+            $q->where('kelas', $kelas);
         }
 
-        // Fallback: tanpa struktur kelompok → pakai query builder biar netral
-        $q = DB::table($mTable);
-        if (!empty($kelas) && $hasKelas) $q->where('kelas', $kelas);
-
-        $select = ['nim','nama'];
+        $select = ['nim', 'nama'];
         if ($hasKelas) $select[] = 'kelas';
 
-        return $q->orderBy('nama')->limit(50)->get($select);
+        // Tidak dibatasi 50 supaya semua muncul (kalau mau tetap limit, bilang)
+        return $q->orderBy('nama')->get($select);
     }
 
     /** FORM TAMBAH */

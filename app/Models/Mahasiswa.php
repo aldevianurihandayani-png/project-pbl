@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Matakuliah;
 
 class Mahasiswa extends Model
 {
@@ -17,7 +18,7 @@ class Mahasiswa extends Model
     protected $keyType    = 'string';
     public $incrementing  = false;
 
-    // Kolom yang boleh diisi (pastikan sama dengan kolom di tabel mahasiswas)
+    // Kolom yang boleh diisi
     protected $fillable = [
         'nim',
         'nama',
@@ -27,10 +28,10 @@ class Mahasiswa extends Model
         'kelas',
 
         // FK hubungan
-        'id_kelompok',          // FK ke tabel kelompoks (id)
-        'dosen_pembimbing_id',  // FK ke tabel dosens (id)
-        'proyek_pbl_id',        // FK ke tabel proyek_pbls (id)
-        'user_id',              // FK ke users (id)
+        'id_kelompok',
+        'dosen_pembimbing_id',
+        'proyek_pbl_id',
+        'user_id',
 
         'semester',
     ];
@@ -42,14 +43,12 @@ class Mahasiswa extends Model
     // Setiap mahasiswa hanya punya satu kelompok
     public function kelompok()
     {
-        // FK: id_kelompok (di tabel mahasiswas) -> PK: id (di tabel kelompoks)
         return $this->belongsTo(Kelompok::class, 'id_kelompok', 'id');
     }
 
     // Logbook
     public function logbook()
     {
-        // FK di tabel logbooks: nim -> nim di tabel mahasiswas
         return $this->hasMany(Logbook::class, 'nim', 'nim');
     }
 
@@ -59,7 +58,7 @@ class Mahasiswa extends Model
         return $this->hasMany(LaporanPenilaian::class, 'nim', 'nim');
     }
 
-    // Relasi ke user (via user_id → id)
+    // Relasi ke user
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id')->withDefault();
@@ -68,7 +67,6 @@ class Mahasiswa extends Model
     // Dosen Pembimbing / Penguji
     public function dosenPembimbing()
     {
-        // FK: dosen_pembimbing_id di tabel mahasiswas → id di tabel dosens
         return $this->belongsTo(Dosen::class, 'dosen_pembimbing_id', 'id');
     }
 
@@ -76,6 +74,20 @@ class Mahasiswa extends Model
     public function proyekPbl()
     {
         return $this->belongsTo(ProyekPbl::class, 'proyek_pbl_id', 'id');
+    }
+
+    // ======================================================
+    // ✅ RELASI BARU (DITAMBAHKAN, TIDAK MENGHAPUS YANG LAIN)
+    // ======================================================
+    // Mahasiswa bisa mengambil banyak Mata Kuliah
+    public function matakuliah()
+    {
+        return $this->belongsToMany(
+            Matakuliah::class,
+            'mk_mahasiswa', // tabel pivot
+            'nim',          // FK di mk_mahasiswa ke mahasiswas
+            'kode_mk'       // FK di mk_mahasiswa ke mata_kuliah
+        );
     }
 
     /* ======================================
@@ -94,7 +106,7 @@ class Mahasiswa extends Model
         return $query->whereNull('id_kelompok');
     }
 
-    // Set kelompok untuk beberapa NIM sekaligus (dipakai di controller)
+    // Set kelompok untuk beberapa NIM sekaligus
     public static function setKelompokForAnggota(array $nims, int $kelompokId): int
     {
         return static::whereIn('nim', $nims)

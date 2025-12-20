@@ -9,6 +9,52 @@
   if (!empty($mk ?? null)) {
       $mkName = optional(collect($matakuliah ?? [])->firstWhere('kode_mk', $mk))->nama_mk;
   }
+
+  // ==========================================================
+  // ✅ FIX: action form aman & TIDAK hitung route update saat create
+  // ==========================================================
+  $qs = http_build_query(array_filter([
+    'matakuliah' => request('matakuliah', $mk),
+    'kelas'      => request('kelas', $kelas ?? null),
+  ]));
+
+  // STORE action
+  if (\Illuminate\Support\Facades\Route::has('dosenpenguji.penilaian.item.store')) {
+      $storeAction = route('dosenpenguji.penilaian.item.store') . ($qs ? ('?'.$qs) : '');
+  } else {
+      $storeAction = url('/dosenpenguji/penilaian-item') . ($qs ? ('?'.$qs) : '');
+  }
+
+  // Default destroy action (hanya dipakai di edit)
+  $destroyAction = null;
+
+  // Tentukan action sesuai mode
+  if (($mode ?? 'create') === 'edit') {
+      // UPDATE action (hanya untuk edit)
+      if (\Illuminate\Support\Facades\Route::has('dosenpenguji.penilaian.item.update')) {
+          // ⚠️ beberapa route pakai parameter {item} bukan {id}
+          // route() tetap menerima value saja
+          $updateAction = route('dosenpenguji.penilaian.item.update', $item->id) . ($qs ? ('?'.$qs) : '');
+      } else {
+          $updateAction = url('/dosenpenguji/penilaian-item/' . $item->id) . ($qs ? ('?'.$qs) : '');
+      }
+
+      // DESTROY action (hanya untuk edit)
+      if (\Illuminate\Support\Facades\Route::has('dosenpenguji.penilaian.item.destroy')) {
+          $destroyAction = route('dosenpenguji.penilaian.item.destroy', $item->id) . ($qs ? ('?'.$qs) : '');
+      } else {
+          $destroyAction = url('/dosenpenguji/penilaian-item/' . $item->id) . ($qs ? ('?'.$qs) : '');
+      }
+
+      $action = $updateAction;
+  } else {
+      $action = $storeAction;
+  }
+
+  // tombol batal/kembali
+  $backUrl = \Illuminate\Support\Facades\Route::has('dosenpenguji.penilaian')
+      ? route('dosenpenguji.penilaian', request()->only('matakuliah','kelas'))
+      : url('/dosenpenguji/penilaian') . ($qs ? ('?'.$qs) : '');
 @endphp
 
 @section('title', $pageTitle . ' — Dosen Penguji')
@@ -37,11 +83,6 @@
 <div class="card">
   <div class="card-hd">{{ $pageTitle }}</div>
   <div class="card-bd">
-    @php
-      $action = $mode==='create'
-        ? route('dosenpenguji.penilaian.item.store')
-        : route('dosenpenguji.penilaian.item.update', $item->id);
-    @endphp
 
     <form action="{{ $action }}" method="POST" style="max-width:720px">
       @csrf
@@ -96,12 +137,12 @@
         <button type="submit" class="btn btn-primary">
           <i class="fa-solid fa-floppy-disk"></i> {{ $mode==='create'?'Simpan':'Update' }}
         </button>
-        <a href="{{ route('dosenpenguji.penilaian', request()->only('matakuliah','kelas')) }}" class="btn btn-secondary">Batal</a>
+        <a href="{{ $backUrl }}" class="btn btn-secondary">Batal</a>
       </div>
     </form>
 
     @if($mode==='edit')
-      <form action="{{ route('dosenpenguji.penilaian.item.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus nilai ini?')" style="margin-top:10px">
+      <form action="{{ $destroyAction }}" method="POST" onsubmit="return confirm('Hapus nilai ini?')" style="margin-top:10px">
         @csrf @method('DELETE')
         <button type="submit" class="btn btn-danger">
           <i class="fa-solid fa-trash"></i> Hapus
