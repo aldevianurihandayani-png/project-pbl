@@ -50,7 +50,7 @@ use App\Http\Controllers\Admin\NotifikasiController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\AdminUserController;
 
-// 🔽 TAMBAHAN UNTUK CRUD KELAS
+
 use App\Http\Controllers\Admin\KelasController as AdminKelasController;
 
 // Dosen (Pembimbing)
@@ -76,6 +76,9 @@ use App\Http\Controllers\mahasiswa\MahasiswaProfileController;
 use App\Http\Controllers\TPK\TPKKelompokController;
 use App\Http\Controllers\TPK\TPKController;
 use App\Http\Controllers\mahasiswa\LaporanPenilaianController;
+use App\Http\Controllers\mahasiswa\MahasiswaKelompokController;
+use App\Http\Controllers\mahasiswa\PenilaianAnggotaKelompokController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -273,6 +276,12 @@ Route::prefix('mahasiswa')
         Route::view('/dashboard', 'mahasiswa.dashboard')->name('dashboard');
         Route::get('/logbook', [LogbookController::class, 'mahasiswaIndex'])->name('logbook');
         Route::view('/kelompok', 'mahasiswa.kelompok')->name('kelompok');
+        Route::get('/kelompok', [MahasiswaKelompokController::class, 'index'])->name('kelompok');
+        // Penilaian Anggota Kelompok (pakai kelompok_id)
+        Route::get('/kelompok/{kelompok_id}/penilaian-anggota', [PenilaianAnggotaKelompokController::class, 'index'])->name('kelompok.penilaian_anggota');
+
+        Route::post('/kelompok/{kelompok_id}/penilaian-anggota', [PenilaianAnggotaKelompokController::class, 'store'])->name('kelompok.penilaian_anggota.store');
+
         Route::resource('milestone', \App\Http\Controllers\Mahasiswa\MahasiswaMilestoneController::class)->except(['show']);
         Route::view('/laporan-penilaian', 'mahasiswa.laporan-penilaian')->name('laporan-penilaian');
 });
